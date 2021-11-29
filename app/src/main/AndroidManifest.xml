@@ -29,6 +29,10 @@
         </activity>
 
         <receiver android:name=".utils.APKInstallReceiver" />
+
+        <service
+            android:name=".service.KeepAppActive"
+            android:foregroundServiceType="dataSync" />
     </application>
 
 </manifest>
