@@ -31,6 +31,10 @@
         <receiver android:name=".utils.APKInstallReceiver" />
 
         <service
+            android:name=".service.SeamlessUpdaterJob"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
             android:name=".service.KeepAppActive"
             android:foregroundServiceType="dataSync" />
     </application>
