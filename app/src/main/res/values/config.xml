@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="background_update_default" translatable="false">true</bool>
+    <bool name="auto_install_default" translatable="false">true</bool>
+    <string name="channel_default" translatable="false">stable</string>
+
+    <string name="reschedule_timing_default">21600000</string>
+
+    <!--Reschedule Timing in milli-->
+    <string-array name="rescheduleTimingEntryValues">
+        <item>3600000</item>
+        <item>7200000</item>
+        <item>21600000</item>
+        <item>32400000</item>
+        <item>43200000</item>
+        <item>86400000</item>
+    </string-array>
+
+    <!--Reschedule Timing in Text/UI-->
+    <string-array name="rescheduleTimingEntries">
+        <item>1 hour</item>
+        <item>2 hour</item>
+        <item>6 hour</item>
+        <item>9 hour</item>
+        <item>12 hour</item>
+        <item>24 hour</item>
+    </string-array>
+
+    <string name="network_type_default">1</string>
+
+    <!--Reschedule Timing in milli-->
+    <string-array name="networkTypeValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <!--Reschedule Timing in Text/UI-->
+    <string-array name="networkTypeEntries">
+        <item>Any</item>
+        <item>Unmetered</item>
+        <item>Not roaming</item>
+    </string-array>
+
+</resources>
