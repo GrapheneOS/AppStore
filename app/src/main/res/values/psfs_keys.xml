@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="autoUpdatePreferenceKey" translatable="false">seamlessUpdate</string>
+    <string name="backgroundUpdatedEnabled" translatable="false">seamlessUpdateEnabled</string>
+    <string name="seamlessInstallEnabled" translatable="false">seamlessInstallEnabled</string>
+    <string name="rescheduleTiming" translatable="false">rescheduleTiming</string>
+    <string name="networkType" translatable="false">seamlessUpdateNetworkType</string>
+</resources>
