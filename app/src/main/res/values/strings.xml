@@ -1,3 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Apps</string>
+
+    <!--Status-->
+    <string name="install">install</string>
+    <string name="installing">installing</string>
+    <string name="reinstalling">reinstalling</string>
+    <string name="denied">aborted! retry?</string>
+
+    <string name="reinstallRequired">reinstall required!</string>
+
+    <string name="update">update</string>
+    <string name="updating">updating</string>
+    <string name="updated">updated</string>
+    <string name="alreadyUpToDate">Already up to date</string>
+
+    <string name="uninstall">uninstall</string>
+    <string name="uninstalling">uninstalling</string>
+
+    <string name="processing">processing</string>
+    <string name="downloading">downloading</string>
+    <string name="downloaded">downloaded</string>
+    <string name="failed">failed</string>
+    <string name="failedRetry">failed! retry?</string>
+
+    <string name="syncingMetadata">Syncing metadata</string>
+    <string name="syncUnfinished">Sync isn\'t finished yet</string>
+
+    <!--DownloadCallBack.kt-->
+    <string name="DownloadedSuccessfully">Downloaded successfully</string>
+    <string name="dfSecurityError">Download failed with security error</string>
+    <string name="dfUnknownHostError">Download failed! unable to locate host</string>
+    <string name="dfIoError">Io Error! download failed</string>
+
+    <!--MetadataCallBack.kt-->
+    <string name="syncedSuccessfully">Synced successfully</string>
+    <string name="sfSecurityError">Sync failed with security error</string>
+    <string name="sfJSONError">Sync failed! unable to parse response</string>
+    <string name="sfDecoderError">Sync failed! unable to decode response</string>
+    <string name="sfUnknownHostError">Sync failed! unable to locate host</string>
+
+    <!--APKInstallReceiver-->
+    <string name="storageFailure">Storage Failure</string>
+    <string name="aborted">user aborted installation</string>
+    <string name="invalidFailure">Invalid Failure</string>
+    <string name="incompatibleApp">Incompatible app</string>
+    <string name="conflictingPackagesError">Conflicting packages error</string>
+    <string name="installationBlocked">Installation blocked</string>
+    <string name="unknownError">Unknown Error</string>
+
+    <!--App.kt-->
+    <string name="installationInProgress">"installation in progress"</string>
+    <string name="uninstallationInProgress">uninstallation in progress</string>
+    <string name="allowUnknownSources">Allow installation from this sources first</string>
+
+    <!--item_apps.xml-->
+    <string name="installed">Installed  :</string>
+    <string name="latest">Latest     :</string>
+
+    <!--main_menu.xml-->
+    <string name="settings">settings</string>
+
+    <!-- Preference Titles -->
+    <string name="settings_header">Settings</string>
+    
+    <!-- Auto download Preferences -->
+    <string name="background_update_title">Auto download installed apps</string>
+    <string name="background_update_summary_on">Automatically download updates for installed apps in background</string>
+    <string name="background_update_summary_off">Only download app updates for installed apps when manually requested</string>
+
+    <!-- Auto update Preferences -->
+    <string name="auto_install_title">Auto update installed apps</string>
+    <string name="auto_install_summary_on">Install/update apps seamlessly without conformation</string>
+    <string name="auto_install_summary_off">Only install/update apps when manually requested</string>
+
+    <string name="network_type_title">Permitted network</string>
+    <string name="network_type_summary">Permitted network type for downloading seamless updates</string>
+
+    <string name="background_update_configuration_title">Auto download configuration</string>
+    <string name="background_update_duration_title">Auto download app updates interval</string>
+    <string name="background_update_duration_summary">Check for available updates after selected number of hours</string>
+
 </resources>
