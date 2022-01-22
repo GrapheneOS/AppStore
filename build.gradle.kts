@@ -16,6 +16,12 @@ allprojects {
         compilerArgs.add("-Xlint:unchecked")
         compilerArgs.add("-Xlint:deprecation")
     }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.freeCompilerArgs = listOf(
+            "-opt-in=kotlin.RequiresOptIn"
+        )
+    }
 }
 
 tasks.register("clean", Delete::class) {
