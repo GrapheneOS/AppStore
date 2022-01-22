@@ -3,63 +3,66 @@
     <string name="app_name">Apps</string>
 
     <!--Status-->
-    <string name="install">install</string>
-    <string name="installing">installing</string>
-    <string name="reinstalling">reinstalling</string>
-    <string name="denied">aborted! retry?</string>
+    <string name="install">Install</string>
+    <string name="installing">Installing…</string>
+    <string name="reinstalling">Reinstalling…</string>
+    <string name="denied">Install aborted, retry?</string>
 
-    <string name="reinstallRequired">reinstall required!</string>
+    <string name="reinstallRequired">Re-installation required!</string>
 
-    <string name="update">update</string>
-    <string name="updating">updating</string>
-    <string name="updated">updated</string>
-    <string name="alreadyUpToDate">Already up to date</string>
+    <string name="update">Update</string>
+    <string name="updating">Updating…</string>
+    <string name="updated">Updated</string>
+    <string name="alreadyUpToDate">Already up to date!</string>
 
-    <string name="uninstall">uninstall</string>
-    <string name="uninstalling">uninstalling</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="uninstalling">Uninstalling…</string>
 
-    <string name="processing">processing</string>
-    <string name="downloading">downloading</string>
-    <string name="downloaded">downloaded</string>
-    <string name="failed">failed</string>
-    <string name="failedRetry">failed! retry?</string>
+    <string name="processing">Processing…</string>
+    <string name="downloading">Downloading…</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="failed">Failed</string>
+    <string name="failedRetry">A failure has occurred, retry?</string>
+    <string name="pending_install">Pending…</string>
 
     <string name="syncingMetadata">Syncing metadata</string>
-    <string name="syncUnfinished">Sync isn\'t finished yet</string>
+    <string name="syncUnfinished">Sync has not yet finished</string>
 
     <!--DownloadCallBack.kt-->
     <string name="DownloadedSuccessfully">Downloaded successfully</string>
-    <string name="dfSecurityError">Download failed with security error</string>
-    <string name="dfUnknownHostError">Download failed! unable to locate host</string>
-    <string name="dfIoError">Io Error! download failed</string>
+    <string name="dfSecurityError">Download failed due to a security error</string>
+    <string name="dfUnknownHostError">Download failed due to being unable to locate host</string>
+    <string name="dfIoError">Download failed due to an IO error</string>
 
     <!--MetadataCallBack.kt-->
     <string name="syncedSuccessfully">Synced successfully</string>
-    <string name="sfSecurityError">Sync failed with security error</string>
-    <string name="sfJSONError">Sync failed! unable to parse response</string>
-    <string name="sfDecoderError">Sync failed! unable to decode response</string>
-    <string name="sfUnknownHostError">Sync failed! unable to locate host</string>
+    <string name="sfSecurityError">Sync failed due to a security error</string>
+    <string name="sfJSONError">Sync failed due to a JSON formatting error</string>
+    <string name="sfDecoderError">Sync failed due a content decoding error</string>
+    <string name="sfUnknownHostError">Sync failed due to being unable to locate host</string>
 
     <!--APKInstallReceiver-->
     <string name="storageFailure">Storage Failure</string>
-    <string name="aborted">user aborted installation</string>
+    <string name="aborted">User aborted installation</string>
     <string name="invalidFailure">Invalid Failure</string>
     <string name="incompatibleApp">Incompatible app</string>
-    <string name="conflictingPackagesError">Conflicting packages error</string>
+    <string name="conflictingPackagesError">Installation failed due to a conflicting package</string>
     <string name="installationBlocked">Installation blocked</string>
     <string name="unknownError">Unknown Error</string>
 
     <!--App.kt-->
-    <string name="installationInProgress">"installation in progress"</string>
-    <string name="uninstallationInProgress">uninstallation in progress</string>
-    <string name="allowUnknownSources">Allow installation from this sources first</string>
+    <string name="installationInProgress">"An installation is in progress"</string>
+    <string name="uninstallationInProgress">An uninstallation is in progress</string>
+    <string name="allowUnknownSources">You must allow installation from this source first</string>
 
     <!--item_apps.xml-->
     <string name="installed">Installed:</string>
     <string name="latest">Latest:</string>
 
     <!--main_menu.xml-->
-    <string name="settings">settings</string>
+    <string name="settings">Settings</string>
+    <string name="update_all_apps">Update all apps</string>
+    <string name="install_google_services">(Re)install Google Play apps</string>
 
     <!-- Preference Titles -->
     <string name="settings_header">Settings</string>
