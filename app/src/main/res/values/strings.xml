@@ -55,8 +55,8 @@
     <string name="allowUnknownSources">Allow installation from this sources first</string>
 
     <!--item_apps.xml-->
-    <string name="installed">Installed  :</string>
-    <string name="latest">Latest     :</string>
+    <string name="installed">Installed:</string>
+    <string name="latest">Latest:</string>
 
     <!--main_menu.xml-->
     <string name="settings">settings</string>
