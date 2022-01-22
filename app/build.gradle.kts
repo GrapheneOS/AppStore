@@ -61,6 +61,17 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
+    sourceSets {
+        getByName("main") {
+            res {
+                srcDirs(
+                    "src/main/res",
+                    "src/main/java/org/grapheneos/apps/client/ui/container/res",
+                    "src/main/java/org/grapheneos/apps/client/ui/mainScreen/res"
+                )
+            }
+        }
+    }
 }
 
 dependencies {

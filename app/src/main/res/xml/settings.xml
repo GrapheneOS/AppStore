@@ -1,0 +1,50 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:key="@string/autoUpdatePreferenceKey"
+    app:key="@string/autoUpdatePreferenceKey">
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="true"
+        app:title="@string/settings_header">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/background_update_default"
+            app:key="@string/backgroundUpdatedEnabled"
+            app:summaryOff="@string/background_update_summary_off"
+            app:summaryOn="@string/background_update_summary_on"
+            app:title="@string/background_update_title" />
+
+        <SwitchPreferenceCompat
+            android:key="@string/seamlessInstallEnabled"
+            app:defaultValue="@bool/auto_install_default"
+            app:summaryOff="@string/auto_install_summary_off"
+            app:summaryOn="@string/auto_install_summary_on"
+            app:title="@string/auto_install_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="true"
+        app:title="@string/background_update_configuration_title">
+
+        <ListPreference
+            app:defaultValue="@string/reschedule_timing_default"
+            app:entries="@array/rescheduleTimingEntries"
+            app:entryValues="@array/rescheduleTimingEntryValues"
+            app:key="@string/rescheduleTiming"
+            app:summary="@string/background_update_duration_summary"
+            app:title="@string/background_update_duration_title" />
+
+        <ListPreference
+            app:defaultValue="@string/network_type_default"
+            app:entries="@array/networkTypeEntries"
+            app:entryValues="@array/networkTypeValues"
+            app:key="@string/networkType"
+            app:summary="@string/network_type_summary"
+            app:title="@string/network_type_title" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

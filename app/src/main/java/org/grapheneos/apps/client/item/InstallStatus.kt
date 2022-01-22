@@ -45,6 +45,13 @@ sealed class InstallStatus(
         installedV = installedVersion.toApkVersion()
     )
 
+    data class Pending(
+        val latestVersion: Long,
+    ) : InstallStatus(
+        App.getString(R.string.pending_install),
+        latestV = latestVersion.toString()
+    )
+
     data class Installing(
         val isInstalling: Boolean,
         val latestVersion: Long,

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/settingsScreen"
+        android:icon="@drawable/settings"
+        android:menuCategory="secondary"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/update_all_menu"
+        android:title="@string/update_all_apps"
+        android:menuCategory="secondary"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/install_all_gapps_menu"
+        android:title="@string/install_google_services"
+        android:menuCategory="secondary"
+        app:showAsAction="never"/>
+
+</menu>

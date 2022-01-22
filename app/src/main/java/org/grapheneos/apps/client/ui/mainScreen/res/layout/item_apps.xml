@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="25dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/appName"
+            style="@style/TextAppearance.Material3.HeadlineSmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            app:autoSizeMaxTextSize="28dp"
+            app:autoSizeMinTextSize="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Graphene app store" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/installedTitle"
+            style="@style/TextAppearance.Material3.TitleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/installed"
+            app:layout_constraintBottom_toBottomOf="@+id/installedVersion"
+            app:layout_constraintStart_toStartOf="@+id/appName"
+            app:layout_constraintTop_toTopOf="@+id/installedVersion" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/installedVersion"
+            style="@style/TextAppearance.Material3.TitleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintStart_toEndOf="@+id/installedTitle"
+            app:layout_constraintTop_toBottomOf="@+id/appName"
+            tools:text="66" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/latestVersionTitle"
+            style="@style/TextAppearance.Material3.TitleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/latest"
+            app:layout_constraintStart_toStartOf="@+id/installedTitle"
+            app:layout_constraintTop_toBottomOf="@+id/installedVersion" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/latestVersion"
+            style="@style/TextAppearance.Material3.TitleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/latestVersionTitle"
+            app:layout_constraintTop_toBottomOf="@+id/installedVersion"
+            tools:text="69" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/downloadProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="8dp"
+            android:indeterminate="false"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/downloadSizeInfo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/installGroup"
+            tools:progress="20"
+            tools:visibility="visible" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/downloadSizeInfo"
+            style="@style/TextAppearance.Material3.TitleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="2.3 MB out of 109.0 MB 74%" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/appInfoGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintBottom_toTopOf="@+id/installGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/installedTitle"
+            tools:visibility="visible">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/appInfo"
+                style="@style/Widget.Material3.Button.IconOnly"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:icon="@drawable/app_info"
+                app:iconTintMode="src_atop"
+                tools:icon="@drawable/app_info"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/appRemove"
+                style="@style/Widget.Material3.Button.IconOnly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/app_delete"
+                app:iconTintMode="src_atop"
+                tools:icon="@drawable/app_delete" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/installGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintBottom_toTopOf="@+id/downloadProgress"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appInfoGroup">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/channel"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/channel_default"
+                android:textColor="?attr/colorPrimary"
+                tools:text="@string/channel_default" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/install"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/install"
+                android:textColor="?attr/colorPrimary"
+                tools:text="@string/install" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

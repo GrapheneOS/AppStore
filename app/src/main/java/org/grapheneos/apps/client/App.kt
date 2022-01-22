@@ -27,11 +27,15 @@ import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.item.DownloadCallBack
@@ -365,7 +369,7 @@ class App : Application() {
         return result
     }
 
-    private fun downloadPackages(
+    private fun downloadAndInstallPackages(
         variant: PackageVariant,
         callback: (error: DownloadCallBack) -> Unit
     ) {
@@ -380,6 +384,57 @@ class App : Application() {
                     }
                 }
                 callback.invoke(result)
+            }
+        }
+    }
+
+    private fun downloadMultipleApps(
+        appsToDownload: List<PackageVariant>,
+        callback: (result: String) -> Unit,
+        shouldAllSucceed: Boolean = false,
+    ) {
+        executor.execute {
+            CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
+                val deferredDownloads = this.async {
+                    val downloadResults = mutableListOf<Deferred<DownloadCallBack>>()
+                    appsToDownload.forEach { variant ->
+                        val deferredResult = this.async {
+                            val result = downloadPackages(variant)
+                            callback.invoke(result.genericMsg)
+                            packagesInfo[variant.pkgName] = packagesInfo[variant.pkgName]!!
+                                .withUpdatedInstallStatus(
+                                    InstallStatus.Pending(variant.versionCode.toLong())
+                                )
+                            result
+                        }
+                        downloadResults.add(deferredResult)
+                    }
+                    downloadResults
+                }
+                val results = deferredDownloads.await().awaitAll()
+                var shouldProceed = results.size == appsToDownload.size
+                withContext(scopeApkDownload) {
+                    appsToDownload.forEach { variant ->
+                        val pkgName = variant.pkgName
+                        val result = results[appsToDownload.indexOf(variant)]
+                        when {
+                            result is DownloadCallBack.Success && shouldProceed -> {
+                                val apks = result.apks
+                                val isInstalled =
+                                    withContext(scopeApkDownload) { installApps(apks, pkgName) }
+                                shouldProceed = (!shouldAllSucceed || isInstalled)
+                            }
+                            result !is DownloadCallBack.Success || !shouldProceed -> {
+                                packagesInfo[pkgName] =
+                                    packagesInfo[pkgName]!!.withUpdatedInstallStatus(
+                                        getInstalledStatus(pkgName, variant.versionCode.toLong())
+                                    )
+                                shouldProceed = !shouldAllSucceed
+                                updateLiveData()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -483,25 +538,21 @@ class App : Application() {
             return
         }
 
-        if (!packageManager.canRequestPackageInstalls()) {
+        if (!isRequestInstallPackagesGranted()) {
             callback.invoke(getString(R.string.allowUnknownSources))
-            Toast.makeText(this, getString(R.string.allowUnknownSources), Toast.LENGTH_SHORT).show()
-            isActivityRunning?.startActivity(
-                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                    Uri.parse(String.format("package:%s", packageName))
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
             return
         }
 
         CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
             when (status) {
                 is InstallStatus.Installable -> {
-                    downloadPackages(variant) { error -> callback.invoke(error.genericMsg) }
+                    downloadAndInstallPackages(variant)
+                    { error -> callback.invoke(error.genericMsg) }
                 }
                 is InstallStatus.Installed -> {
-                    callback.invoke("${getString(R.string.uninstalling)} $pkgName")
-                    pmHelper().uninstall(pkgName)
+                    callback.invoke(getString(R.string.reinstalling))
+                    downloadAndInstallPackages(variant)
+                    { error -> callback.invoke(error.toUiMsg()) }
                 }
                 is InstallStatus.Installing -> {
                     callback.invoke(getString(R.string.installationInProgress))
@@ -511,25 +562,88 @@ class App : Application() {
                 }
                 is InstallStatus.Updated -> {
                     callback.invoke(getString(R.string.alreadyUpToDate))
-                    pmHelper().uninstall(pkgName)
                 }
                 is InstallStatus.Updatable -> {
                     callback.invoke("${getString(R.string.updating)} $pkgName")
-                    downloadPackages(variant)
+                    downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
                 is InstallStatus.ReinstallRequired -> {
-                    downloadPackages(variant)
+                    downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
                 is InstallStatus.Failed -> {
                     callback.invoke(getString(R.string.reinstalling))
-                    downloadPackages(variant)
+                    downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
+                }
+                is InstallStatus.Pending -> {
+                    /* stub! */
                 }
             }
         }
     }
+
+    fun updateAllUpdatableApps(callback: (result: String) -> Unit) {
+        if (!isRequestInstallPackagesGranted()) {
+            callback.invoke(getString(R.string.allowUnknownSources))
+            return
+        }
+
+        val appsToUpdate = mutableListOf<PackageVariant>()
+        packagesInfo.values.forEach { info ->
+            val installStatus = info.installStatus
+            val variant = info.selectedVariant
+
+            if (installStatus is InstallStatus.Updatable &&
+                info.downloadStatus !is DownloadStatus.Downloading
+            ) {
+                appsToUpdate.add(variant)
+            }
+        }
+        downloadMultipleApps(appsToUpdate, callback)
+    }
+
+    fun forceInstallGoogleApps(callback: (result: String) -> Unit) {
+        if (!isRequestInstallPackagesGranted()) {
+            callback.invoke(getString(R.string.allowUnknownSources))
+            return
+        }
+
+        val googleApps = listOf(
+            "com.google.android.gsf",
+            "com.google.android.gms", "com.android.vending"
+        )
+
+        val listOfVariantsToDownload = mutableListOf<PackageVariant>()
+        googleApps.forEach { pkgName ->
+            val info = packagesInfo[pkgName]
+
+            if (info == null) {
+                callback.invoke(getString(R.string.syncUnfinished))
+                return
+            }
+
+            if (info.downloadStatus is DownloadStatus.Downloading) return
+            listOfVariantsToDownload.add(info.selectedVariant)
+        }
+
+        downloadMultipleApps(listOfVariantsToDownload, callback, true)
+    }
+
+    private fun isRequestInstallPackagesGranted(): Boolean {
+        if (!packageManager.canRequestPackageInstalls()) {
+            Toast.makeText(this, getString(R.string.allowUnknownSources), Toast.LENGTH_SHORT).show()
+            isActivityRunning?.startActivity(
+                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                    Uri.parse(String.format("package:%s", packageName))
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            return false
+        }
+        return true
+    }
+
 
     private fun isSeamlessUpdateRunning() =
         this::seamlessUpdaterJob.isInitialized
