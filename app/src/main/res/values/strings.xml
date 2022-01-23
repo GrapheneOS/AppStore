@@ -74,7 +74,7 @@
 
     <!-- Auto update Preferences -->
     <string name="auto_install_title">Auto update installed apps</string>
-    <string name="auto_install_summary_on">Install/update apps seamlessly without conformation</string>
+    <string name="auto_install_summary_on">Install/update apps seamlessly without confirmation</string>
     <string name="auto_install_summary_off">Only install/update apps when manually requested</string>
 
     <string name="network_type_title">Permitted network</string>
