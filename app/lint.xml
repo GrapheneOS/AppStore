@@ -1,0 +1,6 @@
+<lint>
+    <!-- ignore false positive lint for Bouncy Castle -->
+    <issue id="TrustAllX509TrustManager">
+        <ignore regexp="org/bouncycastle/est/jcajce/JcaJceUtils\$.\.class"/>
+    </issue>
+</lint>
