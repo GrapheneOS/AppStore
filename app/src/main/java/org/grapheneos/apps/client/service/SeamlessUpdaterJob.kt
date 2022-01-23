@@ -60,7 +60,7 @@ class SeamlessUpdaterJob : JobService() {
             if (result.executedSuccessfully) {
                 val updated = result.updatedSuccessfully.valuesAsString()
                 val failed = result.failedToUpdate.valuesAsString()
-                val requireConformation = result.requireConformation.valuesAsString()
+                val requireConfirmation = result.requireConfirmation.valuesAsString()
 
                 var content = ""
                 if (updated.isNotBlank() && result.updatedSuccessfully.isNotEmpty()) {
@@ -69,17 +69,17 @@ class SeamlessUpdaterJob : JobService() {
 
                 if (failed.isNotBlank() && result.failedToUpdate.isNotEmpty()) {
                     if (content.isNotBlank()) content += ", "
-                    content += "$failed has failed to update " + if (requireConformation.isNotEmpty()) "" else "."
+                    content += "$failed has failed to update " + if (requireConfirmation.isNotEmpty()) "" else "."
                 }
 
-                if (requireConformation.isNotBlank() && result.requireConformation.isNotEmpty()) {
+                if (requireConfirmation.isNotBlank() && result.requireConfirmation.isNotEmpty()) {
                     if (content.isNotBlank()) content += ", "
-                    content += "$requireConformation update update available."
+                    content += "$requireConfirmation update update available."
                 }
 
                 notification.setContentText(content)
                     .setContentTitle(
-                        if (updated.isNotEmpty() || failed.isNotEmpty() || requireConformation.isNotEmpty()) "Seamless update result"
+                        if (updated.isNotEmpty() || failed.isNotEmpty() || requireConfirmation.isNotEmpty()) "Seamless update result"
                         else "All package are up to date"
                     )
 

@@ -101,7 +101,7 @@ class App : Application() {
 
     /*Application info object*/
     private val sessionIdsMap = mutableMapOf<Int, String>()
-    private val conformationAwaitedPackages = mutableMapOf<String, List<File>>()
+    private val confirmationAwaitedPackages = mutableMapOf<String, List<File>>()
 
     private val packagesInfo: MutableMap<String, PackageInfo> = mutableMapOf()
     private val packagesMutableLiveData = MutableLiveData<Map<String, PackageInfo>>()
@@ -229,7 +229,7 @@ class App : Application() {
     fun installSuccess(sessionId: Int) {
         sessionIdsMap.remove(sessionId)
         if (isActivityRunning != null) {
-            conformationAwaitedPackages.forEach { (packageName, apks) ->
+            confirmationAwaitedPackages.forEach { (packageName, apks) ->
                 CoroutineScope(scopeApkDownload).launch {
                     requestInstall(apks, packageName)
                 }
@@ -451,10 +451,10 @@ class App : Application() {
         if (backgroundMode || (isActivityRunning != null && sessionIdsMap.isEmpty() && !installationCreateRequestInProgress)) {
             installationCreateRequestInProgress = true
             installApps(apks, pkgName)
-            conformationAwaitedPackages.remove(pkgName)
+            confirmationAwaitedPackages.remove(pkgName)
             installationCreateRequestInProgress = false
         } else {
-            conformationAwaitedPackages[pkgName] = apks
+            confirmationAwaitedPackages[pkgName] = apks
         }
     }
 
@@ -685,7 +685,7 @@ class App : Application() {
 
             val updatedPackages = mutableListOf<String>()
             val updateFailedPackages = mutableListOf<String>()
-            val requireConformationPackages = mutableListOf<String>()
+            val requireConfirmationPackages = mutableListOf<String>()
 
             val isAutoInstallEnabled = jobPsfsMgr.autoInstallEnabled()
 
@@ -703,7 +703,7 @@ class App : Application() {
                                 updateFailedPackages.add(variant.appName)
                             }
                         } else {
-                            requireConformationPackages.add(variant.appName)
+                            requireConfirmationPackages.add(variant.appName)
                         }
                     } else {
                         updateFailedPackages.add(variant.appName)
@@ -715,7 +715,7 @@ class App : Application() {
                 SeamlessUpdateResponse(
                     updatedPackages,
                     updateFailedPackages,
-                    requireConformationPackages,
+                    requireConfirmationPackages,
                     true
                 )
             )
@@ -754,7 +754,7 @@ class App : Application() {
         registerActivityLifecycleCallbacks(ActivityLifeCycleHelper { activity ->
             isActivityRunning = activity
             if (isActivityRunning != null) {
-                conformationAwaitedPackages.forEach { (packageName, apks) ->
+                confirmationAwaitedPackages.forEach { (packageName, apks) ->
                     CoroutineScope(scopeApkDownload).launch {
                         requestInstall(apks, packageName)
                     }
