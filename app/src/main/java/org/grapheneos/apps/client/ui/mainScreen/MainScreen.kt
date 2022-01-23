@@ -94,7 +94,7 @@ class MainScreen : Fragment() {
 
         ViewCompat.setOnApplyWindowInsetsListener(
             binding.appsRecyclerView
-        ) { v, insets ->
+        ) { _, insets ->
 
             val paddingInsets = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or
