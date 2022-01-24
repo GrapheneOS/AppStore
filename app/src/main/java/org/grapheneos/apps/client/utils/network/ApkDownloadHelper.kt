@@ -28,6 +28,8 @@ class ApkDownloadHelper constructor(private val context: Context) {
         variant: PackageVariant,
         progressListener: (read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean) -> Unit,
     ): DownloadCallBack {
+        val downloadJob = Job()
+        var taskSuccessful = false
         return try {
 
             val downloadDir =
@@ -37,8 +39,6 @@ class ApkDownloadHelper constructor(private val context: Context) {
 
             val completeProgress = mutableMapOf<String, Progress>()
             val size = variant.packagesInfo.size
-            val downloadJob = Job()
-
             val downloadTasks = variant.packagesInfo.map { (fileName, sha256Hash) ->
 
                 CoroutineScope(coroutineContext + downloadJob).async {
@@ -100,7 +100,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
                 }
             }
             val apks = downloadTasks.awaitAll()
-            downloadJob.complete()
+            taskSuccessful = true
             DownloadCallBack.Success(apks = apks)
         } catch (e: IOException) {
             DownloadCallBack.IoError(e)
@@ -112,6 +112,8 @@ class ApkDownloadHelper constructor(private val context: Context) {
             DownloadCallBack.SecurityError(e)
         } catch (e: java.net.SocketException) {
             DownloadCallBack.IoError(e)
+        } finally {
+            if (taskSuccessful) downloadJob.complete() else downloadJob.cancel()
         }
     }
 
