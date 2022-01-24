@@ -47,12 +47,22 @@ class ApkDownloadHelper constructor(private val context: Context) {
                         "${PACKAGE_DIR_URL}${variant.pkgName}/${variant.versionCode}/${fileName}"
 
                     if (downloadedFile.exists() && verifyHash(downloadedFile, sha256Hash)) {
-                        progressListener.invoke(
+                        val progress = Progress(
                             downloadedFile.length(),
                             downloadedFile.length(),
                             100.0,
-                            true
+                            size == 1
                         )
+                        if (size != 1) {
+                            completeProgress[fileName] = progress
+                        } else {
+                            progressListener.invoke(
+                                progress.read,
+                                progress.total,
+                                progress.doneInPercent,
+                                progress.taskCompleted
+                            )
+                        }
                         return@async downloadedFile
                     } else {
 
