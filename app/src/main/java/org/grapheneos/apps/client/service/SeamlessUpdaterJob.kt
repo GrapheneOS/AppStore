@@ -64,7 +64,7 @@ class SeamlessUpdaterJob : JobService() {
 
                 var content = ""
                 if (updated.isNotBlank() && result.updatedSuccessfully.isNotEmpty()) {
-                    content += "$updated has been successfully updated "
+                    content += "$updated has been successfully updated"
                 }
 
                 if (failed.isNotBlank() && result.failedToUpdate.isNotEmpty()) {
@@ -74,7 +74,7 @@ class SeamlessUpdaterJob : JobService() {
 
                 if (requireConfirmation.isNotBlank() && result.requireConfirmation.isNotEmpty()) {
                     if (content.isNotBlank()) content += ", "
-                    content += "$requireConfirmation update update available."
+                    content += "$requireConfirmation: update available!"
                 }
 
                 notification.setContentText(content)

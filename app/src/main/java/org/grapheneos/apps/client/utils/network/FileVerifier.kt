@@ -16,11 +16,11 @@ class FileVerifier(base64SignifyPublicKey: String) {
     init {
         val decodedKey = Base64.decode(base64SignifyPublicKey)
         if (decodedKey.size != 42) {
-            throw GeneralSecurityException("invalid key size")
+            throw GeneralSecurityException("Invalid key size")
         }
         val algorithm = String(Arrays.copyOfRange(decodedKey, 0, 2))
         if (algorithm != "Ed") {
-            throw GeneralSecurityException("invalid public key algorithm")
+            throw GeneralSecurityException("Invalid public key algorithm")
         }
         keyId = Arrays.copyOfRange(decodedKey, 2, 10)
         publicKey = Arrays.copyOfRange(decodedKey, 10, 42)
@@ -29,11 +29,11 @@ class FileVerifier(base64SignifyPublicKey: String) {
     fun verifySignature(message: ByteArray, base64SignifySignature: String): Boolean {
 
         val decodedKey = Base64.decode(base64SignifySignature)
-        if (decodedKey.size != 74) throw GeneralSecurityException("invalid signature size")
+        if (decodedKey.size != 74) throw GeneralSecurityException("Invalid signature size")
 
         val algorithm = String(Arrays.copyOfRange(decodedKey, 0, 2))
         if (algorithm != "Ed") {
-            throw GeneralSecurityException("invalid public key algorithm. expected Ed but have $algorithm")
+            throw GeneralSecurityException("Invalid public key algorithm. Expected \"Ed\" but got \"$algorithm\"")
         }
         if (BigInteger(1, Arrays.copyOfRange(decodedKey, 2, 10)).toString() != BigInteger(
                 1,
@@ -41,10 +41,10 @@ class FileVerifier(base64SignifyPublicKey: String) {
             ).toString()
         ) {
             throw GeneralSecurityException(
-                "invalid key ID. did you sign with the same public key as the one the constructor was called with? the passed keyid is " + BigInteger(
+                "Invalid key ID. Did you sign with the same public key as the one the constructor was called with? The passed key id is " + BigInteger(
                     1,
                     Arrays.copyOfRange(decodedKey, 2, 10)
-                ).toString() + " expected " + BigInteger(1, keyId).toString()
+                ).toString() + ", but expected " + BigInteger(1, keyId).toString()
             )
         }
         val signature = Arrays.copyOfRange(decodedKey, 10, 74)
