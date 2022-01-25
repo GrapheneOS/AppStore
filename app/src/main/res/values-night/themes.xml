@@ -8,4 +8,6 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="colorControlNormal">@android:color/white</item>
     </style>
+
+    <style name="Theme.Apps.PopUpOverlay" parent="ThemeOverlay.Material3.Dark" />
 </resources>
