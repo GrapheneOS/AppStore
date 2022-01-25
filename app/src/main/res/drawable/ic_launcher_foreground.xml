@@ -1,30 +1,32 @@
+<!--
+Source: https://www.svgrepo.com/svg/310713/cube
+However, it does not appear to be a Fluent Fabric Icon. The
+CubeShapeSolid svg from the Fluent UI has a larger space between the
+sides of the cube.
+
+Scaling
+Trim: Yes
+Resize: 74 %
+-->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000" />
+    <group
+        android:scaleX="2.442"
+        android:scaleY="2.442"
+        android:translateX="24.696"
+        android:translateY="24.696">
+        <path
+            android:fillColor="#000000"
+            android:pathData="M11.7204,2.0565C11.9012,1.9832 12.1034,1.9832 12.2841,2.0565L21.5343,5.8076C21.5523,5.8149 21.57,5.8229 21.5872,5.8314L12.0065,9.7695L2.5015,5.795L11.7204,2.0565Z" />
+        <path
+            android:fillColor="#000000"
+            android:pathData="M2.001,6.6697L2.001,17.504C2.001,17.8094 2.1862,18.0843 2.4693,18.1991L11.5093,21.8625V10.6455L2.001,6.6697Z" />
+        <path
+            android:fillColor="#000000"
+            android:pathData="M12.5093,21.8551L21.531,18.1991C21.814,18.0843 21.9993,17.8094 21.9993,17.504L21.9993,6.7432L12.5093,10.644V21.8551Z" />
+    </group>
 </vector>
