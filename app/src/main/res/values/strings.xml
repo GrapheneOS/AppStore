@@ -84,11 +84,11 @@
 
     <!-- Preference Titles -->
     <string name="settings_header">Settings</string>
-    
+
     <!-- Auto download Preferences -->
-    <string name="background_update_title">Auto download installed apps</string>
-    <string name="background_update_summary_on">Automatically download updates for installed apps in background</string>
-    <string name="background_update_summary_off">Only download app updates for installed apps when manually requested</string>
+    <string name="background_update_title">Check for updates periodically</string>
+    <string name="background_update_summary_on">Check for available updates for installed apps in background</string>
+    <string name="background_update_summary_off">Don\'t check for update in background</string>
 
     <!-- Auto update Preferences -->
     <string name="auto_install_title">Auto update installed apps</string>
