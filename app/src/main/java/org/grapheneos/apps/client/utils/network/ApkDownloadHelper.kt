@@ -103,7 +103,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
 
                         if (!verifyHash(downloadedFile, sha256Hash)) {
                             downloadedFile.delete()
-                            throw GeneralSecurityException("Hash didn't matched")
+                            throw GeneralSecurityException("Hashes do not match")
                         }
                         return@async downloadedFile
                     }
@@ -135,7 +135,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
             )
             if (sha256Hash == downloadedFileHash) return true
         } catch (e: NoSuchAlgorithmException) {
-            throw GeneralSecurityException("SHA-256 is not supported by device")
+            throw GeneralSecurityException("SHA-256 not supported by device")
         }
         return false
     }
