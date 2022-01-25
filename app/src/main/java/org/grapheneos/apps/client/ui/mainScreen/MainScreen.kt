@@ -20,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.MainScreenBinding
+import org.grapheneos.apps.client.item.MetadataCallBack
 import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 
@@ -117,10 +118,12 @@ class MainScreen : Fragment() {
         updateUi(isSyncing = true, canRetry = false)
         appsViewModel.refreshMetadata {
             updateUi(isSyncing = false, canRetry = !it.isSuccessFull)
-            showSnackbar(
-                it.genericMsg + if (it.error != null) "\n${it.error.localizedMessage}" else "",
-                !it.isSuccessFull
-            )
+            if (it !is MetadataCallBack.Success) {
+                showSnackbar(
+                    it.genericMsg + if (it.error != null) "\n${it.error.localizedMessage}" else "",
+                    !it.isSuccessFull
+                )
+            }
         }
     }
 
