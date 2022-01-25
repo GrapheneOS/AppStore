@@ -138,7 +138,7 @@ class MetaDataHelper constructor(context: Context) {
                     }
 
                     if (packages.length() != hashes.length()) {
-                        throw GeneralSecurityException("Package hash size miss match")
+                        throw GeneralSecurityException("Package hash size mismatch")
                     }
                     val packageInfoMap = mutableMapOf<String, String>()
                     for (sizeIndex in 0 until hashes.length()) {
