@@ -6,15 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".ui.container.MainActivity">
 
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/material_dynamic_primary40"
+        android:theme="@style/Theme.Apps.AppBarOverlay"
         app:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/Theme.Apps.PopUpOverlay"
         tools:menu="@menu/main_menu"
         tools:title="@string/app_name" />
 
