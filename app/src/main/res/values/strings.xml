@@ -6,9 +6,9 @@
     <string name="install">Install</string>
     <string name="installing">Installing…</string>
     <string name="reinstalling">Reinstalling…</string>
-    <string name="denied">Install aborted, retry?</string>
+    <string name="denied">The installation was aborted by the user</string>
 
-    <string name="reinstallRequired">Re-installation required!</string>
+    <string name="reinstallRequired">Re-installation required</string>
 
     <string name="update">Update</string>
     <string name="updating">Updating…</string>
@@ -22,38 +22,38 @@
     <string name="downloading">Downloading…</string>
     <string name="downloaded">Downloaded</string>
     <string name="failed">Failed</string>
-    <string name="failedRetry">A failure has occurred, retry?</string>
+    <string name="failedRetry">A failure has occurred</string>
     <string name="pending_install">Pending…</string>
 
-    <string name="syncingMetadata">Syncing metadata</string>
-    <string name="syncUnfinished">Sync has not yet finished</string>
+    <string name="syncingMetadata">Metadata sync is in progress</string>
+    <string name="syncUnfinished">Sync is still in progress</string>
 
     <!--DownloadCallBack.kt-->
-    <string name="DownloadedSuccessfully">Downloaded successfully</string>
-    <string name="dfSecurityError">Download failed due to a security error</string>
-    <string name="dfUnknownHostError">Download failed due to being unable to locate host</string>
-    <string name="dfIoError">Download failed due to an IO error</string>
+    <string name="DownloadedSuccessfully">Download successful</string>
+    <string name="dfSecurityError">Download failed due to a security error. Please retry downloading</string>
+    <string name="dfUnknownHostError">Download failed due to improper DNS configuration. Check DNS/Private DNS settings</string>
+    <string name="dfIoError">Download failed due to an I/O error</string>
 
     <!--MetadataCallBack.kt-->
-    <string name="syncedSuccessfully">Synced successfully</string>
+    <string name="syncedSuccessfully">Sync successful</string>
     <string name="sfSecurityError">Sync failed due to a security error</string>
     <string name="sfJSONError">Sync failed due to a JSON formatting error</string>
     <string name="sfDecoderError">Sync failed due a content decoding error</string>
-    <string name="sfUnknownHostError">Sync failed due to being unable to locate host</string>
+    <string name="sfUnknownHostError">Sync failed due to improper DNS configuration. Check DNS/Private DNS settings and try again</string>
 
     <!--APKInstallReceiver-->
     <string name="storageFailure">Storage Failure</string>
-    <string name="aborted">User aborted installation</string>
+    <string name="aborted">Installation aborted by the user</string>
     <string name="invalidFailure">Invalid Failure</string>
-    <string name="incompatibleApp">Incompatible app</string>
+    <string name="incompatibleApp">This app is Incompatible with your device/OS and cannot be installed</string>
     <string name="conflictingPackagesError">Installation failed due to a conflicting package</string>
-    <string name="installationBlocked">Installation blocked</string>
-    <string name="unknownError">Unknown Error</string>
+    <string name="installationBlocked">Installation blocked. Your device admin has set policies to prevent the installation</string>
+    <string name="unknownError">Unknown Error occured</string>
 
     <!--App.kt-->
-    <string name="installationInProgress">"An installation is in progress"</string>
-    <string name="uninstallationInProgress">An uninstallation is in progress</string>
-    <string name="allowUnknownSources">You must allow installation from this source first</string>
+    <string name="installationInProgress">"An installation is in progress. Please wait"</string>
+    <string name="uninstallationInProgress">An uninstallation is in progress. Please wait</string>
+    <string name="allowUnknownSources">You need to allow installation from this source</string>
 
     <!--item_apps.xml-->
     <string name="installed">Installed:</string>
@@ -61,7 +61,7 @@
 
     <!--main_menu.xml-->
     <string name="settings">Settings</string>
-    <string name="update_all_apps">Update all apps</string>
+    <string name="update_all_apps">Update all</string>
     <string name="install_google_services">(Re)install Google Play apps</string>
 
     <!-- Preference Titles -->
@@ -74,14 +74,14 @@
 
     <!-- Auto update Preferences -->
     <string name="auto_install_title">Auto update installed apps</string>
-    <string name="auto_install_summary_on">Install/update apps seamlessly without confirmation</string>
-    <string name="auto_install_summary_off">Only install/update apps when manually requested</string>
+    <string name="auto_install_summary_on">Install/update apps without confirmation</string>
+    <string name="auto_install_summary_off">Manual</string>
 
-    <string name="network_type_title">Permitted network</string>
-    <string name="network_type_summary">Permitted network type for downloading seamless updates</string>
+    <string name="network_type_title">Permitted networks</string>
+    <string name="network_type_summary">Specify the permitted networks for downloading app updates</string>
 
-    <string name="background_update_configuration_title">Auto download configuration</string>
-    <string name="background_update_duration_title">Auto download app updates interval</string>
+    <string name="background_update_configuration_title">Automatic Updates</string>
+    <string name="background_update_duration_title">Auto update interval</string>
     <string name="background_update_duration_summary">Check for available updates after selected number of hours</string>
 
 </resources>
