@@ -16,11 +16,11 @@ class FileVerifier(base64SignifyPublicKey: String) {
     init {
         val decodedKey = Base64.decode(base64SignifyPublicKey)
         if (decodedKey.size != 42) {
-            throw GeneralSecurityException("invalid key size")
+            throw GeneralSecurityException("Invalid key size")
         }
         val algorithm = String(Arrays.copyOfRange(decodedKey, 0, 2))
         if (algorithm != "Ed") {
-            throw GeneralSecurityException("invalid public key algorithm")
+            throw GeneralSecurityException("Invalid public key algorithm")
         }
         keyId = Arrays.copyOfRange(decodedKey, 2, 10)
         publicKey = Arrays.copyOfRange(decodedKey, 10, 42)
