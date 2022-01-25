@@ -64,7 +64,7 @@ class SeamlessUpdaterJob : JobService() {
 
                 var content = ""
                 if (updated.isNotBlank() && result.updatedSuccessfully.isNotEmpty()) {
-                    content += "$updated has been successfully updated "
+                    content += "$updated has been successfully updated"
                 }
 
                 if (failed.isNotBlank() && result.failedToUpdate.isNotEmpty()) {
@@ -74,18 +74,18 @@ class SeamlessUpdaterJob : JobService() {
 
                 if (requireConfirmation.isNotBlank() && result.requireConfirmation.isNotEmpty()) {
                     if (content.isNotBlank()) content += ", "
-                    content += "$requireConfirmation update update available."
+                    content += "$requireConfirmation: update available."
                 }
 
                 notification.setContentText(content)
                     .setContentTitle(
                         if (updated.isNotEmpty() || failed.isNotEmpty() || requireConfirmation.isNotEmpty()) "Seamless update result"
-                        else "All package are up to date"
+                        else "All packages are up to date"
                     )
 
             } else {
                 notification.setChannelId(App.SEAMLESS_UPDATE_FAILED_CHANNEL)
-                notification.setContentTitle("Checking for seamless update failed!")
+                notification.setContentTitle("Checking for seamless update failed")
             }
 
             val notificationManager =
