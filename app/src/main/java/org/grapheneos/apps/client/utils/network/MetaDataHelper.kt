@@ -74,7 +74,7 @@ class MetaDataHelper constructor(context: Context) {
         }
 
         if (!metadata.exists()) {
-            throw GeneralSecurityException("file does not exist")
+            throw GeneralSecurityException("File does not exist")
         }
         val message = FileInputStream(metadata).readBytes()
 
@@ -105,7 +105,7 @@ class MetaDataHelper constructor(context: Context) {
         }
         /*verification has been failed. Deleting config related to this version*/
         deleteFiles()
-        throw GeneralSecurityException("verification failed")
+        throw GeneralSecurityException("Verification failed")
     }
 
     private fun JSONObject.toPackages(): Map<String, Package> {
@@ -222,11 +222,11 @@ class MetaDataHelper constructor(context: Context) {
         val timestamp = FileInputStream(metadata).readBytes().decodeToString().toTimestamp()
         val lastTimestamp = eTagPreferences.getLong(TIMESTAMP_KEY, 0L)
 
-        if (timestamp == null) throw GeneralSecurityException("current file timestamp not found!")
+        if (timestamp == null) throw GeneralSecurityException("Current file timestamp not found!")
 
         if (lastTimestamp != 0L && lastTimestamp > timestamp || TIMESTAMP > timestamp) {
             deleteFiles()
-            throw GeneralSecurityException("downgrade is not allowed!")
+            throw GeneralSecurityException("Downgrade is not allowed!")
         }
         eTagPreferences.edit().putLong(TIMESTAMP_KEY, timestamp).apply()
     }
