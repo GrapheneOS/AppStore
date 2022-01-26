@@ -4,7 +4,6 @@ import org.bouncycastle.crypto.Signer
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 import org.bouncycastle.crypto.signers.Ed25519Signer
 import org.bouncycastle.util.encoders.Base64
-import java.math.BigInteger
 import java.security.GeneralSecurityException
 import java.util.Arrays
 
@@ -54,17 +53,8 @@ class FileVerifier(base64SignifyPublicKey: String) {
         if (algorithm != ALGORITHM) {
             throw GeneralSecurityException("Invalid public key algorithm. Expected \"Ed\" but got \"$algorithm\"")
         }
-        if (BigInteger(1, Arrays.copyOfRange(decodedSignature, ALGORITHM_END, KEY_ID_END)).toString() != BigInteger(
-                1,
-                keyId
-            ).toString()
-        ) {
-            throw GeneralSecurityException(
-                "Invalid key ID. Did you sign with the same public key as the one the constructor was called with? The passed key id is " + BigInteger(
-                    1,
-                    Arrays.copyOfRange(decodedSignature, ALGORITHM_END, KEY_ID_END)
-                ).toString() + ", but expected " + BigInteger(1, keyId).toString()
-            )
+        if (!Arrays.equals(keyId, Arrays.copyOfRange(decodedSignature, ALGORITHM_END, KEY_ID_END))) {
+            throw GeneralSecurityException("signature key id does not match public key");
         }
         val signature = Arrays.copyOfRange(decodedSignature, KEY_ID_END, SIGNATURE_SIZE)
 
