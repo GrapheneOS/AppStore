@@ -3,11 +3,13 @@ package org.grapheneos.apps.client.di
 import androidx.annotation.Nullable
 import org.grapheneos.apps.client.item.Progress
 import org.grapheneos.apps.client.item.network.Response
+import org.grapheneos.apps.client.utils.network.Encoding
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
+import java.util.zip.GZIPInputStream
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -29,13 +31,42 @@ class HttpModule @Inject constructor
         addBasicHeader()
     }
 
-    private fun addBasicHeader() {
-        connection.readTimeout = timeout ?: 30_000
-        connection.connectTimeout = timeout ?: 30_000
-        connection.addRequestProperty(
-            "User-Agent",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36"
+    private fun addBasicHeader(
+        supportedEncodings: List<Encoding> = listOf(
+            Encoding.Gzip(),
+            Encoding.Uncompressed()
         )
+    ) {
+        connection.apply {
+            readTimeout = timeout ?: 30_000
+            connectTimeout = timeout ?: 30_000
+            addRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36"
+            )
+
+            val encodings = StringBuilder()
+            for (i in supportedEncodings) {
+                encodings.append(i.code)
+                if (supportedEncodings.last() != i && supportedEncodings.first() == i) {
+                    encodings.append(", ")
+                }
+            }
+            addRequestProperty("Accept-Encoding", encodings.toString())
+        }
+    }
+
+    private fun getRawFileSize(): Long {
+        connection = URL(uri).openConnection() as HttpURLConnection
+        addBasicHeader(listOf(Encoding.Uncompressed()))
+        connection.apply {
+            addRequestProperty("Accept", "*/*")
+            addRequestProperty("Accept-Encoding", "identity")
+            connect()
+        }
+        val size = connection.getHeaderField("Content-length")
+        connection.disconnect()
+        return size?.toLong() ?: 0
     }
 
     private fun addETag() {
@@ -65,6 +96,9 @@ class HttpModule @Inject constructor
 
     fun saveToFile(clean: Boolean = false) {
 
+        connection.disconnect()
+        val size = getRawFileSize()
+
         if (clean) {
             file.delete()
             connection = URL(uri).openConnection() as HttpURLConnection
@@ -75,10 +109,13 @@ class HttpModule @Inject constructor
             addRange()
         }
 
-
         connection.connect()
-        val data = connection.inputStream
-        val size = (connection.getHeaderField("Content-Length")?.toLong() ?: 0) + file.length()
+        val data = when (connection.contentEncoding) {
+            Encoding.Gzip().code ->
+                GZIPInputStream(connection.inputStream)
+            else ->
+                connection.inputStream
+        }
 
         val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, data.available())
         val out = FileOutputStream(file, file.exists())
