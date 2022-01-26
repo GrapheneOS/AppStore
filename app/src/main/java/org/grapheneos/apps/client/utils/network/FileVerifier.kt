@@ -29,7 +29,7 @@ const val ALGORITHM = "Ed"
 class FileVerifier(base64SignifyPublicKey: String) {
 
     private val keyId: ByteArray
-    private val publicKey: ByteArray
+    private val publicKey: Ed25519PublicKeyParameters
 
     init {
         val decodedKey = Base64.decode(base64SignifyPublicKey)
@@ -41,7 +41,7 @@ class FileVerifier(base64SignifyPublicKey: String) {
             throw GeneralSecurityException("Invalid public key algorithm")
         }
         keyId = Arrays.copyOfRange(decodedKey, ALGORITHM_END, KEY_ID_END)
-        publicKey = Arrays.copyOfRange(decodedKey, KEY_ID_END, PUBLIC_KEY_SIZE)
+        publicKey = Ed25519PublicKeyParameters(decodedKey, KEY_ID_END)
     }
 
     fun verifySignature(message: ByteArray, base64SignifySignature: String): Boolean {
@@ -68,9 +68,8 @@ class FileVerifier(base64SignifyPublicKey: String) {
         }
         val signature = Arrays.copyOfRange(decodedSignature, KEY_ID_END, SIGNATURE_SIZE)
 
-        val pub = Ed25519PublicKeyParameters(publicKey, 0)
         val verifier: Signer = Ed25519Signer()
-        verifier.init(false, pub)
+        verifier.init(false, publicKey)
         verifier.update(message, 0, message.size)
 
         return verifier.verifySignature(signature)
