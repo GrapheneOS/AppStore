@@ -19,11 +19,11 @@
     <!--Reschedule Timing in Text/UI-->
     <string-array name="rescheduleTimingEntries">
         <item>1 hour</item>
-        <item>2 hour</item>
-        <item>6 hour</item>
-        <item>9 hour</item>
-        <item>12 hour</item>
-        <item>24 hour</item>
+        <item>2 hours</item>
+        <item>6 hours</item>
+        <item>9 hours</item>
+        <item>12 hours</item>
+        <item>24 hours</item>
     </string-array>
 
     <string name="network_type_default">1</string>
