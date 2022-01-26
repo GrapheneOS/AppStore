@@ -8,6 +8,24 @@ import java.math.BigInteger
 import java.security.GeneralSecurityException
 import java.util.Arrays
 
+// Signify binary public key format (42 bytes):
+// 2 byte algorithm
+// 8 byte key id
+// 32 byte Ed25519 key
+//
+// Signify binary signature format (74 bytes):
+// 2 byte algorithm
+// 8 byte key id
+// 64 byte Ed25519 signature
+
+const val PUBLIC_KEY_SIZE = 42
+const val SIGNATURE_SIZE = 74
+
+const val ALGORITHM_END = 2
+const val KEY_ID_END = 10
+
+const val ALGORITHM = "Ed"
+
 class FileVerifier(base64SignifyPublicKey: String) {
 
     private val keyId: ByteArray
@@ -15,27 +33,28 @@ class FileVerifier(base64SignifyPublicKey: String) {
 
     init {
         val decodedKey = Base64.decode(base64SignifyPublicKey)
-        if (decodedKey.size != 42) {
+        if (decodedKey.size != PUBLIC_KEY_SIZE) {
             throw GeneralSecurityException("Invalid key size")
         }
-        val algorithm = String(Arrays.copyOfRange(decodedKey, 0, 2))
-        if (algorithm != "Ed") {
+        val algorithm = String(Arrays.copyOfRange(decodedKey, 0, ALGORITHM_END))
+        if (algorithm != ALGORITHM) {
             throw GeneralSecurityException("Invalid public key algorithm")
         }
-        keyId = Arrays.copyOfRange(decodedKey, 2, 10)
-        publicKey = Arrays.copyOfRange(decodedKey, 10, 42)
+        keyId = Arrays.copyOfRange(decodedKey, ALGORITHM_END, KEY_ID_END)
+        publicKey = Arrays.copyOfRange(decodedKey, KEY_ID_END, PUBLIC_KEY_SIZE)
     }
 
     fun verifySignature(message: ByteArray, base64SignifySignature: String): Boolean {
-
         val decodedKey = Base64.decode(base64SignifySignature)
-        if (decodedKey.size != 74) throw GeneralSecurityException("invalid signature size")
+        if (decodedKey.size != SIGNATURE_SIZE) {
+            throw GeneralSecurityException("invalid signature size")
+        }
 
-        val algorithm = String(Arrays.copyOfRange(decodedKey, 0, 2))
-        if (algorithm != "Ed") {
+        val algorithm = String(Arrays.copyOfRange(decodedKey, 0, ALGORITHM_END))
+        if (algorithm != ALGORITHM) {
             throw GeneralSecurityException("Invalid public key algorithm. Expected \"Ed\" but got \"$algorithm\"")
         }
-        if (BigInteger(1, Arrays.copyOfRange(decodedKey, 2, 10)).toString() != BigInteger(
+        if (BigInteger(1, Arrays.copyOfRange(decodedKey, ALGORITHM_END, KEY_ID_END)).toString() != BigInteger(
                 1,
                 keyId
             ).toString()
@@ -43,11 +62,11 @@ class FileVerifier(base64SignifyPublicKey: String) {
             throw GeneralSecurityException(
                 "Invalid key ID. Did you sign with the same public key as the one the constructor was called with? The passed key id is " + BigInteger(
                     1,
-                    Arrays.copyOfRange(decodedKey, 2, 10)
+                    Arrays.copyOfRange(decodedKey, ALGORITHM_END, KEY_ID_END)
                 ).toString() + ", but expected " + BigInteger(1, keyId).toString()
             )
         }
-        val signature = Arrays.copyOfRange(decodedKey, 10, 74)
+        val signature = Arrays.copyOfRange(decodedKey, KEY_ID_END, SIGNATURE_SIZE)
 
         val pub = Ed25519PublicKeyParameters(publicKey, 0)
         val verifier: Signer = Ed25519Signer()
