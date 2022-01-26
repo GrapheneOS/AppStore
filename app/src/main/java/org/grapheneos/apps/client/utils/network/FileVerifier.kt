@@ -45,16 +45,16 @@ class FileVerifier(base64SignifyPublicKey: String) {
     }
 
     fun verifySignature(message: ByteArray, base64SignifySignature: String): Boolean {
-        val decodedKey = Base64.decode(base64SignifySignature)
-        if (decodedKey.size != SIGNATURE_SIZE) {
+        val decodedSignature = Base64.decode(base64SignifySignature)
+        if (decodedSignature.size != SIGNATURE_SIZE) {
             throw GeneralSecurityException("invalid signature size")
         }
 
-        val algorithm = String(Arrays.copyOfRange(decodedKey, 0, ALGORITHM_END))
+        val algorithm = String(Arrays.copyOfRange(decodedSignature, 0, ALGORITHM_END))
         if (algorithm != ALGORITHM) {
             throw GeneralSecurityException("Invalid public key algorithm. Expected \"Ed\" but got \"$algorithm\"")
         }
-        if (BigInteger(1, Arrays.copyOfRange(decodedKey, ALGORITHM_END, KEY_ID_END)).toString() != BigInteger(
+        if (BigInteger(1, Arrays.copyOfRange(decodedSignature, ALGORITHM_END, KEY_ID_END)).toString() != BigInteger(
                 1,
                 keyId
             ).toString()
@@ -62,11 +62,11 @@ class FileVerifier(base64SignifyPublicKey: String) {
             throw GeneralSecurityException(
                 "Invalid key ID. Did you sign with the same public key as the one the constructor was called with? The passed key id is " + BigInteger(
                     1,
-                    Arrays.copyOfRange(decodedKey, ALGORITHM_END, KEY_ID_END)
+                    Arrays.copyOfRange(decodedSignature, ALGORITHM_END, KEY_ID_END)
                 ).toString() + ", but expected " + BigInteger(1, keyId).toString()
             )
         }
-        val signature = Arrays.copyOfRange(decodedKey, KEY_ID_END, SIGNATURE_SIZE)
+        val signature = Arrays.copyOfRange(decodedSignature, KEY_ID_END, SIGNATURE_SIZE)
 
         val pub = Ed25519PublicKeyParameters(publicKey, 0)
         val verifier: Signer = Ed25519Signer()
