@@ -85,7 +85,7 @@ class MetaDataHelper constructor(context: Context) {
             .replace("\n", "")
             .toByteArray()
 
-        val verified = FileVerifier(PUBLIC_KEY)
+        FileVerifier(PUBLIC_KEY)
             .verifySignature(
                 message,
                 signature.decodeToString()
@@ -94,18 +94,13 @@ class MetaDataHelper constructor(context: Context) {
         /*This does not return anything if timestamp verification fails it throw GeneralSecurityException*/
         verifyTimestamp()
 
-        if (verified) {
-            val jsonData = JSONObject(message.decodeToString())
-            val response = MetaData(
-                jsonData.getLong("time"),
-                jsonData.getJSONObject("apps").toPackages()
-            )
-            callback.invoke(response)
-            return response
-        }
-        /*verification has been failed. Deleting config related to this version*/
-        deleteFiles()
-        throw GeneralSecurityException("Verification failed")
+        val jsonData = JSONObject(message.decodeToString())
+        val response = MetaData(
+            jsonData.getLong("time"),
+            jsonData.getJSONObject("apps").toPackages()
+        )
+        callback.invoke(response)
+        return response
     }
 
     private fun JSONObject.toPackages(): Map<String, Package> {

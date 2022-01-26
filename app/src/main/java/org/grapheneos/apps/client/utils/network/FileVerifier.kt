@@ -43,7 +43,7 @@ class FileVerifier(base64SignifyPublicKey: String) {
         publicKey = Ed25519PublicKeyParameters(decodedKey, KEY_ID_END)
     }
 
-    fun verifySignature(message: ByteArray, base64SignifySignature: String): Boolean {
+    fun verifySignature(message: ByteArray, base64SignifySignature: String) {
         val decodedSignature = Base64.decode(base64SignifySignature)
         if (decodedSignature.size != SIGNATURE_SIZE) {
             throw GeneralSecurityException("invalid signature size")
@@ -62,6 +62,8 @@ class FileVerifier(base64SignifyPublicKey: String) {
         verifier.init(false, publicKey)
         verifier.update(message, 0, message.size)
 
-        return verifier.verifySignature(signature)
+        if (!verifier.verifySignature(signature)) {
+            throw GeneralSecurityException("signature failed verification")
+        }
     }
 }
