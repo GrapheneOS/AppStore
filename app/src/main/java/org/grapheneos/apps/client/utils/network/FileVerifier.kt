@@ -17,13 +17,13 @@ import java.util.Arrays
 // 8 byte key id
 // 64 byte Ed25519 signature
 
-const val PUBLIC_KEY_SIZE = 42
-const val SIGNATURE_SIZE = 74
+private const val PUBLIC_KEY_SIZE = 42
+private const val SIGNATURE_SIZE = 74
 
-const val ALGORITHM_END = 2
-const val KEY_ID_END = 10
+private const val ALGORITHM_END = 2
+private const val KEY_ID_END = 10
 
-const val ALGORITHM = "Ed"
+private const val ALGORITHM = "Ed"
 
 class FileVerifier(base64SignifyPublicKey: String) {
 
