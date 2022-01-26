@@ -88,6 +88,8 @@ dependencies {
     implementation("androidx.preference:preference:1.1.1")
     implementation("androidx.preference:preference-ktx:1.1.1")
 
+    implementation("com.squareup.okio:okio:3.0.0")
+
     /*Signify java */
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.70")
 
