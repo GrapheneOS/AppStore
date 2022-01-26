@@ -26,6 +26,11 @@ class MetaDataHelper constructor(context: Context) {
     private val metadataSignFileName = "metadata.${version}.json.${version}.sig"
 
     private val baseDir = "${context.dataDir.absolutePath}/internet/files/cache/version${version}/"
+    private val tmpDir = "${context.dataDir.absolutePath}/internet/files/cache/metadata/tmp"
+
+    private val tmpMetaData = File(tmpDir, metadataFileName)
+    private val tmpSign = File(tmpDir, "metadata.json.${version}.sig")
+
     private val metadata = File(baseDir, metadataFileName)
     private val sign = File(baseDir, "metadata.json.${version}.sig")
 
@@ -49,13 +54,33 @@ class MetaDataHelper constructor(context: Context) {
     fun downloadNdVerifyMetadata(callback: (metadata: MetaData) -> Unit): MetaData {
 
         if (!File(baseDir).exists()) File(baseDir).mkdirs()
+        if (!File(tmpDir).exists()) File(tmpDir).mkdirs()
+
         try {
             /*download/validate metadata json, sign and pub files*/
-            val metadataETag = fetchContent(metadataFileName, metadata)
-            val metadataSignETag = fetchContent(metadataSignFileName, sign)
+            val metadataETag = fetchContent(metadataFileName, tmpMetaData)
+            val metadataSignETag = fetchContent(metadataSignFileName, tmpSign)
+
+            val message = FileInputStream(tmpMetaData).readBytes()
+
+            val signature = FileInputStream(tmpSign)
+                .readBytes()
+                .decodeToString()
+                .substringAfterLast(".pub")
+                .replace("\n", "")
+                .toByteArray()
+
+            FileVerifier(PUBLIC_KEY)
+                .verifySignature(
+                    message,
+                    signature.decodeToString()
+                )
 
             /*save or updated timestamp this will take care of downgrade*/
-            verifyTimestamp()
+            verifyTimestamp(true)
+
+            tmpMetaData.renameTo(metadata)
+            tmpSign.renameTo(sign)
 
             /*save/update newer eTag if there is any*/
             saveETag(metadataFileName, metadataETag)
@@ -92,7 +117,7 @@ class MetaDataHelper constructor(context: Context) {
             )
 
         /*This does not return anything if timestamp verification fails it throw GeneralSecurityException*/
-        verifyTimestamp()
+        verifyTimestamp(false)
 
         val jsonData = JSONObject(message.decodeToString())
         val response = MetaData(
@@ -194,7 +219,7 @@ class MetaDataHelper constructor(context: Context) {
         return response.eTag ?: ""
     }
 
-    private fun deleteFiles() = File(baseDir).deleteRecursively()
+    private fun deleteTmpFiles() = File(tmpDir).deleteRecursively()
 
     private fun String.toTimestamp(): Long? {
         return try {
@@ -212,16 +237,16 @@ class MetaDataHelper constructor(context: Context) {
         return eTagPreferences.getString(key, null)
     }
 
-    @Throws(GeneralSecurityException::class)
-    private fun verifyTimestamp() {
-        val timestamp = FileInputStream(metadata).readBytes().decodeToString().toTimestamp()
+    private fun verifyTimestamp(tmp: Boolean = false) {
+        val file = if (tmp) tmpMetaData else metadata
+        val timestamp = FileInputStream(file).readBytes().decodeToString().toTimestamp()
         val lastTimestamp = eTagPreferences.getLong(TIMESTAMP_KEY, 0L)
 
-        if (timestamp == null) throw GeneralSecurityException("Current file timestamp not found")
+        if (timestamp == null) throw GeneralSecurityException("current file timestamp not found!")
 
         if (lastTimestamp != 0L && lastTimestamp > timestamp || TIMESTAMP > timestamp) {
-            deleteFiles()
-            throw GeneralSecurityException("Downgrade is not allowed")
+            deleteTmpFiles()
+            throw GeneralSecurityException("downgrade is not allowed!")
         }
         eTagPreferences.edit().putLong(TIMESTAMP_KEY, timestamp).apply()
     }
