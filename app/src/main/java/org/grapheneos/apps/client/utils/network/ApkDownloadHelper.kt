@@ -32,24 +32,29 @@ class ApkDownloadHelper constructor(private val context: Context) {
         var taskSuccessful = false
         return try {
 
-            val downloadDir =
-                File("${context.cacheDir.absolutePath}/downloadedPkg/${variant.versionCode}/${variant.pkgName}")
+            val cacheDir = context.cacheDir.absolutePath
+            val vCode = variant.versionCode
+            val pkgName = variant.pkgName
+
+            val downloadDir = File("${cacheDir}/tmp/${vCode}/${pkgName}")
+            val resultDir = File("${cacheDir}/downloadedPkg/${vCode}/${pkgName}")
 
             downloadDir.mkdirs()
+            resultDir.mkdirs()
 
             val completeProgress = mutableMapOf<String, Progress>()
             val size = variant.packagesInfo.size
             val downloadTasks = variant.packagesInfo.map { (fileName, sha256Hash) ->
 
                 CoroutineScope(coroutineContext + downloadJob).async {
-                    val downloadedFile = File(downloadDir.absolutePath, fileName)
-                    val uri =
-                        "${PACKAGE_DIR_URL}${variant.pkgName}/${variant.versionCode}/${fileName}"
+                    val downloadableFile = File(downloadDir.absolutePath, fileName)
+                    val resultFile = File(resultDir.absolutePath, fileName)
+                    val uri = "${PACKAGE_DIR_URL}${pkgName}/${vCode}/${fileName}"
 
-                    if (downloadedFile.exists() && verifyHash(downloadedFile, sha256Hash)) {
+                    if (resultFile.exists() && verifyHash(resultFile, sha256Hash)) {
                         val progress = Progress(
-                            downloadedFile.length(),
-                            downloadedFile.length(),
+                            resultFile.length(),
+                            resultFile.length(),
                             100.0,
                             size == 1
                         )
@@ -63,12 +68,12 @@ class ApkDownloadHelper constructor(private val context: Context) {
                                 progress.taskCompleted
                             )
                         }
-                        return@async downloadedFile
+                        return@async resultFile
                     } else {
 
                         DaggerHttpHelperComponent.builder()
                             .defaultConfigBuild()
-                            .file(downloadedFile)
+                            .file(downloadableFile)
                             .uri(uri)
                             .addProgressListener { newProgress ->
                                 var read = 0L
@@ -101,11 +106,12 @@ class ApkDownloadHelper constructor(private val context: Context) {
                             .downloader()
                             .saveToFile()
 
-                        if (!verifyHash(downloadedFile, sha256Hash)) {
-                            downloadedFile.delete()
+                        if (!verifyHash(downloadableFile, sha256Hash)) {
+                            downloadableFile.delete()
                             throw GeneralSecurityException("Hashes do not match")
                         }
-                        return@async downloadedFile
+                        downloadableFile.renameTo(resultFile)
+                        return@async resultFile
                     }
                 }
             }
