@@ -14,6 +14,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.io.InputStream
 import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import javax.net.ssl.SSLHandshakeException
@@ -58,33 +59,35 @@ class MetaDataHelper constructor(context: Context) {
 
         try {
             /*download/validate metadata json, sign and pub files*/
-            val metadataETag = fetchContent(metadataFileName, tmpMetaData)
-            val metadataSignETag = fetchContent(metadataSignFileName, tmpSign)
+            val metadataETag = fetchContent(metadataFileName, tmpMetaData, metadata)
+            val metadataSignETag = fetchContent(metadataSignFileName, tmpSign, sign)
 
-            val message = FileInputStream(tmpMetaData).readBytes()
+            //if file doesn't exist means existing file are up to date aka http response code 304
+            if (tmpMetaData.exists() && tmpSign.exists()) {
+                val message = FileInputStream(tmpMetaData).readBytes()
+                val signature = FileInputStream(tmpSign).toSignByteArray()
 
-            val signature = FileInputStream(tmpSign)
-                .readBytes()
-                .decodeToString()
-                .substringAfterLast(".pub")
-                .replace("\n", "")
-                .toByteArray()
+                try {
+                    FileVerifier(PUBLIC_KEY)
+                        .verifySignature(
+                            message,
+                            signature.decodeToString()
+                        )
+                } catch (e: GeneralSecurityException) {
+                    deleteTmpFiles()
+                    throw e
+                }
 
-            FileVerifier(PUBLIC_KEY)
-                .verifySignature(
-                    message,
-                    signature.decodeToString()
-                )
+                /*save or updated timestamp this will take care of downgrade*/
+                verifyTimestamp(true)
 
-            /*save or updated timestamp this will take care of downgrade*/
-            verifyTimestamp(true)
+                tmpMetaData.renameTo(metadata)
+                tmpSign.renameTo(sign)
 
-            tmpMetaData.renameTo(metadata)
-            tmpSign.renameTo(sign)
-
-            /*save/update newer eTag if there is any*/
-            saveETag(metadataFileName, metadataETag)
-            saveETag(metadataSignFileName, metadataSignETag)
+                /*save/update newer eTag if there is any*/
+                saveETag(metadataFileName, metadataETag)
+                saveETag(metadataSignFileName, metadataSignETag)
+            }
 
         } catch (e: UnknownHostException) {
             /*
@@ -102,19 +105,19 @@ class MetaDataHelper constructor(context: Context) {
             throw GeneralSecurityException("File does not exist")
         }
         val message = FileInputStream(metadata).readBytes()
+        val signature = FileInputStream(sign).toSignByteArray()
 
-        val signature = FileInputStream(sign)
-            .readBytes()
-            .decodeToString()
-            .substringAfterLast(".pub")
-            .replace("\n", "")
-            .toByteArray()
+        try {
+            FileVerifier(PUBLIC_KEY)
+                .verifySignature(
+                    message,
+                    signature.decodeToString()
+                )
 
-        FileVerifier(PUBLIC_KEY)
-            .verifySignature(
-                message,
-                signature.decodeToString()
-            )
+        } catch (e: GeneralSecurityException) {
+            File(baseDir).deleteRecursively()
+            throw e
+        }
 
         /*This does not return anything if timestamp verification fails it throw GeneralSecurityException*/
         verifyTimestamp(false)
@@ -126,6 +129,14 @@ class MetaDataHelper constructor(context: Context) {
         )
         callback.invoke(response)
         return response
+    }
+
+    private fun InputStream.toSignByteArray(): ByteArray {
+        return readBytes()
+            .decodeToString()
+            .substringAfterLast(".pub")
+            .replace("\n", "")
+            .toByteArray()
     }
 
     private fun JSONObject.toPackages(): Map<String, Package> {
@@ -185,17 +196,21 @@ class MetaDataHelper constructor(context: Context) {
     }
 
     @Throws(UnknownHostException::class, GeneralSecurityException::class, SecurityException::class)
-    private fun fetchContent(pathAfterBaseUrl: String, file: File): String {
+    private fun fetchContent(
+        pathAfterBaseUrl: String,
+        downloadTo: File,
+        existingFile: File
+    ): String {
 
         val url = "${BASE_URL}/${pathAfterBaseUrl}"
 
         val caller = DaggerHttpHelperComponent.builder()
             .defaultConfigBuild()
             .uri(url)
-            .file(file)
+            .file(downloadTo)
             .apply {
                 val eTAG = getETag(pathAfterBaseUrl)
-                if (file.exists() && eTAG != null) {
+                if (existingFile.exists() && eTAG != null) {
                     addETag(eTAG)
                 }
             }
