@@ -239,7 +239,7 @@ class App : Application() {
 
     private fun refreshMetadata(): MetadataCallBack {
         try {
-            val res = metaDataHelper.downloadNdVerifyMetadata { response ->
+            val res = metaDataHelper.downloadAndVerifyMetadata { response ->
                 response.packages.forEach {
                     val value = it.value
                     val pkgName = value.packageName
@@ -334,9 +334,9 @@ class App : Application() {
         updateLiveData()
 
         val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)
-        val result = apkDownloadHelper.downloadNdVerifySHA256(variant = variant)
+        val result = apkDownloadHelper.downloadAndVerifySHA256(variant = variant)
         { read: Long, total: Long, doneInPercent: Double, completed: Boolean ->
-            if (doneInPercent == -1.0) return@downloadNdVerifySHA256
+            if (doneInPercent == -1.0) return@downloadAndVerifySHA256
             packagesInfo[variant.pkgName] =
                 packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
                     DownloadStatus.Downloading(

@@ -51,7 +51,7 @@ class MetaDataHelper constructor(context: Context) {
         FileNotFoundException::class,
         SSLHandshakeException::class
     )
-    fun downloadNdVerifyMetadata(callback: (metadata: MetaData) -> Unit): MetaData {
+    fun downloadAndVerifyMetadata(callback: (metadata: MetaData) -> Unit): MetaData {
 
         if (!File(baseDir).exists()) File(baseDir).mkdirs()
         if (!File(tmpDir).exists()) File(tmpDir).mkdirs()
