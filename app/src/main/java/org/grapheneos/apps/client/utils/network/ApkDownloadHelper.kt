@@ -24,7 +24,7 @@ import kotlin.coroutines.coroutineContext
 class ApkDownloadHelper constructor(private val context: Context) {
 
     @RequiresPermission(Manifest.permission.INTERNET)
-    suspend fun downloadNdVerifySHA256(
+    suspend fun downloadAndVerifySHA256(
         variant: PackageVariant,
         progressListener: (read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean) -> Unit,
     ): DownloadCallBack {
