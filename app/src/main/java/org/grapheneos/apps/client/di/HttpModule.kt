@@ -111,8 +111,12 @@ class HttpModule @Inject constructor
 
         connection.connect()
         val data = when (connection.contentEncoding) {
-            Encoding.Gzip().code ->
+            Encoding.Gzip().code -> {
+                //gzip compression does not support range header so delete any
+                // existing file because download is gonna start from zero
+                file.delete()
                 GZIPInputStream(connection.inputStream)
+            }
             else ->
                 connection.inputStream
         }
