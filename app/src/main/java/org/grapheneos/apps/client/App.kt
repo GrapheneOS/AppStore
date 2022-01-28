@@ -265,6 +265,7 @@ class App : Application() {
                     packagesInfo[pkgName] = info.withUpdatedInstallStatus(installStatus)
                 }
             }
+            res.cleanOldFiles(this)
             updateLiveData()
             return MetadataCallBack.Success(res.timestamp)
         } catch (e: GeneralSecurityException) {
