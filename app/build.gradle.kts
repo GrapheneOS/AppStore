@@ -36,8 +36,6 @@ android {
         targetSdk = 31
         versionCode = 1
         versionName = versionCode.toString()
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -101,11 +99,6 @@ dependencies {
     /*Dagger Hilt*/
     implementation("com.google.dagger:hilt-android:2.40.5")
     kapt("com.google.dagger:hilt-android-compiler:2.40.5")
-
-    /*Default test suite*/
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }
 
 kapt {
