@@ -25,6 +25,29 @@ import kotlin.coroutines.coroutineContext
 
 class ApkDownloadHelper constructor(private val context: Context) {
 
+    companion object {
+
+        fun PackageVariant.getResultRootDir(context: Context): File {
+            val cacheDir = context.cacheDir.absolutePath
+            return File("${cacheDir}/downloadedPkg/${pkgName}")
+        }
+
+        fun PackageVariant.getResultDir(context: Context): File {
+            return File("${getResultRootDir(context)}/$versionCode")
+        }
+
+
+        fun PackageVariant.getDownloadRootDir(context: Context): File {
+            val cacheDir = context.cacheDir.absolutePath
+            return File("${cacheDir}/tmp/${pkgName}")
+        }
+
+        fun PackageVariant.getDownloadDir(context: Context): File {
+            return File("${getDownloadRootDir(context).absolutePath}/$versionCode")
+        }
+
+    }
+
     @RequiresPermission(Manifest.permission.INTERNET)
     suspend fun downloadAndVerifySHA256(
         variant: PackageVariant,
@@ -34,12 +57,11 @@ class ApkDownloadHelper constructor(private val context: Context) {
         var taskSuccessful = false
         return try {
 
-            val cacheDir = context.cacheDir.absolutePath
             val vCode = variant.versionCode
             val pkgName = variant.pkgName
 
-            val downloadDir = File("${cacheDir}/tmp/${vCode}/${pkgName}")
-            val resultDir = File("${cacheDir}/downloadedPkg/${vCode}/${pkgName}")
+            val resultDir = variant.getResultDir(context)
+            val downloadDir = variant.getDownloadDir(context)
 
             downloadDir.mkdirs()
             resultDir.mkdirs()
