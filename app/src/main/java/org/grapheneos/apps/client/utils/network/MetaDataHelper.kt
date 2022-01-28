@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import org.bouncycastle.util.encoders.DecoderException
+import org.grapheneos.apps.client.App
+import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.di.DaggerHttpHelperComponent
 import org.grapheneos.apps.client.di.HttpHelperComponent.Companion.defaultConfigBuild
 import org.grapheneos.apps.client.item.MetaData
@@ -102,7 +104,7 @@ class MetaDataHelper constructor(context: Context) {
         }
 
         if (!metadata.exists()) {
-            throw GeneralSecurityException("File does not exist")
+            throw GeneralSecurityException(App.getString(R.string.fileDoesNotExist))
         }
         val message = FileInputStream(metadata).readBytes()
         val signature = FileInputStream(sign).toSignByteArray()
@@ -169,7 +171,7 @@ class MetaDataHelper constructor(context: Context) {
                     }
 
                     if (packages.length() != hashes.length()) {
-                        throw GeneralSecurityException("Package hash size mismatch")
+                        throw GeneralSecurityException(App.getString(R.string.hashSizeMismatch))
                     }
                     val packageInfoMap = mutableMapOf<String, String>()
                     for (sizeIndex in 0 until hashes.length()) {
@@ -227,7 +229,7 @@ class MetaDataHelper constructor(context: Context) {
                 caller.saveToFile(clean = true)
             }
             else -> {
-                throw GeneralSecurityException("Server responded with unexpected response code ")
+                throw GeneralSecurityException(App.getString(R.string.serverUnexpectedResponse))
             }
         }
 
@@ -257,11 +259,11 @@ class MetaDataHelper constructor(context: Context) {
         val timestamp = FileInputStream(file).readBytes().decodeToString().toTimestamp()
         val lastTimestamp = eTagPreferences.getLong(TIMESTAMP_KEY, 0L)
 
-        if (timestamp == null) throw GeneralSecurityException("current file timestamp not found!")
+        if (timestamp == null) throw GeneralSecurityException(App.getString(R.string.fileTimestampMissing))
 
         if (lastTimestamp != 0L && lastTimestamp > timestamp || TIMESTAMP > timestamp) {
             deleteTmpFiles()
-            throw GeneralSecurityException("downgrade is not allowed!")
+            throw GeneralSecurityException(App.getString(R.string.downgradeNotAllowed))
         }
         eTagPreferences.edit().putLong(TIMESTAMP_KEY, timestamp).apply()
     }

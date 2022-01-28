@@ -330,7 +330,7 @@ class App : Application() {
                 0.0,
                 false
             )
-        ).withUpdatedTask(TaskInfo(taskId, "Starting download", 0))
+        ).withUpdatedTask(TaskInfo(taskId, App.getString(R.string.startingDownload), 0))
         updateLiveData()
 
         val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)

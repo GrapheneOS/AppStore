@@ -36,7 +36,7 @@ class KeepAppActive : Service() {
         app.isDownloadRunning().observeForever(observer)
         val notification = Notification.Builder(this, App.BACKGROUND_SERVICE_CHANNEL)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Packages are being downloaded")
+            .setContentTitle(App.getString(R.string.packagesDownloading))
             .setOnlyAlertOnce(true)
             .build()
         notification.flags = Notification.FLAG_FOREGROUND_SERVICE
