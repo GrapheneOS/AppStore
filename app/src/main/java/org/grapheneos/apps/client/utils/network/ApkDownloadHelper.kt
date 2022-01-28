@@ -7,6 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import org.grapheneos.apps.client.App
+import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.di.DaggerHttpHelperComponent
 import org.grapheneos.apps.client.di.HttpHelperComponent.Companion.defaultConfigBuild
 import org.grapheneos.apps.client.item.DownloadCallBack
@@ -108,7 +110,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
 
                         if (!verifyHash(downloadableFile, sha256Hash)) {
                             downloadableFile.delete()
-                            throw GeneralSecurityException("Hashes do not match")
+                            throw GeneralSecurityException(App.getString(R.string.hashMismatch))
                         }
                         downloadableFile.renameTo(resultFile)
                         return@async resultFile
@@ -141,7 +143,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
             )
             if (sha256Hash == downloadedFileHash) return true
         } catch (e: NoSuchAlgorithmException) {
-            throw GeneralSecurityException("SHA-256 not supported by device")
+            throw GeneralSecurityException(App.getString(R.string.sha256Unsupported))
         }
         return false
     }

@@ -8,6 +8,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ItemAppsBinding
 import org.grapheneos.apps.client.item.DownloadStatus
@@ -157,7 +158,7 @@ class AppsListAdapter(
                 install.text = installStatus.status
                 appInfoGroup.isInvisible = installStatus.installedV == "N/A"
                 if (installedVersion.text == "N/A"
-                    && install.text in listOf("install", "failed")
+                    && install.text in listOf(App.getString(R.string.install), App.getString(R.string.failed))
                 ) {
                     appInfoGroup.isGone = true
                 }

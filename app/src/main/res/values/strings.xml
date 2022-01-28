@@ -7,6 +7,7 @@
     <string name="installing">Installing…</string>
     <string name="reinstalling">Reinstalling…</string>
     <string name="denied">Install aborted, retry?</string>
+    <string name="downgradeNotAllowed">Downgrading is not allowed</string>
 
     <string name="reinstallRequired">Re-installation required!</string>
 
@@ -19,14 +20,30 @@
     <string name="uninstalling">Uninstalling…</string>
 
     <string name="processing">Processing…</string>
+    <string name="startingDownload">Starting download</string>
     <string name="downloading">Downloading…</string>
     <string name="downloaded">Downloaded</string>
     <string name="failed">Failed</string>
     <string name="failedRetry">A failure has occurred, retry?</string>
+    <string name="seamlessUpdatesCheckFailed">Checking for seamless updates failed</string>
+    <string name="serverUnexpectedResponse">Server responded with unexpected HTTP code</string>
     <string name="pending_install">Pending…</string>
 
     <string name="syncingMetadata">Syncing metadata</string>
     <string name="syncUnfinished">Sync has not yet finished</string>
+
+    <string name="hashMismatch">Hashes do not match</string>
+    <string name="hashSizeMismatch">Package hash size mismatch</string>
+    <string name="sha256Unsupported">SHA-256 not supported by device</string>
+
+    <string name="openApp">Open app</string>
+
+    <string name="packagesDownloading">Packages are downloading</string>
+
+    <string name="appChannel">app_channel</string>
+
+    <string name="fileDoesNotExist">File does not exist</string>
+    <string name="fileTimestampMissing">Current file timestamp not found</string>
 
     <!--DownloadCallBack.kt-->
     <string name="DownloadedSuccessfully">Downloaded successfully</string>

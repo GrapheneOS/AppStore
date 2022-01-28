@@ -40,7 +40,7 @@ class SeamlessUpdaterJob : JobService() {
 
         val action = Notification.Action.Builder(
             Icon.createWithResource(this, R.drawable.app_info),
-            "Open app",
+            App.getString(R.string.openApp),
             PendingIntent.getActivity(
                 this,
                 REQUEST_CODE,
@@ -80,12 +80,12 @@ class SeamlessUpdaterJob : JobService() {
                 notification.setContentText(content)
                     .setContentTitle(
                         if (updated.isNotEmpty() || failed.isNotEmpty() || requireConfirmation.isNotEmpty()) "Seamless update result"
-                        else "All packages are up to date"
+                        else App.getString(R.string.alreadyUpToDate)
                     )
 
             } else {
                 notification.setChannelId(App.SEAMLESS_UPDATE_FAILED_CHANNEL)
-                notification.setContentTitle("Checking for seamless update failed")
+                notification.setContentTitle(App.getString(R.string.seamlessUpdatesCheckFailed))
             }
 
             val notificationManager =
