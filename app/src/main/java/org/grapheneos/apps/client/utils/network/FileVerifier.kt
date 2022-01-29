@@ -53,7 +53,7 @@ class FileVerifier(base64SignifyPublicKey: String) {
             throw GeneralSecurityException("Invalid public key algorithm. Expected \"Ed\" but got \"$algorithm\"")
         }
         if (!keyId.contentEquals(decodedSignature.copyOfRange(ALGORITHM_END, KEY_ID_END))) {
-            throw GeneralSecurityException("signature key id does not match public key");
+            throw GeneralSecurityException("signature key id does not match public key")
         }
         val signature = decodedSignature.copyOfRange(KEY_ID_END, SIGNATURE_SIZE)
 

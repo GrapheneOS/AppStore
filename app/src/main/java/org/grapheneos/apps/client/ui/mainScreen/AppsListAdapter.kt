@@ -81,7 +81,8 @@ class AppsListAdapter(
                 binding.apply {
                     install.text = installStatus.status
                     if (installStatus is InstallStatus.Installing || installStatus is InstallStatus.Uninstalling
-                        || installStatus is InstallStatus.Pending) {
+                        || installStatus is InstallStatus.Pending
+                    ) {
                         downloadProgress.isInvisible = false
                         downloadProgress.isIndeterminate = true
                         downloadSizeInfo.isGone = true
@@ -158,7 +159,10 @@ class AppsListAdapter(
                 install.text = installStatus.status
                 appInfoGroup.isInvisible = installStatus.installedV == "N/A"
                 if (installedVersion.text == "N/A"
-                    && install.text in listOf(App.getString(R.string.install), App.getString(R.string.failed))
+                    && install.text in listOf(
+                        App.getString(R.string.install),
+                        App.getString(R.string.failed)
+                    )
                 ) {
                     appInfoGroup.isGone = true
                 }
