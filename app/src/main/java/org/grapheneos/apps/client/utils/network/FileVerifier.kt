@@ -5,7 +5,6 @@ import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 import org.bouncycastle.crypto.signers.Ed25519Signer
 import org.bouncycastle.util.encoders.Base64
 import java.security.GeneralSecurityException
-import java.util.Arrays
 
 // Signify binary public key format (42 bytes):
 // 2 byte algorithm
@@ -35,11 +34,11 @@ class FileVerifier(base64SignifyPublicKey: String) {
         if (decodedKey.size != PUBLIC_KEY_SIZE) {
             throw GeneralSecurityException("Invalid key size")
         }
-        val algorithm = String(Arrays.copyOfRange(decodedKey, 0, ALGORITHM_END))
+        val algorithm = String(decodedKey.copyOfRange(0, ALGORITHM_END))
         if (algorithm != ALGORITHM) {
             throw GeneralSecurityException("Invalid public key algorithm")
         }
-        keyId = Arrays.copyOfRange(decodedKey, ALGORITHM_END, KEY_ID_END)
+        keyId = decodedKey.copyOfRange(ALGORITHM_END, KEY_ID_END)
         publicKey = Ed25519PublicKeyParameters(decodedKey, KEY_ID_END)
     }
 
@@ -49,14 +48,14 @@ class FileVerifier(base64SignifyPublicKey: String) {
             throw GeneralSecurityException("invalid signature size")
         }
 
-        val algorithm = String(Arrays.copyOfRange(decodedSignature, 0, ALGORITHM_END))
+        val algorithm = String(decodedSignature.copyOfRange(0, ALGORITHM_END))
         if (algorithm != ALGORITHM) {
             throw GeneralSecurityException("Invalid public key algorithm. Expected \"Ed\" but got \"$algorithm\"")
         }
-        if (!Arrays.equals(keyId, Arrays.copyOfRange(decodedSignature, ALGORITHM_END, KEY_ID_END))) {
+        if (!keyId.contentEquals(decodedSignature.copyOfRange(ALGORITHM_END, KEY_ID_END))) {
             throw GeneralSecurityException("signature key id does not match public key");
         }
-        val signature = Arrays.copyOfRange(decodedSignature, KEY_ID_END, SIGNATURE_SIZE)
+        val signature = decodedSignature.copyOfRange(KEY_ID_END, SIGNATURE_SIZE)
 
         val verifier: Signer = Ed25519Signer()
         verifier.init(false, publicKey)
