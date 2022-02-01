@@ -3,8 +3,8 @@ package org.grapheneos.apps.client.di
 import androidx.annotation.Nullable
 import org.grapheneos.apps.client.item.Progress
 import org.grapheneos.apps.client.item.network.Response
-import org.grapheneos.apps.client.utils.network.Encoding
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -31,12 +31,7 @@ class HttpModule @Inject constructor
         addBasicHeader()
     }
 
-    private fun addBasicHeader(
-        supportedEncodings: List<Encoding> = listOf(
-            Encoding.Gzip(),
-            Encoding.Uncompressed()
-        )
-    ) {
+    private fun addBasicHeader() {
         connection.apply {
             readTimeout = timeout ?: 30_000
             connectTimeout = timeout ?: 30_000
@@ -45,20 +40,13 @@ class HttpModule @Inject constructor
                 "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36"
             )
 
-            val encodings = StringBuilder()
-            for (i in supportedEncodings) {
-                encodings.append(i.code)
-                if (supportedEncodings.last() != i && supportedEncodings.first() == i) {
-                    encodings.append(", ")
-                }
-            }
-            addRequestProperty("Accept-Encoding", encodings.toString())
+            addRequestProperty("Accept-Encoding", "identity")
         }
     }
 
-    private fun getRawFileSize(): Long {
-        connection = URL(uri).openConnection() as HttpURLConnection
-        addBasicHeader(listOf(Encoding.Uncompressed()))
+    private fun getRawFileSize(newUri: String = uri): Long {
+        connection = URL(newUri).openConnection() as HttpURLConnection
+        addBasicHeader()
         connection.apply {
             addRequestProperty("Accept", "*/*")
             addRequestProperty("Accept-Encoding", "identity")
@@ -78,11 +66,11 @@ class HttpModule @Inject constructor
         }
     }
 
-    private fun addRange() {
+    private fun addRange(cFile: File = file) {
         val range: String = String.format(
             Locale.ENGLISH,
             "bytes=%d-",
-            if (file.exists()) file.length() else 0
+            if (cFile.exists()) cFile.length() else 0
         )
         connection.addRequestProperty("Range", range)
     }
@@ -98,31 +86,26 @@ class HttpModule @Inject constructor
 
         connection.disconnect()
         val size = getRawFileSize()
+        val isCompressed = file.extension in listOf("apk", "json")
+        val newPath = if (isCompressed) "${uri}.gz" else uri
+        val compSize = getRawFileSize(newPath)
+        val compFile = if (isCompressed) File(file.getParent()!!, "${file.getName()}.gz") else file
 
         if (clean) {
             file.delete()
-            connection = URL(uri).openConnection() as HttpURLConnection
+            connection = URL(newPath).openConnection() as HttpURLConnection
             addBasicHeader()
         } else {
-            connection = URL(uri).openConnection() as HttpURLConnection
+            connection = URL(newPath).openConnection() as HttpURLConnection
             addBasicHeader()
-            addRange()
+            addRange(compFile)
         }
 
         connection.connect()
-        val data = when (connection.contentEncoding) {
-            Encoding.Gzip().code -> {
-                //gzip compression does not support range header so delete any
-                // existing file because download is gonna start from zero
-                file.delete()
-                GZIPInputStream(connection.inputStream)
-            }
-            else ->
-                connection.inputStream
-        }
+        val data =  connection.inputStream
 
         val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, data.available())
-        val out = FileOutputStream(file, file.exists())
+        val out = FileOutputStream(compFile, compFile.exists())
 
         var bytesCopied: Long = 0
         val buffer = ByteArray(bufferSize)
@@ -134,8 +117,8 @@ class HttpModule @Inject constructor
 
             progressListener.invoke(
                 Progress(
-                    file.length(), size,
-                    (file.length() * 100.0) / size,
+                    compFile.length(), compSize,
+                    (compFile.length() * 100.0) / compSize,
                     false
                 )
             )
@@ -143,11 +126,44 @@ class HttpModule @Inject constructor
         out.close()
         progressListener.invoke(
             Progress(
+                compFile.length(), compSize,
+                (compFile.length() * 100.0) / compSize,
+                false
+            )
+        )
+        connection.disconnect()
+        if (!isCompressed) return
+
+        /* Extraction section for downloaded compressed files */
+        GZIPInputStream(compFile.inputStream()).use { input ->
+            val output = FileOutputStream(file, file.exists())
+            val uBufferSize = maxOf(DEFAULT_BUFFER_SIZE, input.available())
+
+            var uBytesCopied: Long = 0
+            val uBuffer = ByteArray(uBufferSize)
+            var uBytes = input.read(uBuffer)
+            while (uBytes >= 0) {
+                output.write(uBuffer, 0, uBytes)
+                uBytesCopied += uBytes
+                uBytes = input.read(uBuffer)
+
+                progressListener.invoke(
+                    Progress(
+                        file.length(), size,
+                        (file.length() * 100.0) / size,
+                        false
+                    )
+                )
+            }
+            output.close()
+        }
+        progressListener.invoke(
+            Progress(
                 file.length(), size,
                 (file.length() * 100.0) / size,
                 false
             )
         )
-        connection.disconnect()
+        compFile.delete()
     }
 }
