@@ -49,7 +49,7 @@ class SeamlessUpdaterJob : JobService() {
             )
         ).build()
 
-        val notification = Notification.Builder(this, App.SEAMLESS_UPDATE_SUCCESS_CHANNEL)
+        val notification = Notification.Builder(this, App.ALREADY_UP_TO_DATE_CHANNEL)
             .setSmallIcon(R.mipmap.ic_launcher)
             .addAction(action)
             .setAutoCancel(true)
@@ -65,16 +65,19 @@ class SeamlessUpdaterJob : JobService() {
                 var content = ""
                 if (updated.isNotBlank() && result.updatedSuccessfully.isNotEmpty()) {
                     content += "$updated has been successfully updated"
+                    notification.setChannelId(App.SEAMLESSLY_UPDATED_CHANNEL)
                 }
 
                 if (failed.isNotBlank() && result.failedToUpdate.isNotEmpty()) {
                     if (content.isNotBlank()) content += ", "
                     content += "$failed has failed to update " + if (requireConfirmation.isNotEmpty()) "" else "."
+                    notification.setChannelId(App.SEAMLESS_UPDATE_FAILED_CHANNEL)
                 }
 
                 if (requireConfirmation.isNotBlank() && result.requireConfirmation.isNotEmpty()) {
                     if (content.isNotBlank()) content += ", "
                     content += "$requireConfirmation: update available."
+                    notification.setChannelId(App.SEAMLESS_UPDATE_INPUT_REQUIRED_CHANNEL)
                 }
 
                 notification.setContentText(content)

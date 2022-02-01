@@ -101,4 +101,18 @@
     <string name="background_update_duration_title">Auto download app updates interval</string>
     <string name="background_update_duration_summary">Check for available updates after selected number of hours</string>
 
+    <!--Notifications-->
+    <string name="suGroupName">Seamless updates</string>
+    <string name="suGroupDescription">Notification regarding seamless updates</string>
+    <string name="nUpdatedTitle">Apps has been updated</string>
+    <string name="nUpdatedDescription">Notification regarding updated apps</string>
+    <string name="nUpdateAvailableTitle">Updates available</string>
+    <string name="nUpdateAvailableDescription">Notification regarding available app updates</string>
+    <string name="nUpToDateTitle">Apps are already up to date</string>
+    <string name="nUpToDateDescription">Notification regarding no update available</string>
+    <string name="nUpdatesFailedTitle">Seamless updates failed</string>
+    <string name="nUpdatesFailedDescription">Notification regarding failed seamless updates</string>
+    <string name="nBackgroundTaskTitle">Background tasks</string>
+    <string name="nBackgroundTaskDescription">Silent notification for background tasks</string>
+
 </resources>
