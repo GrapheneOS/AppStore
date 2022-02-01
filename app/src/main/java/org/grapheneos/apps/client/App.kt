@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.app.Notification
+import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
@@ -73,7 +74,12 @@ class App : Application() {
     companion object {
         const val BACKGROUND_SERVICE_CHANNEL = "backgroundTask"
         const val SEAMLESS_UPDATE_FAILED_CHANNEL = "seamlessUpdateFailed"
-        const val SEAMLESS_UPDATE_SUCCESS_CHANNEL = "seamlessUpdateSuccess"
+        const val SEAMLESSLY_UPDATED_CHANNEL = "seamlesslyUpdated"
+        const val ALREADY_UP_TO_DATE_CHANNEL = "alreadyUpToDate"
+        const val SEAMLESS_UPDATE_INPUT_REQUIRED_CHANNEL = "seamlessUpdateInputConfirmation"
+
+        const val SEAMLESS_UPDATE_GROUP = "seamlessUpdateGroup"
+
         const val DOWNLOAD_TASK_FINISHED = 1000
         private lateinit var context: WeakReference<Context>
 
@@ -759,34 +765,62 @@ class App : Application() {
 
     private fun createNotificationChannel() {
 
-        val channelBackgroundTask = NotificationChannelCompat.Builder(
-            BACKGROUND_SERVICE_CHANNEL,
-            NotificationManager.IMPORTANCE_LOW
+        val seamlessUpdateGroup = NotificationChannelGroup(
+            SEAMLESS_UPDATE_GROUP,
+            getString(R.string.suGroupName)
         )
-            .setName("Background tasks")
-            .setDescription("Silent notification for background tasks")
+        seamlessUpdateGroup.description = getString(R.string.suGroupDescription)
+        notificationMgr.createNotificationChannelGroup(seamlessUpdateGroup)
+
+        val channelSeamlesslyUpdated = NotificationChannelCompat.Builder(
+            SEAMLESSLY_UPDATED_CHANNEL,
+            NotificationManager.IMPORTANCE_LOW
+        ).setName(getString(R.string.nUpdatedTitle))
+            .setDescription(getString(R.string.nUpdatedDescription))
             .setVibrationEnabled(false)
+            .setGroup(SEAMLESS_UPDATE_GROUP)
             .setShowBadge(false)
             .setLightsEnabled(false)
             .build()
 
-        val channelSeamlessUpdateSuccess = NotificationChannelCompat.Builder(
-            SEAMLESS_UPDATE_SUCCESS_CHANNEL,
-            NotificationManager.IMPORTANCE_LOW
-        )
-            .setName("Seamless updates success")
-            .setDescription("Notification regarding seamless updates success")
+        val channelConformationNeeded = NotificationChannelCompat.Builder(
+            SEAMLESS_UPDATE_INPUT_REQUIRED_CHANNEL,
+            NotificationManager.IMPORTANCE_HIGH
+        ).setName(getString(R.string.nUpdateAvailableTitle))
+            .setDescription(getString(R.string.nUpdateAvailableDescription))
             .setVibrationEnabled(false)
+            .setGroup(SEAMLESS_UPDATE_GROUP)
+            .setShowBadge(false)
+            .setLightsEnabled(false)
+            .build()
+
+        val channelAlreadyUpToDate = NotificationChannelCompat.Builder(
+            ALREADY_UP_TO_DATE_CHANNEL,
+            NotificationManager.IMPORTANCE_LOW
+        ).setName(getString(R.string.nUpToDateTitle))
+            .setDescription(getString(R.string.nUpToDateDescription))
+            .setVibrationEnabled(false)
+            .setGroup(SEAMLESS_UPDATE_GROUP)
             .setShowBadge(false)
             .setLightsEnabled(false)
             .build()
 
         val channelSeamlessUpdateFailed = NotificationChannelCompat.Builder(
             SEAMLESS_UPDATE_FAILED_CHANNEL,
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).setName(getString(R.string.nUpdatesFailedTitle))
+            .setDescription(getString(R.string.nUpdatesFailedDescription))
+            .setVibrationEnabled(false)
+            .setShowBadge(false)
+            .setGroup(SEAMLESS_UPDATE_GROUP)
+            .setLightsEnabled(false)
+            .build()
+
+        val channelBackgroundTask = NotificationChannelCompat.Builder(
+            BACKGROUND_SERVICE_CHANNEL,
             NotificationManager.IMPORTANCE_LOW
-        )
-            .setName("Seamless updates failed")
-            .setDescription("Notification regarding seamless updates failed")
+        ).setName(getString(R.string.nBackgroundTaskTitle))
+            .setDescription(getString(R.string.nBackgroundTaskDescription))
             .setVibrationEnabled(false)
             .setShowBadge(false)
             .setLightsEnabled(false)
@@ -794,7 +828,9 @@ class App : Application() {
 
         listOf(
             channelBackgroundTask,
-            channelSeamlessUpdateSuccess,
+            channelSeamlesslyUpdated,
+            channelConformationNeeded,
+            channelAlreadyUpToDate,
             channelSeamlessUpdateFailed
         ).forEach {
             notificationMgr.createNotificationChannel(it)
