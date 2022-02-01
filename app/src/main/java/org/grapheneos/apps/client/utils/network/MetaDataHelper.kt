@@ -31,7 +31,7 @@ class MetaDataHelper constructor(context: Context) {
     private val baseDir = "${context.dataDir.absolutePath}/internet/files/cache/version${version}/"
     private val tmpDir = "${context.dataDir.absolutePath}/internet/files/cache/metadata/tmp"
 
-    private val tmpMetaData = File(tmpDir, metadataFileName)
+    private val tmpMetadata = File(tmpDir, metadataFileName)
     private val tmpSign = File(tmpDir, "metadata.json.${version}.sig")
 
     private val metadata = File(baseDir, metadataFileName)
@@ -61,35 +61,30 @@ class MetaDataHelper constructor(context: Context) {
 
         try {
             /*download/validate metadata json, sign and pub files*/
-            val metadataETag = fetchContent(metadataFileName, tmpMetaData, metadata)
+            val metadataETag = fetchContent(metadataFileName, tmpMetadata, metadata)
             val metadataSignETag = fetchContent(metadataSignFileName, tmpSign, sign)
 
             //if file doesn't exist means existing file are up to date aka http response code 304
-            if (tmpMetaData.exists() && tmpSign.exists()) {
-                val message = FileInputStream(tmpMetaData).readBytes()
-                val signature = FileInputStream(tmpSign).toSignByteArray()
-
-                try {
-                    FileVerifier(PUBLIC_KEY)
-                        .verifySignature(
-                            message,
-                            signature.decodeToString()
-                        )
-                } catch (e: GeneralSecurityException) {
-                    deleteTmpFiles()
-                    throw e
-                }
-
-                /*save or updated timestamp this will take care of downgrade*/
-                verifyTimestamp(true)
-
-                tmpMetaData.renameTo(metadata)
+            if (tmpMetadata.exists() && tmpSign.exists()) {
+                verifyMetadata(isTmp = true)
+                tmpMetadata.renameTo(metadata)
                 tmpSign.renameTo(sign)
-
-                /*save/update newer eTag if there is any*/
-                saveETag(metadataFileName, metadataETag)
-                saveETag(metadataSignFileName, metadataSignETag)
             }
+            if (!metadata.exists()) {
+                throw GeneralSecurityException(App.getString(R.string.fileDoesNotExist))
+            }
+
+            /**
+             * This does not return anything if timestamp verification fails,
+             * it'll throw GeneralSecurityException. File deletion is handled
+             * at verifyTimestamp itself. Only at this point the function
+             * should save any preferences.
+             * Then, save/update newer eTag if there is any.
+             */
+            verifyMetadata(isTmp = false)
+
+            saveETag(metadataFileName, metadataETag)
+            saveETag(metadataSignFileName, metadataSignETag)
 
         } catch (e: UnknownHostException) {
             /*
@@ -99,31 +94,12 @@ class MetaDataHelper constructor(context: Context) {
              */
             throw e
         } catch (e: SecurityException) {
-            //user can deny INTERNET permission instead of crashing app let user know it's failed
+            // Temp files are deleted at this point.
             throw GeneralSecurityException(e.localizedMessage)
         }
 
-        if (!metadata.exists()) {
-            throw GeneralSecurityException(App.getString(R.string.fileDoesNotExist))
-        }
+        verifyMetadata()
         val message = FileInputStream(metadata).readBytes()
-        val signature = FileInputStream(sign).toSignByteArray()
-
-        try {
-            FileVerifier(PUBLIC_KEY)
-                .verifySignature(
-                    message,
-                    signature.decodeToString()
-                )
-
-        } catch (e: GeneralSecurityException) {
-            File(baseDir).deleteRecursively()
-            throw e
-        }
-
-        /*This does not return anything if timestamp verification fails it throw GeneralSecurityException*/
-        verifyTimestamp(false)
-
         val jsonData = JSONObject(message.decodeToString())
         val response = MetaData(
             jsonData.getLong("time"),
@@ -236,7 +212,7 @@ class MetaDataHelper constructor(context: Context) {
         return response.eTag ?: ""
     }
 
-    private fun deleteTmpFiles() = File(tmpDir).deleteRecursively()
+    private fun deleteFilesDir(dir: String) = File(dir).deleteRecursively()
 
     private fun String.toTimestamp(): Long? {
         return try {
@@ -254,17 +230,40 @@ class MetaDataHelper constructor(context: Context) {
         return eTagPreferences.getString(key, null)
     }
 
+    private fun verifyMetadata(isTmp: Boolean = false) {
+        val dir = if (isTmp) tmpDir else baseDir
+        val metadataToCheck = if (isTmp) tmpMetadata else metadata
+        val signToCheck = if (isTmp) tmpSign else sign
+        val message = FileInputStream(metadataToCheck).readBytes()
+        val signature = FileInputStream(signToCheck).toSignByteArray()
+
+        try {
+            FileVerifier(PUBLIC_KEY)
+                .verifySignature(
+                    message,
+                    signature.decodeToString()
+                )
+            /*save or updated timestamp this will take care of downgrade*/
+            verifyTimestamp(tmp = isTmp)
+        } catch (e: GeneralSecurityException) {
+            if (isTmp) deleteFilesDir(dir)
+            throw e
+        }
+    }
+
     private fun verifyTimestamp(tmp: Boolean = false) {
-        val file = if (tmp) tmpMetaData else metadata
+        val dir = if (tmp) tmpDir else baseDir
+        val file = if (tmp) tmpMetadata else metadata
         val timestamp = FileInputStream(file).readBytes().decodeToString().toTimestamp()
         val lastTimestamp = eTagPreferences.getLong(TIMESTAMP_KEY, 0L)
 
-        if (timestamp == null) throw GeneralSecurityException(App.getString(R.string.fileTimestampMissing))
+        if (timestamp == null) {
+            throw GeneralSecurityException(App.getString(R.string.fileTimestampMissing))
+        }
 
-        if (lastTimestamp != 0L && lastTimestamp > timestamp || TIMESTAMP > timestamp) {
-            deleteTmpFiles()
+        if (lastTimestamp > timestamp || TIMESTAMP > timestamp) {
             throw GeneralSecurityException(App.getString(R.string.downgradeNotAllowed))
         }
-        eTagPreferences.edit().putLong(TIMESTAMP_KEY, timestamp).apply()
+        if (!tmp) eTagPreferences.edit().putLong(TIMESTAMP_KEY, timestamp).apply()
     }
 }
