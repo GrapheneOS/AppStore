@@ -79,7 +79,6 @@
     <!--main_menu.xml-->
     <string name="settings">Settings</string>
     <string name="update_all_apps">Update all apps</string>
-    <string name="install_google_services">(Re)install Google Play apps</string>
 
     <!-- Preference Titles -->
     <string name="settings_header">Settings</string>
