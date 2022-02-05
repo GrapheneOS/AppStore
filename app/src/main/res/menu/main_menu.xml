@@ -15,10 +15,4 @@
         android:menuCategory="secondary"
         app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/install_all_gapps_menu"
-        android:title="@string/install_google_services"
-        android:menuCategory="secondary"
-        app:showAsAction="never"/>
-
 </menu>

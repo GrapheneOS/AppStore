@@ -57,10 +57,6 @@ class MainScreen : Fragment() {
                 appsViewModel.updateAllUpdatableApps { msg -> showSnackbar(msg) }
                 true
             }
-            R.id.install_all_gapps_menu -> {
-                appsViewModel.forceInstallGoogleApps { msg -> showSnackbar(msg) }
-                true
-            }
             else -> item.onNavDestinationSelected(findNavController()) ||
                     super.onOptionsItemSelected(item)
         }
