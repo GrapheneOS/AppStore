@@ -605,33 +605,6 @@ class App : Application() {
         downloadMultipleApps(appsToUpdate, callback)
     }
 
-    fun forceInstallGoogleApps(callback: (result: String) -> Unit) {
-        if (!isRequestInstallPackagesGranted()) {
-            callback.invoke(getString(R.string.allowUnknownSources))
-            return
-        }
-
-        val googleApps = listOf(
-            "com.google.android.gsf",
-            "com.google.android.gms", "com.android.vending"
-        )
-
-        val listOfVariantsToDownload = mutableListOf<PackageVariant>()
-        googleApps.forEach { pkgName ->
-            val info = packagesInfo[pkgName]
-
-            if (info == null) {
-                callback.invoke(getString(R.string.syncUnfinished))
-                return
-            }
-
-            if (info.downloadStatus is DownloadStatus.Downloading) return
-            listOfVariantsToDownload.add(info.selectedVariant)
-        }
-
-        downloadMultipleApps(listOfVariantsToDownload, callback, true)
-    }
-
     private fun isRequestInstallPackagesGranted(): Boolean {
         if (!packageManager.canRequestPackageInstalls()) {
             Toast.makeText(this, getString(R.string.allowUnknownSources), Toast.LENGTH_SHORT).show()
