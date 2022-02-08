@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Widget.Material3.Button.IconOnly" parent="Widget.Material3.Button.OutlinedButton">
         <item name="iconPadding">0dp</item>
         <item name="android:insetTop">0dp</item>
@@ -9,4 +10,14 @@
         <item name="android:minWidth">48dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
+
+    <style name="Widget.Material3.Toolbar.BrandColor" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/toolbarColor</item>
+        <item name="titleTextColor">?attr/colorControlNormal</item>
+    </style>
+
+    <style name="Widget.Material3.BottomNavigationView.BrandColor" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/bottomBarColor</item>
+    </style>
+
 </resources>

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -57,6 +58,11 @@ class MainActivity : AppCompatActivity() {
             )
         }
         setupActionBarWithNavController(navCtrl, appBarConfiguration)
+
+        navCtrl.addOnDestinationChangedListener { _, destination, _ ->
+            views.bottomNavView.isGone =
+                !appBarConfiguration.topLevelDestinations.contains(destination.id)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
