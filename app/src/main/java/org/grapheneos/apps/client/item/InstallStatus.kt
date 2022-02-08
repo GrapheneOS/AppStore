@@ -84,7 +84,7 @@ sealed class InstallStatus(
         val installedVersion: Long,
         val latestVersion: Long
     ) : InstallStatus(
-        App.getString(R.string.reinstallRequired),
+        App.getString(R.string.reinstall),
         installedV = installedVersion.toApkVersion(),
         latestV = latestVersion.toString()
     )
