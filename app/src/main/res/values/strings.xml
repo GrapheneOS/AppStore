@@ -10,6 +10,7 @@
     <string name="downgradeNotAllowed">Downgrading is not allowed</string>
 
     <string name="reinstallRequired">Re-installation required!</string>
+    <string name="reinstall">Re-install</string>
 
     <string name="update">Update</string>
     <string name="updating">Updating…</string>
