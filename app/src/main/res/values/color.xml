@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="toolbarColor">@android:color/system_accent1_50</color>
+    <color name="bottomBarColor">@android:color/system_accent1_50</color>
+    <color name="statusBarColor">@android:color/system_accent1_50</color>
+    <color name="colorControlNormal">@android:color/black</color>
+</resources>

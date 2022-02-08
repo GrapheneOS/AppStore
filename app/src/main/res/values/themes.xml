@@ -4,9 +4,9 @@
     <style name="Theme.Apps.DayNight" parent="Theme.Apps" />
 
     <style name="Theme.Apps" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@color/material_dynamic_primary40</item>
+        <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="colorControlNormal">@android:color/black</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.Apps.AppBarOverlay" parent="ThemeOverlay.Material3.Dark" />

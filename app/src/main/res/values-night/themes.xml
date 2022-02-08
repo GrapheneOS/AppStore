@@ -6,7 +6,6 @@
     <!--Only override the attribute that actually need to be changed -->
     <style name="Theme.Apps.Dark" parent="Theme.Apps">
         <item name="android:windowLightStatusBar">false</item>
-        <item name="colorControlNormal">@android:color/white</item>
     </style>
 
     <style name="Theme.Apps.PopUpOverlay" parent="ThemeOverlay.Material3.Dark" />

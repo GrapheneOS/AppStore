@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mainScreen"
+        android:enabled="true"
+        android:icon="@drawable/apps"
+        android:title="Apps" />
+
+    <item
+        android:id="@+id/updatesScreen"
+        android:enabled="true"
+        android:icon="@drawable/update"
+        android:title="Updates" />
+
+</menu>

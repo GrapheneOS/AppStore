@@ -7,11 +7,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -86,22 +83,6 @@ class MainScreen : Fragment() {
             itemAnimator = DefaultItemAnimator().apply {
                 changeDuration = 0
             }
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-            binding.appsRecyclerView
-        ) { _, insets ->
-
-            val paddingInsets = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or
-                        WindowInsetsCompat.Type.mandatorySystemGestures() or
-                        WindowInsetsCompat.Type.displayCutout()
-            )
-
-            binding.appsRecyclerView.updatePadding(
-                bottom = paddingInsets.bottom
-            )
-            insets
         }
 
         appsViewModel.packageLiveData.observe(
