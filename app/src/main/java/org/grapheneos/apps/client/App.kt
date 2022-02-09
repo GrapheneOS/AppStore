@@ -796,7 +796,7 @@ class App : Application() {
 
         val channelAlreadyUpToDate = NotificationChannelCompat.Builder(
             ALREADY_UP_TO_DATE_CHANNEL,
-            NotificationManager.IMPORTANCE_LOW
+            NotificationManager.IMPORTANCE_MIN
         ).setName(getString(R.string.nUpToDateTitle))
             .setDescription(getString(R.string.nUpToDateDescription))
             .setVibrationEnabled(false)
