@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/settingsScreen"
+        android:icon="@drawable/settings"
+        android:menuCategory="secondary"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom" />
+
+</menu>

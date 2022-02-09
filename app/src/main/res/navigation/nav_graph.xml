@@ -9,14 +9,14 @@
         android:id="@+id/mainScreen"
         android:name="org.grapheneos.apps.client.ui.mainScreen.MainScreen"
         android:label="Apps"
-        tools:layout="@layout/main_screen" >
-        <action
-            android:id="@+id/action_to_settings"
-            app:destination="@+id/settingsScreen" />
-    </fragment>
+        tools:layout="@layout/main_screen" />
     <fragment
         android:id="@+id/settingsScreen"
         android:name="org.grapheneos.apps.client.ui.settings.MainSettings"
-        android:label="Settings" >
-    </fragment>
+        android:label="Settings" />
+    <fragment
+        android:id="@+id/updatesScreen"
+        android:name="org.grapheneos.apps.client.ui.updateScreen.UpdatesScreen"
+        android:label="Updates"
+        tools:layout="@layout/updates_screen" />
 </navigation>
