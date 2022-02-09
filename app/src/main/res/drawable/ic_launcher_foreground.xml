@@ -1,32 +1,30 @@
 <!--
-Source: https://www.svgrepo.com/svg/310713/cube
-However, it does not appear to be a Fluent Fabric Icon. The
-CubeShapeSolid svg from the Fluent UI has a larger space between the
-sides of the cube.
+  Copyright (C) 2021 Google Inc.
 
-Scaling
-Trim: Yes
-Resize: 74 %
--->
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
+    http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="2.442"
-        android:scaleY="2.442"
-        android:translateX="24.696"
-        android:translateY="24.696">
+        android:scaleX="3.1397142"
+        android:scaleY="3.1397142"
+        android:translateX="16.32343"
+        android:translateY="16.32343">
         <path
             android:fillColor="#000000"
-            android:pathData="M11.7204,2.0565C11.9012,1.9832 12.1034,1.9832 12.2841,2.0565L21.5343,5.8076C21.5523,5.8149 21.57,5.8229 21.5872,5.8314L12.0065,9.7695L2.5015,5.795L11.7204,2.0565Z" />
-        <path
-            android:fillColor="#000000"
-            android:pathData="M2.001,6.6697L2.001,17.504C2.001,17.8094 2.1862,18.0843 2.4693,18.1991L11.5093,21.8625V10.6455L2.001,6.6697Z" />
-        <path
-            android:fillColor="#000000"
-            android:pathData="M12.5093,21.8551L21.531,18.1991C21.814,18.0843 21.9993,17.8094 21.9993,17.504L21.9993,6.7432L12.5093,10.644V21.8551Z" />
+            android:pathData="M19,14.87V9.13c0,-0.72 -0.38,-1.38 -1,-1.73l-5,-2.88c-0.31,-0.18 -0.65,-0.27 -1,-0.27s-0.69,0.09 -1,0.27L6,7.39C5.38,7.75 5,8.41 5,9.13v5.74c0,0.72 0.38,1.38 1,1.73l5,2.88c0.31,0.18 0.65,0.27 1,0.27s0.69,-0.09 1,-0.27l5,-2.88C18.62,16.25 19,15.59 19,14.87zM11,17.17l-4,-2.3v-4.63l4,2.33V17.17zM12,10.84L8.04,8.53L12,6.25l3.96,2.28L12,10.84zM17,14.87l-4,2.3v-4.6l4,-2.33V14.87z" />
     </group>
 </vector>
