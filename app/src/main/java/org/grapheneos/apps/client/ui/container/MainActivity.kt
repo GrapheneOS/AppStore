@@ -11,9 +11,11 @@ import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ActivityMainBinding
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
 
@@ -28,7 +30,8 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
     private val appBarConfiguration by lazy {
-        AppBarConfiguration.Builder(navCtrl.graph).build()
+        AppBarConfiguration.Builder(setOf(R.id.mainScreen, R.id.updatesScreen))
+            .build()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +60,7 @@ class MainActivity : AppCompatActivity() {
                 SeamlessUpdaterJob.NOTIFICATION_ID
             )
         }
+        NavigationUI.setupWithNavController(views.bottomNavView, navCtrl)
         setupActionBarWithNavController(navCtrl, appBarConfiguration)
 
         navCtrl.addOnDestinationChangedListener { _, destination, _ ->
