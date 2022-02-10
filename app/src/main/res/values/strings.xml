@@ -50,6 +50,7 @@
     <string name="dfSecurityError">Download failed due to a security error</string>
     <string name="dfUnknownHostError">Download failed due to being unable to locate host</string>
     <string name="dfIoError">Download failed due to an IO error</string>
+    <string name="dfCanceled">Download has been canceled</string>
 
     <!--MetadataCallBack.kt-->
     <string name="syncedSuccessfully">Synced successfully</string>
