@@ -12,7 +12,7 @@ sealed class DownloadCallBack(
 
     companion object {
         fun DownloadCallBack.toUiMsg(): String {
-            return if (isSuccessFull) genericMsg else genericMsg + "\n" + error?.localizedMessage
+            return genericMsg + if (!isSuccessFull && error != null) error.localizedMessage else ""
         }
     }
 
@@ -24,6 +24,9 @@ sealed class DownloadCallBack(
         genericMsg,
         null
     )
+
+    data class Canceled(val msg: String = App.getString(R.string.dfCanceled)) :
+        DownloadCallBack(false, msg, null)
 
     data class IoError(val e: Exception) : DownloadCallBack(
         false,

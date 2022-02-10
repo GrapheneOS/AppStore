@@ -3,10 +3,11 @@ package org.grapheneos.apps.client.utils.network
 import android.Manifest
 import android.content.Context
 import androidx.annotation.RequiresPermission
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.ensureActive
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.di.DaggerHttpHelperComponent
@@ -53,8 +54,6 @@ class ApkDownloadHelper constructor(private val context: Context) {
         variant: PackageVariant,
         progressListener: (read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean) -> Unit,
     ): DownloadCallBack {
-        val downloadJob = Job()
-        var taskSuccessful = false
         return try {
 
             val vCode = variant.versionCode
@@ -70,11 +69,12 @@ class ApkDownloadHelper constructor(private val context: Context) {
             val size = variant.packagesInfo.size
             val downloadTasks = variant.packagesInfo.map { (fileName, sha256Hash) ->
 
-                CoroutineScope(coroutineContext + downloadJob).async {
+                CoroutineScope(coroutineContext).async {
                     val downloadableFile = File(downloadDir.absolutePath, fileName)
                     val resultFile = File(resultDir.absolutePath, fileName)
                     val uri = "${PACKAGE_DIR_URL}${pkgName}/${vCode}/${fileName}"
 
+                    ensureActive()
                     if (resultFile.exists() && verifyHash(resultFile, sha256Hash)) {
                         val progress = Progress(
                             resultFile.length(),
@@ -105,6 +105,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
                                 var completed = true
                                 var calculationSize = 0
 
+                                ensureActive()
                                 completeProgress[fileName] = newProgress
                                 completeProgress.forEach { (_, progress) ->
                                     read += progress.read
@@ -130,6 +131,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
                             .downloader()
                             .saveToFile()
 
+                        ensureActive()
                         if (!verifyHash(downloadableFile, sha256Hash)) {
                             downloadableFile.delete()
                             throw GeneralSecurityException(App.getString(R.string.hashMismatch))
@@ -140,7 +142,6 @@ class ApkDownloadHelper constructor(private val context: Context) {
                 }
             }
             val apks = downloadTasks.awaitAll()
-            taskSuccessful = true
             DownloadCallBack.Success(apks = apks)
         } catch (e: IOException) {
             DownloadCallBack.IoError(e)
@@ -152,8 +153,8 @@ class ApkDownloadHelper constructor(private val context: Context) {
             DownloadCallBack.SecurityError(e)
         } catch (e: java.net.SocketException) {
             DownloadCallBack.IoError(e)
-        } finally {
-            if (taskSuccessful) downloadJob.complete() else downloadJob.cancel()
+        } catch (e: CancellationException) {
+            DownloadCallBack.Canceled()
         }
     }
 
