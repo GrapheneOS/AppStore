@@ -3,13 +3,11 @@ package org.grapheneos.apps.client.di
 import androidx.annotation.Nullable
 import org.grapheneos.apps.client.item.Progress
 import org.grapheneos.apps.client.item.network.Response
-import org.grapheneos.apps.client.utils.network.Encoding
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
-import java.util.zip.GZIPInputStream
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -31,12 +29,7 @@ class HttpModule @Inject constructor
         addBasicHeader()
     }
 
-    private fun addBasicHeader(
-        supportedEncodings: List<Encoding> = listOf(
-            Encoding.Gzip(),
-            Encoding.Uncompressed()
-        )
-    ) {
+    private fun addBasicHeader() {
         connection.apply {
             readTimeout = timeout ?: 30_000
             connectTimeout = timeout ?: 30_000
@@ -44,21 +37,13 @@ class HttpModule @Inject constructor
                 "User-Agent",
                 "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36"
             )
-
-            val encodings = StringBuilder()
-            for (i in supportedEncodings) {
-                encodings.append(i.code)
-                if (supportedEncodings.last() != i && supportedEncodings.first() == i) {
-                    encodings.append(", ")
-                }
-            }
-            addRequestProperty("Accept-Encoding", encodings.toString())
+            addRequestProperty("Accept-Encoding", "identity")
         }
     }
 
     private fun getRawFileSize(): Long {
         connection = URL(uri).openConnection() as HttpURLConnection
-        addBasicHeader(listOf(Encoding.Uncompressed()))
+        addBasicHeader()
         connection.apply {
             addRequestProperty("Accept", "*/*")
             addRequestProperty("Accept-Encoding", "identity")
@@ -110,16 +95,7 @@ class HttpModule @Inject constructor
         }
 
         connection.connect()
-        val data = when (connection.contentEncoding) {
-            Encoding.Gzip().code -> {
-                //gzip compression does not support range header so delete any
-                // existing file because download is gonna start from zero
-                file.delete()
-                GZIPInputStream(connection.inputStream)
-            }
-            else ->
-                connection.inputStream
-        }
+        val data = connection.inputStream
 
         val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, data.available())
         val out = FileOutputStream(file, file.exists())
