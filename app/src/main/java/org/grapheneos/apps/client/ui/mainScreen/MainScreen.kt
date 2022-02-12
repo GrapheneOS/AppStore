@@ -16,8 +16,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.color.DynamicColors
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialFade
 import com.google.android.material.transition.MaterialFadeThrough
@@ -28,6 +26,7 @@ import org.grapheneos.apps.client.databinding.MainScreenBinding
 import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.MetadataCallBack
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
+import org.grapheneos.apps.client.utils.showSnackbar
 
 @AndroidEntryPoint
 class MainScreen : Fragment() {
@@ -160,20 +159,6 @@ class MainScreen : Fragment() {
                 retrySync.isVisible = !isSyncing && canRetry
             }
         }
-    }
-
-    private fun showSnackbar(msg: String, isError: Boolean? = null) {
-        val snackbar = Snackbar.make(
-            DynamicColors.wrapContextIfAvailable(requireContext()),
-            binding.root,
-            msg,
-            Snackbar.LENGTH_SHORT
-        )
-
-        if (isError == true) {
-            snackbar.setTextColor(requireActivity().getColor(android.R.color.holo_red_light))
-        }
-        snackbar.show()
     }
 
 }
