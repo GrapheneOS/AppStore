@@ -25,6 +25,7 @@
     <string name="processing">Processing…</string>
     <string name="startingDownload">Starting download</string>
     <string name="downloading">Downloading…</string>
+    <string name="is_being_downloaded">is being downloaded</string>
     <string name="downloaded">Downloaded</string>
     <string name="failed">Failed</string>
     <string name="retry">Retry</string>
