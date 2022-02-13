@@ -407,21 +407,52 @@ class App : Application() {
         variant: PackageVariant,
         callback: (error: DownloadCallBack) -> Unit
     ) {
-        CoroutineScope(scopeApkDownload).launch {
+
+        if (!isDependenciesInstalled(variant)) {
+            val packages = mutableListOf<PackageVariant>()
+            packages.add(variant)
+            val dependencies = variant.includeAllDependency()
+            if (dependencies.isNotEmpty()) {
+                packages.addAll(0, variant.includeAllDependency())
+            }
+            return downloadMultipleApps(packages, callback, true)
+        }
+        CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
             val result = downloadPackages(variant)
+            if (result !is DownloadCallBack.Success) {
+                callback.invoke(result)
+            }
             if (result is DownloadCallBack.Success) {
                 val apks = result.apks
                 if (apks.isNotEmpty()) {
                     requestInstall(apks, variant.pkgName)
                 }
             }
-            callback.invoke(result)
         }
+    }
+
+    private fun PackageVariant.includeAllDependency(): List<PackageVariant> {
+
+        val result = mutableListOf<PackageVariant>()
+        this.dependencies.forEach { name ->
+
+            val dependency = this@App.packagesInfo[name]
+            dependency?.let {
+                result.add(0, dependency.selectedVariant)
+                /*dependency can have it's own dependency and that should be installed before installing this one*/
+                val subDependency = dependency.selectedVariant.includeAllDependency()
+                if (subDependency.isNotEmpty()) {
+                    result.addAll(0, subDependency)
+                }
+            }
+        }
+        //clean duplicate item and return the unique dependency
+        return result.distinct().toList()
     }
 
     private fun downloadMultipleApps(
         appsToDownload: List<PackageVariant>,
-        callback: (result: String) -> Unit,
+        callback: (result: DownloadCallBack) -> Unit,
         shouldAllSucceed: Boolean = false,
     ) {
         CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
@@ -433,7 +464,7 @@ class App : Application() {
                             throw IllegalStateException("download get called while a download task is already running")
                         }
                         val result = downloadPackages(variant)
-                        callback.invoke(result.genericMsg)
+                        callback.invoke(result)
                         packagesInfo[variant.pkgName] = packagesInfo[variant.pkgName]!!
                             .withUpdatedInstallStatus(
                                 InstallStatus.Pending(variant.versionCode.toLong())
@@ -446,25 +477,22 @@ class App : Application() {
             }
             val results = deferredDownloads.await().awaitAll()
             var shouldProceed = results.size == appsToDownload.size
-            withContext(scopeApkDownload) {
-                appsToDownload.forEach { variant ->
-                    val pkgName = variant.pkgName
-                    val result = results[appsToDownload.indexOf(variant)]
-                    when {
-                        result is DownloadCallBack.Success && shouldProceed -> {
-                            val apks = result.apks
-                            val isInstalled =
-                                withContext(scopeApkDownload) { installApps(apks, pkgName) }
-                            shouldProceed = (!shouldAllSucceed || isInstalled)
-                        }
-                        result !is DownloadCallBack.Success || !shouldProceed -> {
-                            packagesInfo[pkgName] =
-                                packagesInfo[pkgName]!!.withUpdatedInstallStatus(
-                                    getInstalledStatus(pkgName, variant.versionCode.toLong())
-                                )
-                            shouldProceed = !shouldAllSucceed
-                            updateLiveData()
-                        }
+            for (variant in appsToDownload) {
+                val pkgName = variant.pkgName
+                val result = results[appsToDownload.indexOf(variant)]
+                when {
+                    result is DownloadCallBack.Success && shouldProceed -> {
+                        val apks = result.apks
+                        val isInstalled = installApps(apks, pkgName)
+                        shouldProceed = (!shouldAllSucceed || isInstalled)
+                    }
+                    result !is DownloadCallBack.Success || !shouldProceed -> {
+                        packagesInfo[pkgName] =
+                            packagesInfo[pkgName]!!.withUpdatedInstallStatus(
+                                getInstalledStatus(pkgName, variant.versionCode.toLong())
+                            )
+                        shouldProceed = !shouldAllSucceed
+                        updateLiveData()
                     }
                 }
             }
@@ -579,6 +607,24 @@ class App : Application() {
         callback.invoke(packagesInfo[packageName]!!)
     }
 
+    fun isDependenciesInstalled(pkgName: String) =
+        isDependenciesInstalled(packagesInfo[pkgName]?.selectedVariant)
+
+
+    private fun isDependenciesInstalled(variant: PackageVariant?): Boolean {
+        var result = true
+        variant?.dependencies?.forEach {
+            val status = packagesInfo[it]
+            if (status == null || (status.installStatus !is InstallStatus.Installed ||
+                        status.installStatus !is InstallStatus.Updatable ||
+                        status.installStatus !is InstallStatus.Updated)
+            ) {
+                result = false
+            }
+        }
+        return result
+    }
+
     fun handleOnClick(
         pkgName: String,
         callback: (result: String) -> Unit
@@ -657,7 +703,9 @@ class App : Application() {
                 appsToUpdate.add(variant)
             }
         }
-        downloadMultipleApps(appsToUpdate, callback)
+        downloadMultipleApps(appsToUpdate, {
+            callback.invoke(it.toUiMsg())
+        })
     }
 
     private fun isRequestInstallPackagesGranted(): Boolean {
