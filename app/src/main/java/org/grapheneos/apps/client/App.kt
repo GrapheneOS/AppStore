@@ -384,7 +384,7 @@ class App : Application() {
                             ).withUpdatedTask(
                                 TaskInfo(
                                     taskId,
-                                    "${getString(R.string.downloading)} ${variant.appName} ...",
+                                    "${variant.appName} ${getString(R.string.is_being_downloaded)} ...",
                                     doneInPercent.toInt()
                                 )
                             )
@@ -675,9 +675,6 @@ class App : Application() {
         }
 
         CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
-            downloadAndInstallPackages(variant) {
-                callback.invoke(it.toUiMsg())
-            }
             when (status) {
                 is InstallStatus.Installable -> {
                     downloadAndInstallPackages(variant)
