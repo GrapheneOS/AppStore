@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup disableIfNoEncryptionCapabilities="true">
+
+        <!--R.string.autoUpdatePreferenceKey job Preferences/configuration-->
+        <include
+            domain="sharedpref"
+            path="seamlessUpdate" />
+
+    </cloud-backup>
+</data-extraction-rules>
