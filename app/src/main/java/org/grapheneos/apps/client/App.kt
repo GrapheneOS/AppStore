@@ -47,6 +47,8 @@ import org.grapheneos.apps.client.item.DownloadCallBack.Companion.toUiMsg
 import org.grapheneos.apps.client.item.DownloadStatus
 import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createFailed
+import org.grapheneos.apps.client.item.InstallStatus.Companion.createInstalling
+import org.grapheneos.apps.client.item.InstallStatus.Companion.createPending
 import org.grapheneos.apps.client.item.MetadataCallBack
 import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.item.PackageVariant
@@ -465,10 +467,10 @@ class App : Application() {
                         }
                         val result = downloadPackages(variant)
                         callback.invoke(result)
-                        packagesInfo[variant.pkgName] = packagesInfo[variant.pkgName]!!
-                            .withUpdatedInstallStatus(
-                                InstallStatus.Pending(variant.versionCode.toLong())
-                            )
+                        val currentInfo = packagesInfo[variant.pkgName]!!
+                        packagesInfo[variant.pkgName] = currentInfo.withUpdatedInstallStatus(
+                            currentInfo.installStatus.createPending()
+                        )
                         result
                     }
                     downloadResults.add(deferredResult)
@@ -528,15 +530,17 @@ class App : Application() {
         apks: List<File>,
         pkgName: String,
         backgroundMode: Boolean = false
-    ) {
+    ): Boolean {
+        var installed = false
         if (backgroundMode || (isActivityRunning != null && sessionIdsMap.isEmpty() && !installationCreateRequestInProgress)) {
             installationCreateRequestInProgress = true
-            installApps(apks, pkgName)
+            installed = installApps(apks, pkgName)
             confirmationAwaitedPackages.remove(pkgName)
             installationCreateRequestInProgress = false
         } else {
             confirmationAwaitedPackages[pkgName] = apks
         }
+        return installed
     }
 
     private suspend fun installApps(
@@ -556,10 +560,9 @@ class App : Application() {
                     .withUpdatedSession(
                         SessionInfo(sessionId, true)
                     ).withUpdatedInstallStatus(
-                        InstallStatus.Installing(
-                            true,
-                            pkgInfo.selectedVariant.versionCode.toLong(),
-                            true
+                        pkgInfo.installStatus.createInstalling(
+                            isInstalling = true,
+                            canCancelTask = false
                         )
                     )
                 updateLiveData()
@@ -652,7 +655,6 @@ class App : Application() {
                     { error -> callback.invoke(error.genericMsg) }
                 }
                 is InstallStatus.Installed -> {
-                    callback.invoke(getString(R.string.reinstalling))
                     downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
@@ -666,7 +668,6 @@ class App : Application() {
                     callback.invoke(getString(R.string.alreadyUpToDate))
                 }
                 is InstallStatus.Updatable -> {
-                    callback.invoke("${getString(R.string.updating)} $pkgName")
                     downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
@@ -675,7 +676,6 @@ class App : Application() {
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
                 is InstallStatus.Failed -> {
-                    callback.invoke(getString(R.string.reinstalling))
                     downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
