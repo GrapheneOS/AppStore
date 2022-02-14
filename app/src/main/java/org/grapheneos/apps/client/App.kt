@@ -578,17 +578,33 @@ class App : Application() {
         }
     }
 
-    fun openAppDetails(pkgName: String) {
-        isActivityRunning?.startActivity(
-            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.parse(String.format("package:%s", pkgName)))
-                .addCategory(Intent.CATEGORY_DEFAULT), null
-        )
+    fun openAppDetails(pkgName: String, callback: (result: String) -> Unit) {
+        try {
+            packageManager.getApplicationInfo(pkgName, PackageManager.GET_META_DATA)
+            startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(Uri.parse(String.format("package:%s", pkgName)))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .addCategory(Intent.CATEGORY_DEFAULT)
+            )
+        } catch (e: PackageManager.NameNotFoundException) {
+            callback.invoke(getString(R.string.appIsNotInstalled))
+        }
     }
 
-    fun uninstallPackage(pkgName: String, callback: (result: String) -> Unit) {
-        callback.invoke("${getString(R.string.uninstalling)} $pkgName")
+    fun uninstallPackage(pkgName: String) {
         pmHelper().uninstall(pkgName)
+    }
+
+    private fun openApp(pkgName: String, callback: (result: String) -> Unit): Boolean {
+        val intent = packageManager.getLaunchIntentForPackage(pkgName)
+        if (intent == null) {
+            callback.invoke(getString(R.string.unOpenable))
+            return false
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        return true
     }
 
     fun handleOnVariantChange(
@@ -655,8 +671,7 @@ class App : Application() {
                     { error -> callback.invoke(error.genericMsg) }
                 }
                 is InstallStatus.Installed -> {
-                    downloadAndInstallPackages(variant)
-                    { error -> callback.invoke(error.toUiMsg()) }
+                    openApp(pkgName, callback)
                 }
                 is InstallStatus.Installing -> {
                     callback.invoke(getString(R.string.installationInProgress))
@@ -665,7 +680,7 @@ class App : Application() {
                     callback.invoke(getString(R.string.uninstallationInProgress))
                 }
                 is InstallStatus.Updated -> {
-                    callback.invoke(getString(R.string.alreadyUpToDate))
+                    openApp(pkgName, callback)
                 }
                 is InstallStatus.Updatable -> {
                     downloadAndInstallPackages(variant)
