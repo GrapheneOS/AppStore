@@ -28,7 +28,7 @@ class MetaDataHelper constructor(context: Context) {
     private val metadataFileName = "metadata.${version}.json"
     private val metadataSignFileName = "metadata.${version}.json.${version}.sig"
 
-    private val baseDir = "${context.dataDir.absolutePath}/internet/files/cache/version${version}/"
+    private val baseDir = "${context.filesDir.absolutePath}/internet/files/cache/version${version}/"
     private val tmpDir = "${context.dataDir.absolutePath}/internet/files/cache/metadata/tmp"
 
     private val tmpMetaData = File(tmpDir, metadataFileName)

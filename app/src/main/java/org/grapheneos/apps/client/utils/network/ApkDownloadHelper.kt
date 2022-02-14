@@ -29,8 +29,8 @@ class ApkDownloadHelper constructor(private val context: Context) {
     companion object {
 
         fun PackageVariant.getResultRootDir(context: Context): File {
-            val cacheDir = context.cacheDir.absolutePath
-            return File("${cacheDir}/downloadedPkg/${pkgName}")
+            val files = context.filesDir.absolutePath
+            return File("${files}/downloadedPkg/${pkgName}")
         }
 
         fun PackageVariant.getResultDir(context: Context): File {
