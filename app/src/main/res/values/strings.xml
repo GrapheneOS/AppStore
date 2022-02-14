@@ -4,21 +4,22 @@
 
     <!--Status-->
     <string name="install">Install</string>
-    <string name="installing">Installing…</string>
+    <string name="install_all">Install All</string>
+    <string name="installing">Installing</string>
     <string name="reinstalling">Reinstalling…</string>
     <string name="denied">Install aborted, retry?</string>
     <string name="downgradeNotAllowed">Downgrading is not allowed</string>
-
-    <string name="reinstallRequired">Re-installation required!</string>
-    <string name="reinstall">Re-install</string>
-
+    <string name="reinstall">Reinstall</string>
     <string name="update">Update</string>
     <string name="updating">Updating…</string>
     <string name="updated">Updated</string>
     <string name="alreadyUpToDate">Already up to date!</string>
 
     <string name="uninstall">Uninstall</string>
-    <string name="uninstalling">Uninstalling…</string>
+    <string name="uninstalling">Uninstalling</string>
+    <string name="unOpenable">This app can\'t be opened</string>
+    <string name="appInfo">App Info</string>
+    <string name="appIsNotInstalled">App is not installed</string>
 
     <string name="processing">Processing…</string>
     <string name="startingDownload">Starting download</string>
@@ -28,7 +29,7 @@
     <string name="failedRetry">A failure has occurred, retry?</string>
     <string name="seamlessUpdatesCheckFailed">Checking for seamless updates failed</string>
     <string name="serverUnexpectedResponse">Server responded with unexpected HTTP code</string>
-    <string name="pending_install">Pending…</string>
+    <string name="pending_install">Pending</string>
 
     <string name="syncingMetadata">Syncing metadata</string>
     <string name="syncUnfinished">Sync has not yet finished</string>
@@ -38,6 +39,7 @@
     <string name="sha256Unsupported">SHA-256 not supported by device</string>
 
     <string name="openApp">Open app</string>
+    <string name="open">Open</string>
 
     <string name="packagesDownloading">Packages are downloading</string>
 
@@ -74,9 +76,9 @@
     <string name="uninstallationInProgress">An uninstallation is in progress</string>
     <string name="allowUnknownSources">You must allow installation from this source first</string>
 
-    <!--item_apps.xml-->
-    <string name="installed">Installed:</string>
-    <string name="latest">Latest:</string>
+    <!--details_screen.xml-->
+    <string name="installed">Installed</string>
+    <string name="latest">Latest</string>
 
     <!--main_menu.xml-->
     <string name="settings">Settings</string>

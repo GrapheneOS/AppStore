@@ -37,15 +37,15 @@ sealed class InstallStatus(
     data class Installable(
         val latestVersion: Long
     ) : InstallStatus(
-        App.getString(R.string.install), latestV = latestVersion.toString()
+        App.getString(R.string.install), latestV = latestVersion.toApkVersion()
     )
 
     data class Installed(
         val installedVersion: Long,
         val latestVersion: Long
     ) : InstallStatus(
-        App.getString(R.string.installed).replace(":", ""),
-        latestV = latestVersion.toString(),
+        App.getString(R.string.open),
+        latestV = latestVersion.toApkVersion(),
         installedV = installedVersion.toApkVersion()
     )
 
@@ -54,7 +54,7 @@ sealed class InstallStatus(
         val latestVersion: Long
     ) : InstallStatus(
         App.getString(R.string.update),
-        latestV = latestVersion.toString(),
+        latestV = latestVersion.toApkVersion(),
         installedV = installedVersion.toApkVersion()
     )
 
@@ -63,7 +63,8 @@ sealed class InstallStatus(
         val installedVersion: Long,
     ) : InstallStatus(
         App.getString(R.string.pending_install),
-        latestV = latestVersion.toString()
+        latestV = latestVersion.toApkVersion(),
+        installedV = installedVersion.toApkVersion()
     )
 
     data class Installing(
@@ -73,16 +74,17 @@ sealed class InstallStatus(
         val canCancelTask: Boolean
     ) : InstallStatus(
         App.getString(R.string.installing),
-        latestV = latestVersion.toString()
+        latestV = latestVersion.toApkVersion(),
+        installedV = installedVersion.toApkVersion()
     )
 
     data class Updated(
         val installedVersion: Long,
         val latestVersion: Long,
     ) : InstallStatus(
-        App.getString(R.string.updated),
+        App.getString(R.string.open),
         installedVersion.toApkVersion(),
-        latestVersion.toString()
+        latestVersion.toApkVersion()
     )
 
     data class Uninstalling(
@@ -92,7 +94,8 @@ sealed class InstallStatus(
         val canCancelTask: Boolean = false
     ) : InstallStatus(
         App.getString(R.string.uninstalling),
-        latestV = latestVersion.toApkVersion()
+        latestV = latestVersion.toApkVersion(),
+        installedV = installedVersion.toApkVersion()
     )
 
     data class ReinstallRequired(
@@ -101,7 +104,7 @@ sealed class InstallStatus(
     ) : InstallStatus(
         App.getString(R.string.reinstall),
         installedV = installedVersion.toApkVersion(),
-        latestV = latestVersion.toString()
+        latestV = latestVersion.toApkVersion()
     )
 
     data class Failed(
@@ -111,6 +114,7 @@ sealed class InstallStatus(
         val errorMsg: String
     ) : InstallStatus(
         status,
-        latestV = latestVersion.toApkVersion()
+        latestV = latestVersion.toApkVersion(),
+        installedV = installedVersion.toApkVersion()
     )
 }
