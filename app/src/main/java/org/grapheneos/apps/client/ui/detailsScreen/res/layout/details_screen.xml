@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/appInfoCardView"
+    style="?attr/materialCardViewStyle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:transitionName="@string/detailsScreenTransition"
+    app:cardCornerRadius="0dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:strokeWidth="0dp"
+    tools:context="org.grapheneos.apps.client.ui.detailsScreen.DetailsScreen">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/appIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:background="?attr/colorAccent"
+            app:layout_constraintBottom_toTopOf="@+id/installedLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.SmallComponent.RoundedCorner"
+            app:srcCompat="@drawable/ic_placeholder_app_icon" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/appName"
+            style="?attr/textAppearanceBodyLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            android:textFontWeight="450"
+            app:autoSizeMaxTextSize="24dp"
+            app:autoSizeMinTextSize="12dp"
+            app:layout_constraintBottom_toTopOf="@+id/publisher"
+            app:layout_constraintStart_toEndOf="@+id/appIcon"
+            app:layout_constraintTop_toTopOf="@+id/appIcon"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:ignore="TextContrastCheck"
+            tools:text="GrapheneOS App Store" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/publisher"
+            style="?attr/textAppearanceBodyMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintBottom_toBottomOf="@+id/appIcon"
+            app:layout_constraintStart_toEndOf="@+id/appIcon"
+            app:layout_constraintTop_toBottomOf="@+id/appName"
+            tools:text="GrapheneOS" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/installedLabel"
+            style="?attr/textAppearanceLabelMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/installed"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/installed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appIcon" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/installed"
+            style="?attr/textAppearanceBodySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintBottom_toTopOf="@+id/releaseNoteLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/installedLabel"
+            tools:text="2.0" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/installedInfoBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="installed,installedLabel"
+            tools:layout_editor_absoluteX="89dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/latestLabel"
+            style="?attr/textAppearanceLabelMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:text="@string/latest"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintStart_toEndOf="@+id/installedInfoBarrier"
+            app:layout_constraintTop_toTopOf="@+id/installedLabel" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/latest"
+            style="?attr/textAppearanceBodySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@+id/latestLabel"
+            app:layout_constraintTop_toBottomOf="@+id/latestLabel"
+            tools:text="7.0.1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/releaseNoteLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/release_notes"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/releaseNote"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/installed" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/releaseNote"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/no_release_note_provided"
+            app:layout_constraintBottom_toTopOf="@+id/appDescriptionLable"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/releaseNoteLabel" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/appDescriptionLable"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/app_description"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/appDescription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/releaseNote" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/appDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/no_description_provided"
+            app:layout_constraintBottom_toTopOf="@+id/appDependencyLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appDescriptionLable" />
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/appDependencyLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/dependency"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/dependencyRecyclerView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appDescription" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/dependencyRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toTopOf="@+id/bottomActions"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appDependencyLabel"
+            tools:itemCount="2"
+            tools:listitem="@layout/item_dependency" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottomActions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:constraint_referenced_ids="progressBar,install,downloadPercentInfo"
+            tools:layout_editor_absoluteY="731dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/install"
+            style="?attr/materialButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="24dp"
+            android:text="@string/install"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            style="?attr/linearProgressIndicatorStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="8dp"
+            android:progress="50"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/progressSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/progressSize"
+            style="?attr/textAppearanceLabelSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/downloadPercentInfo"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="12.04 / 43 MB" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/downloadPercentInfo"
+            style="?attr/textAppearanceLabelSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/progressSize"
+            tools:text="20%" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

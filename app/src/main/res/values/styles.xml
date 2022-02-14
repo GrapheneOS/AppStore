@@ -20,4 +20,9 @@
         <item name="android:background">@color/bottomBarColor</item>
     </style>
 
+    <style name="ShapeAppearance.MaterialComponents.SmallComponent.RoundedCorner">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
+
 </resources>
