@@ -9,7 +9,11 @@
         android:id="@+id/mainScreen"
         android:name="org.grapheneos.apps.client.ui.mainScreen.MainScreen"
         android:label="Apps"
-        tools:layout="@layout/main_screen" />
+        tools:layout="@layout/main_screen">
+        <action
+            android:id="@+id/action_to_detailsScreen"
+            app:destination="@id/detailsScreen" />
+    </fragment>
     <fragment
         android:id="@+id/settingsScreen"
         android:name="org.grapheneos.apps.client.ui.settings.MainSettings"
@@ -19,4 +23,36 @@
         android:name="org.grapheneos.apps.client.ui.updateScreen.UpdatesScreen"
         android:label="Updates"
         tools:layout="@layout/updates_screen" />
+    <fragment
+        android:id="@+id/detailsScreen"
+        android:name="org.grapheneos.apps.client.ui.detailsScreen.DetailsScreen"
+        android:label="{appName}"
+        tools:layout="@layout/details_screen">
+        <argument
+            android:name="pkgName"
+            app:argType="string" />
+        <argument
+            android:name="appName"
+            app:argType="string" />
+        <argument
+            android:name="installationRequested"
+            app:argType="boolean"/>
+        <action
+            android:id="@+id/action_detailsScreen_to_switchChannel"
+            app:destination="@id/switchChannel" />
+    </fragment>
+    <dialog
+        android:id="@+id/switchChannel"
+        android:name="org.grapheneos.apps.client.ui.switchChannel.SwitchChannel"
+        android:label="SwitchChannel" >
+        <argument
+            android:name="pkgName"
+            app:argType="string" />
+        <argument
+            android:name="channels"
+            app:argType="string[]" />
+        <argument
+            android:name="selectedChannel"
+            app:argType="string" />
+    </dialog>
 </navigation>

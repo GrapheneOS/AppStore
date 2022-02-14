@@ -19,6 +19,7 @@
     <string name="uninstalling">Uninstalling</string>
     <string name="unOpenable">This app can\'t be opened</string>
     <string name="appInfo">App Info</string>
+    <string name="switchChannel">Release channel</string>
     <string name="appIsNotInstalled">App is not installed</string>
 
     <string name="processing">Processing…</string>
@@ -117,5 +118,11 @@
     <string name="nUpdatesFailedDescription">Notification regarding failed seamless updates</string>
     <string name="nBackgroundTaskTitle">Background tasks</string>
     <string name="nBackgroundTaskDescription">Silent notification for background tasks</string>
+
+    <string name="no_release_note_provided">Release note has not been provided.</string>
+    <string name="no_description_provided">App description has not been provided.</string>
+    <string name="app_description">App Description</string>
+    <string name="release_notes">Release Notes</string>
+    <string name="dependency">Dependency</string>
 
 </resources>

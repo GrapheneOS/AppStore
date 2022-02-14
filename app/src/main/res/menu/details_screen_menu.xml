@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/uninstall"
+        android:title="@string/uninstall" />
+    <item
+        android:id="@+id/appInfo"
+        android:title="@string/appInfo" />
+    <item
+        android:id="@+id/switchChannel"
+        android:title="@string/switchChannel" />
+</menu>
