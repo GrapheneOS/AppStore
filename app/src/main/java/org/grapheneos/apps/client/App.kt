@@ -114,6 +114,8 @@ class App : Application() {
     private val packagesInfo: MutableMap<String, PackageInfo> = mutableMapOf()
     private val packagesMutableLiveData = MutableLiveData<Map<String, PackageInfo>>()
     val packageLiveData: LiveData<Map<String, PackageInfo>> = packagesMutableLiveData
+    private val updatableAppsCount: MutableLiveData<Int> = MutableLiveData()
+    val updateCount: LiveData<Int> = updatableAppsCount
 
     private val jobPsfsMgr by lazy {
         JobPsfsMgr(this)
@@ -187,8 +189,14 @@ class App : Application() {
         /*process current value*/
         var allTaskCompleted = true
         var foregroundServiceNeeded = false
+        var updatableCount = 0
 
         for (packageInfo in values) {
+            if (packageInfo.installStatus is InstallStatus.Updatable
+                && packageInfo.downloadStatus !is DownloadStatus.Downloading
+            ) {
+                updatableCount++
+            }
             val task = packageInfo.taskInfo
 
             if (task.progress == DOWNLOAD_TASK_FINISHED) {
@@ -208,6 +216,7 @@ class App : Application() {
         }
 
         isDownloadRunning.postValue(allTaskCompleted)
+        updatableAppsCount.postValue(updatableCount)
 
         if (!isServiceRunning) {
             if (foregroundServiceNeeded && !isSeamlessUpdateRunning()) {
@@ -739,7 +748,6 @@ class App : Application() {
         }
         return true
     }
-
 
     private fun isSeamlessUpdateRunning() =
         this::seamlessUpdaterJob.isInitialized

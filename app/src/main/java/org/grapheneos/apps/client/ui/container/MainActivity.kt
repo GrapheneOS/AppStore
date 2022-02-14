@@ -9,12 +9,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ActivityMainBinding
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
@@ -32,6 +34,15 @@ class MainActivity : AppCompatActivity() {
     private val appBarConfiguration by lazy {
         AppBarConfiguration.Builder(setOf(R.id.mainScreen, R.id.updatesScreen))
             .build()
+    }
+
+    private val obs = Observer<Int> { updatableCount ->
+        if (updatableCount == 0) {
+            views.bottomNavView.removeBadge(R.id.updatesScreen)
+        } else {
+            views.bottomNavView.getOrCreateBadge(R.id.updatesScreen).number = updatableCount
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +78,7 @@ class MainActivity : AppCompatActivity() {
             views.bottomNavView.isGone =
                 !appBarConfiguration.topLevelDestinations.contains(destination.id)
         }
+        (applicationContext as App).updateCount.observe(this, obs)
     }
 
     override fun onSupportNavigateUp(): Boolean {
