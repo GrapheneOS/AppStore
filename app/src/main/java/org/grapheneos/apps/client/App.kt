@@ -609,10 +609,14 @@ class App : Application() {
 
     fun handleOnVariantChange(
         packageName: String,
-        channel: String,
-        callback: (info: PackageInfo) -> Unit
+        channel: String
     ) {
         val infoToCheck = packagesInfo[packageName] ?: return
+        ChannelPreferenceManager.savePackageChannel(
+            this,
+            packageName,
+            channel
+        )
         val channelVariants = infoToCheck.allVariant
         var channelVariant: PackageVariant = infoToCheck.selectedVariant
         channelVariants.forEach { packageVariant ->
@@ -623,7 +627,7 @@ class App : Application() {
         val installStatus = getInstalledStatus(packageName, channelVariant.versionCode.toLong())
         packagesInfo[packageName] = infoToCheck.withUpdatedVariant(channelVariant)
             .withUpdatedInstallStatus(installStatus)
-        callback.invoke(packagesInfo[packageName]!!)
+        updateLiveData()
     }
 
     fun isDependenciesInstalled(pkgName: String) =
