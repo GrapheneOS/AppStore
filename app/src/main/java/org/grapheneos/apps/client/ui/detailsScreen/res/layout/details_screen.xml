@@ -42,6 +42,7 @@
             android:autoSizeTextType="uniform"
             android:maxLines="1"
             android:textFontWeight="450"
+            app:layout_constraintWidth_max="wrap"
             app:autoSizeMaxTextSize="24dp"
             app:autoSizeMinTextSize="12dp"
             app:layout_constraintBottom_toTopOf="@+id/publisher"
@@ -50,6 +51,27 @@
             app:layout_constraintVertical_chainStyle="packed"
             tools:ignore="TextContrastCheck"
             tools:text="GrapheneOS App Store" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/releaseTag"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:clickable="false"
+            android:contextClickable="false"
+            android:longClickable="false"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="11sp"
+            app:chipBackgroundColor="?attr/colorPrimary"
+            app:chipMinHeight="15dp"
+            app:layout_constraintBottom_toBottomOf="@+id/appName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/appName"
+            app:layout_constraintTop_toTopOf="@+id/appName"
+            tools:text="BETA" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/publisher"
