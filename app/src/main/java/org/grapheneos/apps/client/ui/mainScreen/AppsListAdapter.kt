@@ -2,6 +2,7 @@ package org.grapheneos.apps.client.ui.mainScreen
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.grapheneos.apps.client.databinding.ItemAppsBinding
@@ -44,6 +45,8 @@ class AppsListAdapter(private val mainScreen: MainScreen) :
                 quickAction.isEnabled = downloadStatus == null
                 quickAction.text = installStatus.status
                 publisher.text = AppSourceHelper.getCategoryName(packageName)
+                releaseTag.isVisible = "stable" != packageVariant.type
+                releaseTag.text = packageVariant.type
             }
         }
     }
