@@ -199,6 +199,8 @@ class DetailsScreen : Fragment() {
             progressBar.progress = progress
             progressSize.text = progressSizeInfo
             downloadPercentInfo.text = String.format("%s %%", progress)
+            releaseTag.isVisible = "stable" != variant.type
+            releaseTag.text = variant.type
         }
     }
 
