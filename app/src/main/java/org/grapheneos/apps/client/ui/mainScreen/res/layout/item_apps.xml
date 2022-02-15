@@ -19,14 +19,13 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/appName"
-            style="?attr/textAppearanceBodyLarge"
+            style="@style/TextAppearance.Material3.LabelLarge"
             android:layout_width="0dp"
             android:layout_marginTop="16dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toStartOf="@+id/releaseTag"
             android:autoSizeTextType="uniform"
             android:maxLines="1"
-            android:textFontWeight="450"
             app:autoSizeMaxTextSize="22dp"
             app:autoSizeMinTextSize="12dp"
             app:layout_constraintBottom_toTopOf="@+id/publisher"
