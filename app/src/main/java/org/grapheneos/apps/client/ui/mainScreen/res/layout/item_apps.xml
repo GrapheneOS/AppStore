@@ -9,8 +9,7 @@
     android:layout_marginVertical="8dp"
     android:checkable="true"
     android:clickable="true"
-    android:focusable="true"
-    app:cardCornerRadius="25dp">
+    android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
