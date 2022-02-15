@@ -2,6 +2,7 @@ package org.grapheneos.apps.client.ui.updateScreen
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.grapheneos.apps.client.App
@@ -24,12 +25,17 @@ class UpdatesListAdapter(
 
         fun bind(position: Int) {
             val item = currentList[position]
-            binding.appName.text = item.packageInfo.selectedVariant.appName
-            binding.quickAction.text = App.getString(R.string.update)
-            binding.quickAction.setOnClickListener {
-                onUpdateListener.invoke(item.name)
+            val variant = item.packageInfo.selectedVariant
+            binding.apply {
+                appName.text = variant.appName
+                quickAction.text = App.getString(R.string.update)
+                quickAction.setOnClickListener {
+                    onUpdateListener.invoke(item.name)
+                }
+                publisher.text = AppSourceHelper.getCategoryName(item.name)
+                releaseTag.isVisible = "stable" != variant.type
+                releaseTag.text = variant.type
             }
-            binding.publisher.text = AppSourceHelper.getCategoryName(item.name)
         }
     }
 
