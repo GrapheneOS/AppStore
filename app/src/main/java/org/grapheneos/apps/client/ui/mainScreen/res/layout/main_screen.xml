@@ -8,7 +8,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/syncing"
-        style="@style/TextAppearance.Material3.HeadlineMedium"
+        style="?attr/textAppearanceHeadlineMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/syncingMetadata"
@@ -19,10 +19,10 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/retrySync"
-        style="@style/Widget.Material3.Button"
+        style="?attr/materialButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/failedRetry"
+        android:text="@string/retry"
         android:textAllCaps="false"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,18 +30,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/syncingProgressbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:indeterminate="true"
+        app:layout_constraintEnd_toEndOf="@+id/syncing"
+        app:layout_constraintStart_toStartOf="@+id/syncing"
+        app:layout_constraintTop_toBottomOf="@+id/syncing" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:padding="12dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="12dp"
         android:transitionGroup="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:itemCount="10"
-        tools:listitem="@layout/item_apps" />
+        tools:listitem="@layout/item_apps"
+        tools:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
