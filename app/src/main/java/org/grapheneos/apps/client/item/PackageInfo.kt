@@ -1,6 +1,11 @@
 package org.grapheneos.apps.client.item
 
+import android.content.Context
 import org.grapheneos.apps.client.App
+import org.grapheneos.apps.client.utils.network.ApkDownloadHelper.Companion.getDownloadRootDir
+import org.grapheneos.apps.client.utils.network.ApkDownloadHelper.Companion.getResultDir
+import org.grapheneos.apps.client.utils.network.ApkDownloadHelper.Companion.getResultRootDir
+import java.io.File
 
 /**
  * This data class hold everything about a package name including
@@ -18,6 +23,38 @@ data class PackageInfo(
     val downloadStatus: DownloadStatus? = null,
     val installStatus: InstallStatus
 ) {
+
+    companion object {
+        fun PackageInfo.cleanCachedFiles(context: Context) {
+            val installedVersion = installStatus.latestV.toLongOrNull() ?: 0L
+
+            //if the app is installed purge any cached apk files
+            if (installedVersion != 0L) {
+                selectedVariant.apply {
+                    getResultRootDir(context).deleteRecursively()
+                    getDownloadRootDir(context).deleteRecursively()
+
+                }
+            } else {
+                // else only purge unneeded cached apk files
+                selectedVariant.apply {
+                    getResultRootDir(context).cleanOldFiles(getResultDir(context))
+                    getDownloadRootDir(context).cleanOldFiles(getResultDir(context))
+                }
+            }
+        }
+
+        private fun File.cleanOldFiles(currentFile: File) {
+            if (exists()) {
+                list()?.forEach { path ->
+                    val dir = File("${absolutePath}/$path")
+                    if (currentFile.absolutePath != dir.absolutePath) {
+                        dir.deleteRecursively()
+                    }
+                }
+            }
+        }
+    }
 
     fun withUpdatedInstallStatus(newStatus: InstallStatus) = PackageInfo(
         id, sessionInfo, selectedVariant, allVariant, taskInfo,
