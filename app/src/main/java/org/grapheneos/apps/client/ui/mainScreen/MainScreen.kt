@@ -7,21 +7,26 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFade
+import com.google.android.material.transition.MaterialFadeThrough
 import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.MainScreenBinding
+import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.MetadataCallBack
-import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 
 @AndroidEntryPoint
@@ -64,19 +69,11 @@ class MainScreen : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)
-        val appsListAdapter = AppsListAdapter(onInstallItemClick = { packageName ->
-            appsViewModel.handleOnClick(packageName) { msg ->
-                showSnackbar(msg)
-            }
-        }, onChannelItemClick = { packageName, channel, callback ->
-            appsViewModel.handleOnVariantChange(packageName, channel, callback)
-        }, onUninstallItemClick = { packageName ->
-            appsViewModel.uninstallPackage(packageName) { msg ->
-                showSnackbar(msg)
-            }
-        }, onAppInfoItemClick = { packageName ->
-            appsViewModel.openAppDetails(packageName)
-        })
+        val appsListAdapter = AppsListAdapter(this)
+        postponeEnterTransition()
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
 
         binding.appsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -91,9 +88,11 @@ class MainScreen : Fragment() {
         ) { newValue ->
             runOnUiThread {
                 val packagesInfoMap = newValue ?: return@runOnUiThread
-                val sent = packagesInfoMap.toInstall()
+                val sent = InstallablePackageInfo.fromMap(newValue)
                 updateUi(isSyncing = false, packagesInfoMap.isNullOrEmpty())
-                appsListAdapter.submitList(sent)
+                appsListAdapter.submitList(sent.sortedByDescending {
+                    it.packageInfo.installStatus is InstallStatus.Installable
+                })
             }
         }
 
@@ -101,13 +100,38 @@ class MainScreen : Fragment() {
         refresh()
     }
 
-    private fun Map<String, PackageInfo>.toInstall(): List<InstallablePackageInfo> {
-        val result = mutableListOf<InstallablePackageInfo>()
-        val value = this.values
-        for (item in value) {
-            result.add(InstallablePackageInfo(item.id, item))
+    override fun onResume() {
+        super.onResume()
+        exitTransition = MaterialFadeThrough()
+        reenterTransition = MaterialFade()
+    }
+
+    fun installPackage(root: View, appName: String, pkgName: String) {
+        if (!appsViewModel.isDependenciesInstalled(pkgName)) {
+            navigateToDetailsScreen(root, appName, pkgName, true)
+        } else {
+            appsViewModel.handleOnClick(pkgName) { msg ->
+                showSnackbar(msg)
+            }
         }
-        return result
+    }
+
+    fun navigateToDetailsScreen(
+        root: View,
+        appName: String,
+        pkgName: String,
+        installationRequested: Boolean = false
+    ) {
+        exitTransition = MaterialElevationScale(false)
+        reenterTransition = MaterialElevationScale(true)
+        val extra = FragmentNavigatorExtras(root to getString(R.string.detailsScreenTransition))
+        findNavController().navigate(
+            MainScreenDirections.actionToDetailsScreen(
+                pkgName,
+                appName,
+                installationRequested
+            ), extra
+        )
     }
 
     private fun runOnUiThread(action: Runnable) {
@@ -129,9 +153,12 @@ class MainScreen : Fragment() {
 
     private fun updateUi(isSyncing: Boolean = true, canRetry: Boolean = false) {
         runOnUiThread {
-            binding.syncing.isVisible = isSyncing
-            binding.appsRecyclerView.isGone = isSyncing || canRetry
-            binding.retrySync.isVisible = !isSyncing && canRetry
+            binding.apply {
+                syncing.isVisible = isSyncing
+                syncingProgressbar.isVisible = isSyncing
+                appsRecyclerView.isGone = isSyncing || canRetry
+                retrySync.isVisible = !isSyncing && canRetry
+            }
         }
     }
 
