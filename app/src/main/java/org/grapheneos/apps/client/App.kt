@@ -51,6 +51,7 @@ import org.grapheneos.apps.client.item.InstallStatus.Companion.createInstalling
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createPending
 import org.grapheneos.apps.client.item.MetadataCallBack
 import org.grapheneos.apps.client.item.PackageInfo
+import org.grapheneos.apps.client.item.PackageInfo.Companion.cleanCachedFiles
 import org.grapheneos.apps.client.item.PackageVariant
 import org.grapheneos.apps.client.item.SeamlessUpdateResponse
 import org.grapheneos.apps.client.item.SessionInfo
@@ -281,9 +282,9 @@ class App : Application() {
                         )
                     )
                     packagesInfo[pkgName] = info.withUpdatedInstallStatus(installStatus)
+                    info.cleanCachedFiles(this)
                 }
             }
-            res.cleanOldFiles(this)
             updateLiveData()
             return MetadataCallBack.Success(res.timestamp)
         } catch (e: GeneralSecurityException) {
@@ -310,6 +311,7 @@ class App : Application() {
 
         refreshJob = Job()
         CoroutineScope(scopeMetadataRefresh + refreshJob).launch(Dispatchers.IO) {
+            delay(500)
             callback.invoke(refreshMetadata())
             refreshJob.complete()
         }
@@ -581,7 +583,12 @@ class App : Application() {
                     delay(1000)
                 }
                 pkgInfo = packagesInfo[pkgName]!!
-                pkgInfo.installStatus is InstallStatus.Updated || pkgInfo.installStatus is InstallStatus.Installed
+                val result =
+                    pkgInfo.installStatus is InstallStatus.Updated || pkgInfo.installStatus is InstallStatus.Installed
+                if (result) {
+                    pkgInfo.cleanCachedFiles(this@App)
+                }
+                result
             }
         } catch (e: TimeoutCancellationException) {
             pkgInfo = packagesInfo[pkgName]!!
