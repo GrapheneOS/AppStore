@@ -2,10 +2,10 @@ package org.grapheneos.apps.client.ui.switchChannel
 
 import android.app.Dialog
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.grapheneos.apps.client.App
 
 class SwitchChannel : DialogFragment() {
@@ -30,7 +30,7 @@ class SwitchChannel : DialogFragment() {
             }
         }
 
-        val dialog = AlertDialog.Builder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Select release channel")
             .setSingleChoiceItems(channels.toTypedArray(), preSelectedIndex) { _, index ->
                 selectedIndex = index
