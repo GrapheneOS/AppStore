@@ -1,6 +1,5 @@
 package org.grapheneos.apps.client.utils
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -27,7 +26,6 @@ class PackageManagerHelper(private val context: Context) {
         return result.toTypedArray()
     }
 
-    @SuppressLint("UnspecifiedImmutableFlag")
     private fun installApks(files: Array<String>): Int {
         val packageInstaller: PackageInstaller = context.packageManager.packageInstaller
         val nameSizeMap = HashMap<String, Long>()
@@ -91,6 +89,12 @@ class PackageManagerHelper(private val context: Context) {
             e.printStackTrace()
             return -999
         }
+    }
+
+    fun abandonSession(sessionId: Int) {
+        val session = context.packageManager.packageInstaller.openSession(sessionId)
+        session.abandon()
+        session.close()
     }
 
     fun uninstall(packageName: String) {
