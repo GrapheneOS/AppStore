@@ -558,10 +558,11 @@ class App : Application() {
     ): Boolean {
         val maxInstallTime = 5 * 60 * 1000L //Max wait for 5 min
         var pkgInfo: PackageInfo
+        var sessionId = 0
 
         return try {
             return withTimeout(maxInstallTime) {
-                val sessionId = this@App.pmHelper().install(apks)
+                sessionId = this@App.pmHelper().install(apks)
                 pkgInfo = packagesInfo[pkgName]!!
 
                 sessionIdsMap[sessionId] = pkgName
@@ -583,6 +584,11 @@ class App : Application() {
                 pkgInfo.installStatus is InstallStatus.Updated || pkgInfo.installStatus is InstallStatus.Installed
             }
         } catch (e: TimeoutCancellationException) {
+            pkgInfo = packagesInfo[pkgName]!!
+            packagesInfo[pkgName] = packagesInfo[pkgName]!!.withUpdatedInstallStatus(
+                pkgInfo.installStatus.createFailed(e.localizedMessage ?: "")
+            ).withUpdatedSession(SessionInfo(sessionId, false))
+            this@App.pmHelper().abandonSession(sessionId)
             false
         }
     }
