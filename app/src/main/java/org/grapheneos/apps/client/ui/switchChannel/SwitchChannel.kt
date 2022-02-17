@@ -7,6 +7,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.grapheneos.apps.client.App
+import org.grapheneos.apps.client.R
 
 class SwitchChannel : DialogFragment() {
 
@@ -31,16 +32,16 @@ class SwitchChannel : DialogFragment() {
         }
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Select release channel")
+            .setTitle(resources.getString(R.string.release_channel))
             .setSingleChoiceItems(channels.toTypedArray(), preSelectedIndex) { _, index ->
                 selectedIndex = index
             }
             .setCancelable(true)
-            .setPositiveButton("ok") { _, _ ->
+            .setPositiveButton(resources.getString(R.string.select)) { _, _ ->
                 app.handleOnVariantChange(args.pkgName, channels[selectedIndex])
                 findNavController().popBackStack()
             }
-            .setNegativeButton("cancel") { _, _ ->
+            .setNegativeButton(resources.getString(R.string.cancel)) { _, _ ->
                 findNavController().popBackStack()
             }
 

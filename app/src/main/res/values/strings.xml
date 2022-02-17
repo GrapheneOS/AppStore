@@ -126,4 +126,9 @@
     <string name="release_notes">Release Notes</string>
     <string name="dependency">Dependency</string>
 
+    <!-- SwitchChannel.kt -->
+    <string name="release_channel">Release channel</string>
+    <string name="select">Select</string>
+    <string name="cancel">Cancel</string>
+
 </resources>
