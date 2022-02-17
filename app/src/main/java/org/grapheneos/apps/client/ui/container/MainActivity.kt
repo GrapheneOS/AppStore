@@ -52,6 +52,18 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(views.toolbar)
         window.setDecorFitsSystemWindows(false)
 
+        ViewCompat.setOnApplyWindowInsetsListener(views.root) { v, insets ->
+            val paddingInsets = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = paddingInsets.left
+                rightMargin = paddingInsets.right
+            }
+            insets
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(
             views.toolbar
         ) { v, insets ->
