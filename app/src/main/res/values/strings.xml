@@ -131,4 +131,20 @@
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
 
+
+    <string name="ok">OK</string>
+    <string name="installationFailed">Installation Failed</string>
+    <string name="installationBlocked">Installation Blocked</string>
+
+    <!--InstallCallback.kt-->
+    <string name="icAborted">Installation Aborted</string>
+    <string name="icPending">User Action Pending</string>
+    <string name="icSuccess">Installed Successful</string>
+    <string name="icUnknownError">An unknown error occurred</string>
+    <string name="icStorage">Your device does not have enough free storage space</string>
+    <string name="icInvalid">The app is corrupt</string>
+    <string name="icConflict">Your device has an app installed with the same package name, but a different signature</string>
+    <string name="icBlocked">The policy on this device prevents app installation</string>
+    <string name="icIncompatible">A newer version of the app is already installed</string>
+
 </resources>
