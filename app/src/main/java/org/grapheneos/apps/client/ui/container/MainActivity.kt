@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ActivityMainBinding
+import org.grapheneos.apps.client.item.InstallCallBack
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
 
 @AndroidEntryPoint
@@ -96,6 +97,12 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return navCtrl.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    fun navigateToErrorScreen(status: InstallCallBack) {
+        navCtrl.navigate(R.id.installErrorScreen, Bundle().apply {
+            putParcelable("error", status)
+        })
     }
 
 }
