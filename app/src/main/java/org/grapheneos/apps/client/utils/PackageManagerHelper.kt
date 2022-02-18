@@ -102,7 +102,7 @@ class PackageManagerHelper(private val context: Context) {
             PendingIntent.getBroadcast(
                 context.applicationContext,
                 0,
-                Intent(context.applicationContext, APKInstallReceiver::class.java),
+                Intent(context.applicationContext, APKUninstallReceiver::class.java),
                 PendingIntent.FLAG_MUTABLE
             )
 

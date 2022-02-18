@@ -33,6 +33,7 @@
         </activity>
 
         <receiver android:name=".utils.APKInstallReceiver" />
+        <receiver android:name=".utils.APKUninstallReceiver" />
 
         <service
             android:name=".service.SeamlessUpdaterJob"
