@@ -64,4 +64,9 @@
             app:argType="org.grapheneos.apps.client.item.InstallCallBack" />
     </dialog>
     <action android:id="@+id/action_global_installError" app:destination="@id/installErrorScreen" />
+    <dialog
+        android:id="@+id/installRestriction"
+        android:name="org.grapheneos.apps.client.ui.installRestriction.InstallRestriction"
+        android:label="InstallRestriction" />
+    <action android:id="@+id/installRestrictionScreen" app:destination="@id/installRestriction" />
 </navigation>
