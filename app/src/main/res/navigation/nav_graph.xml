@@ -55,4 +55,13 @@
             android:name="selectedChannel"
             app:argType="string" />
     </dialog>
+    <dialog
+        android:id="@+id/installErrorScreen"
+        android:name="org.grapheneos.apps.client.ui.installError.InstallError"
+        android:label="Install Error" >
+        <argument
+            android:name="error"
+            app:argType="org.grapheneos.apps.client.item.InstallCallBack" />
+    </dialog>
+    <action android:id="@+id/action_global_installError" app:destination="@id/installErrorScreen" />
 </navigation>
