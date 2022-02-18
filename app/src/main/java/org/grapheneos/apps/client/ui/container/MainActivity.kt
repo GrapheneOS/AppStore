@@ -21,6 +21,7 @@ import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ActivityMainBinding
 import org.grapheneos.apps.client.item.InstallCallBack
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
+import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -93,6 +94,14 @@ class MainActivity : AppCompatActivity() {
         }
         (applicationContext as App).updateCount.observe(this, obs)
     }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        if (isInstallBlockedByAdmin()) {
+            navCtrl.navigate(R.id.installRestrictionScreen)
+        }
+    }
+
 
     override fun onSupportNavigateUp(): Boolean {
         return navCtrl.navigateUp(appBarConfiguration)
