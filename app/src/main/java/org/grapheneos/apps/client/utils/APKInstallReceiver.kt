@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import org.grapheneos.apps.client.App
-import org.grapheneos.apps.client.R
+import org.grapheneos.apps.client.item.InstallCallBack
 
 class APKInstallReceiver : BroadcastReceiver() {
 
@@ -14,8 +14,9 @@ class APKInstallReceiver : BroadcastReceiver() {
 
         val sessionId = intent.getIntExtra(PackageInstaller.EXTRA_SESSION_ID, -999)
         val app = context.applicationContext as App
+        val unknownCode = -999
 
-        when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -999)) {
+        when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, unknownCode)) {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                 val confirmationIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
                 confirmationIntent?.let {
@@ -24,35 +25,34 @@ class APKInstallReceiver : BroadcastReceiver() {
                 }
             }
             PackageInstaller.STATUS_FAILURE_ABORTED -> {
-                app.installIntentResponse(sessionId, App.getString(R.string.aborted), true)
+                app.installErrorResponse(InstallCallBack.FailureAborted(sessionId))
             }
             PackageInstaller.STATUS_SUCCESS -> {
-                //View Model have active listener for ACTION_PACKAGE_ADDED
                 app.installSuccess(sessionId)
             }
             PackageInstaller.STATUS_FAILURE -> {
-                app.installIntentResponse(sessionId, App.getString(R.string.failed))
+                app.installErrorResponse(InstallCallBack.Failure(sessionId))
             }
             PackageInstaller.STATUS_FAILURE_STORAGE -> {
-                app.installIntentResponse(sessionId, App.getString(R.string.storageFailure))
+                app.installErrorResponse(InstallCallBack.FailureStorage(sessionId))
             }
             PackageInstaller.STATUS_FAILURE_INVALID -> {
-                app.installIntentResponse(sessionId, App.getString(R.string.invalidFailure))
+                app.installErrorResponse(InstallCallBack.FailureInvalid(sessionId))
             }
             PackageInstaller.STATUS_FAILURE_INCOMPATIBLE -> {
-                app.installIntentResponse(sessionId, App.getString(R.string.incompatibleApp))
+                app.installErrorResponse(InstallCallBack.Incompatible(sessionId))
             }
             PackageInstaller.STATUS_FAILURE_CONFLICT -> {
-                app.installIntentResponse(
-                    sessionId,
-                    App.getString(R.string.conflictingPackagesError)
-                )
+                app.installErrorResponse(InstallCallBack.Conflict(sessionId))
             }
             PackageInstaller.STATUS_FAILURE_BLOCKED -> {
-                app.installIntentResponse(sessionId, App.getString(R.string.installationBlocked))
+                app.installErrorResponse(InstallCallBack.Blocked(sessionId))
+            }
+            unknownCode -> {
+                //ignore it
             }
             else -> {
-                app.installIntentResponse(sessionId, App.getString(R.string.unknownError))
+                app.installErrorResponse(InstallCallBack.Failure(sessionId))
             }
         }
     }

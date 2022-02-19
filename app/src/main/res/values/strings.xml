@@ -64,15 +64,6 @@
     <string name="sfDecoderError">Sync failed due a content decoding error</string>
     <string name="sfUnknownHostError">Sync failed due to being unable to locate host</string>
 
-    <!--APKInstallReceiver-->
-    <string name="storageFailure">Storage Failure</string>
-    <string name="aborted">User aborted installation</string>
-    <string name="invalidFailure">Invalid Failure</string>
-    <string name="incompatibleApp">Incompatible app</string>
-    <string name="conflictingPackagesError">Installation failed due to a conflicting package</string>
-    <string name="installationBlocked">Installation blocked</string>
-    <string name="unknownError">Unknown Error</string>
-
     <!--App.kt-->
     <string name="installationInProgress">"An installation is in progress"</string>
     <string name="uninstallationInProgress">An uninstallation is in progress</string>
