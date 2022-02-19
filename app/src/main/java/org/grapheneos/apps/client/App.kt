@@ -45,6 +45,7 @@ import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.item.DownloadCallBack
 import org.grapheneos.apps.client.item.DownloadCallBack.Companion.toUiMsg
 import org.grapheneos.apps.client.item.DownloadStatus
+import org.grapheneos.apps.client.item.InstallCallBack
 import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createFailed
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createInstalling
@@ -58,6 +59,7 @@ import org.grapheneos.apps.client.item.SessionInfo
 import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
+import org.grapheneos.apps.client.ui.container.MainActivity
 import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
@@ -78,6 +80,7 @@ import kotlin.random.Random
 class App : Application() {
 
     companion object {
+        const val INSTALLATION_FAILED_CHANNEL = "installationFailed"
         const val BACKGROUND_SERVICE_CHANNEL = "backgroundTask"
         const val SEAMLESS_UPDATE_FAILED_CHANNEL = "seamlessUpdateFailed"
         const val SEAMLESSLY_UPDATED_CHANNEL = "seamlesslyUpdated"
@@ -85,6 +88,7 @@ class App : Application() {
         const val SEAMLESS_UPDATE_INPUT_REQUIRED_CHANNEL = "seamlessUpdateInputConfirmation"
 
         const val SEAMLESS_UPDATE_GROUP = "seamlessUpdateGroup"
+        const val INSTALLATION_FAILED_GROUP = "installationFailedGroup"
 
         const val DOWNLOAD_TASK_FINISHED = 1000
         private lateinit var context: WeakReference<Context>
@@ -231,15 +235,32 @@ class App : Application() {
         }
     }
 
-    fun installIntentResponse(sessionId: Int, errorMsg: String, userDeclined: Boolean = false) {
+    fun installErrorResponse(error: InstallCallBack) {
+
+        if (!error.unresolvableError) return
+        val sessionId = error.sessionId
         val pkgName = sessionIdsMap[sessionId]
         sessionIdsMap.remove(sessionId)
         if (pkgName == null) return
         val info = packagesInfo[pkgName] ?: return
+        val activity = isActivityRunning
+
+        if (activity != null) {
+            (activity as MainActivity).navigateToErrorScreen(error)
+        } else {
+            val notification = Notification.Builder(this, INSTALLATION_FAILED_CHANNEL)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("${info.selectedVariant.appName} ${getString(R.string.installationFailed)}")
+                .setContentText(error.description)
+                .setAutoCancel(true)
+                .build()
+            notificationMgr.notify(sessionId, notification)
+        }
+
         packagesInfo[pkgName] = info.withUpdatedInstallStatus(
             info.installStatus.createFailed(
-                errorMsg,
-                if (userDeclined) App.getString(R.string.denied) else null
+                error.description,
+                App.getString(R.string.retry)
             )
         )
         updateLiveData()
@@ -337,7 +358,6 @@ class App : Application() {
             return InstallStatus.Installable(latestVersion)
         }
     }
-
 
     private suspend fun downloadPackages(
         variant: PackageVariant,
@@ -655,7 +675,6 @@ class App : Application() {
     fun isDependenciesInstalled(pkgName: String) =
         isDependenciesInstalled(packagesInfo[pkgName]?.selectedVariant)
 
-
     private fun isDependenciesInstalled(variant: PackageVariant?): Boolean {
         var result = true
         variant?.dependencies?.forEach {
@@ -906,7 +925,26 @@ class App : Application() {
             getString(R.string.suGroupName)
         )
         seamlessUpdateGroup.description = getString(R.string.suGroupDescription)
-        notificationMgr.createNotificationChannelGroup(seamlessUpdateGroup)
+        val installationFailedGroup = NotificationChannelGroup(
+            INSTALLATION_FAILED_GROUP,
+            getString(R.string.installationFailed)
+        )
+        listOf(
+            seamlessUpdateGroup,
+            installationFailedGroup
+        ).forEach {
+            notificationMgr.createNotificationChannelGroup(it)
+        }
+
+        val installationFailed = NotificationChannelCompat.Builder(
+            INSTALLATION_FAILED_CHANNEL,
+            NotificationManager.IMPORTANCE_HIGH
+        ).setName(getString(R.string.installationFailed))
+            .setVibrationEnabled(false)
+            .setGroup(INSTALLATION_FAILED_GROUP)
+            .setShowBadge(false)
+            .setLightsEnabled(false)
+            .build()
 
         val channelSeamlesslyUpdated = NotificationChannelCompat.Builder(
             SEAMLESSLY_UPDATED_CHANNEL,
@@ -963,6 +1001,7 @@ class App : Application() {
             .build()
 
         listOf(
+            installationFailed,
             channelBackgroundTask,
             channelSeamlesslyUpdated,
             channelConformationNeeded,
