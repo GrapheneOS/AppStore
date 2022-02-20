@@ -5,12 +5,12 @@
         android:id="@+id/mainScreen"
         android:enabled="true"
         android:icon="@drawable/apps"
-        android:title="Apps" />
+        android:title="@string/app_name" />
 
     <item
         android:id="@+id/updatesScreen"
         android:enabled="true"
         android:icon="@drawable/update"
-        android:title="Updates" />
+        android:title="@string/updates" />
 
 </menu>

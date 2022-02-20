@@ -77,6 +77,12 @@
     <string name="settings">Settings</string>
     <string name="update_all_apps">Update all apps</string>
 
+    <!--update_screen.xml-->
+    <string name="allAppUpToDate">All apps are up to date</string>
+
+    <!--mainscreen_bottom_nav.xml-->
+    <string name="updates">Updates</string>
+
     <!-- Preference Titles -->
     <string name="settings_header">Settings</string>
 
@@ -111,14 +117,14 @@
     <string name="nBackgroundTaskTitle">Background tasks</string>
     <string name="nBackgroundTaskDescription">Silent notification for background tasks</string>
 
-    <string name="no_release_note_provided">Release note has not been provided.</string>
-    <string name="no_description_provided">App description has not been provided.</string>
+    <string name="no_release_note_provided">Release notes not provided.</string>
+    <string name="no_description_provided">App description not provided.</string>
     <string name="app_description">App Description</string>
     <string name="release_notes">Release Notes</string>
-    <string name="dependency">Dependency</string>
+    <string name="dependency">Dependencies</string>
 
     <!-- SwitchChannel.kt -->
-    <string name="release_channel">Release channel</string>
+    <string name="release_channel">Release Channel</string>
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
 
