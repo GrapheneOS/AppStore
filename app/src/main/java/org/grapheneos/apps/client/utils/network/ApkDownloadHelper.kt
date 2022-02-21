@@ -5,8 +5,11 @@ import android.content.Context
 import androidx.annotation.RequiresPermission
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ensureActive
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
@@ -22,7 +25,6 @@ import java.security.GeneralSecurityException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import javax.net.ssl.SSLHandshakeException
-import kotlin.coroutines.coroutineContext
 
 class ApkDownloadHelper constructor(private val context: Context) {
 
@@ -54,6 +56,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
         variant: PackageVariant,
         progressListener: (read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean) -> Unit,
     ): DownloadCallBack {
+        val scope = CoroutineScope(Dispatchers.IO + Job())
         return try {
 
             val vCode = variant.versionCode
@@ -68,8 +71,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
             val completeProgress = mutableMapOf<String, Progress>()
             val size = variant.packagesInfo.size
             val downloadTasks = variant.packagesInfo.map { (fileName, sha256Hash) ->
-
-                CoroutineScope(coroutineContext).async {
+                scope.async {
                     val downloadableFile = File(downloadDir.absolutePath, fileName)
                     val resultFile = File(resultDir.absolutePath, fileName)
                     val uri = "${PACKAGE_DIR_URL}${pkgName}/${vCode}/${fileName}"
@@ -155,6 +157,8 @@ class ApkDownloadHelper constructor(private val context: Context) {
             DownloadCallBack.IoError(e)
         } catch (e: CancellationException) {
             DownloadCallBack.Canceled()
+        } finally {
+            scope.cancel()
         }
     }
 
