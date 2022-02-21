@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.doOnPreDraw
 import androidx.preference.PreferenceFragmentCompat
-import com.google.android.material.transition.MaterialSharedAxis
+import com.google.android.material.transition.platform.MaterialSharedAxis
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 
