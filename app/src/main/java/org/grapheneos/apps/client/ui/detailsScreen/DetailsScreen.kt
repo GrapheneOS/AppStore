@@ -19,7 +19,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.DetailsScreenBinding
