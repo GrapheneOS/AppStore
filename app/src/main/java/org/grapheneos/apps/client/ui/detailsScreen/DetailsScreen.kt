@@ -177,7 +177,7 @@ class DetailsScreen : Fragment() {
     private fun bindViews(packageInfo: PackageInfo) {
         val variant = packageInfo.selectedVariant
         val downloadInfo = packageInfo.downloadStatus
-        val isDownloading = downloadInfo != null
+        val isDownloading = downloadInfo != null && downloadInfo.isDownloading
         val progressSizeInfo =
             if (downloadInfo is DownloadStatus.Downloading) downloadInfo.toSizeInfo(false) else ""
         val progress =
@@ -192,7 +192,7 @@ class DetailsScreen : Fragment() {
 
             appName.text = variant.appName
             publisher.text = AppSourceHelper.getCategoryName(variant.pkgName)
-            install.isEnabled = packageInfo.downloadStatus == null
+            install.isEnabled = !isDownloading
             install.text = packageInfo.installStatus()
             installed.text = packageInfo.installStatus.installedV
             latest.text = packageInfo.installStatus.latestV
