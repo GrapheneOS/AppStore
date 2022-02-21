@@ -471,7 +471,13 @@ class App : Application() {
 
             val dependency = this@App.packagesInfo[name]
             dependency?.let {
-                result.add(0, dependency.selectedVariant)
+                if (dependency.installStatus !is InstallStatus.Installed &&
+                    dependency.installStatus !is InstallStatus.Updated &&
+                    dependency.installStatus !is InstallStatus.Installing &&
+                    dependency.installStatus !is InstallStatus.Pending
+                ) {
+                    result.add(0, dependency.selectedVariant)
+                }
                 /*dependency can have it's own dependency and that should be installed before installing this one*/
                 val subDependency = dependency.selectedVariant.includeAllDependency()
                 if (subDependency.isNotEmpty()) {
