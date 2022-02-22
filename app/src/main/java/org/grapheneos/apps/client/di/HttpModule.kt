@@ -1,12 +1,17 @@
 package org.grapheneos.apps.client.di
 
 import androidx.annotation.Nullable
+import kotlinx.coroutines.delay
 import org.grapheneos.apps.client.item.Progress
 import org.grapheneos.apps.client.item.network.Response
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.SocketException
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Named
@@ -41,19 +46,6 @@ class HttpModule @Inject constructor
         }
     }
 
-    private fun getRawFileSize(): Long {
-        connection = URL(uri).openConnection() as HttpURLConnection
-        addBasicHeader()
-        connection.apply {
-            addRequestProperty("Accept", "*/*")
-            addRequestProperty("Accept-Encoding", "identity")
-            connect()
-        }
-        val size = connection.getHeaderField("Content-length")
-        connection.disconnect()
-        return size?.toLong() ?: 0
-    }
-
     private fun addETag() {
         eTag?.let { tag ->
             connection.addRequestProperty(
@@ -80,9 +72,34 @@ class HttpModule @Inject constructor
     }
 
     fun saveToFile(clean: Boolean = false) {
+        saveAsFile(clean)
+    }
 
+    suspend fun saveToFileHandleConnectionsDrop() {
+        var callSuccess = false
+        var retryCount = 0
+        val maxRetryCount = 20
+        val delayAfterFailure = 500L
+
+        while (!callSuccess && retryCount <= maxRetryCount) {
+            retryCount++
+            try {
+                saveAsFile(false)
+                callSuccess = true
+            } catch (e: SocketTimeoutException) {
+                delay(delayAfterFailure)
+            } catch (e: SocketException) {
+                delay(delayAfterFailure)
+            } catch (e: UnknownHostException) {
+                delay(delayAfterFailure)
+            } catch (e: IOException) {
+                delay(delayAfterFailure)
+            }
+        }
+    }
+
+    private fun saveAsFile(clean: Boolean = false) {
         connection.disconnect()
-        val size = getRawFileSize()
 
         if (clean) {
             file.delete()
@@ -95,28 +112,38 @@ class HttpModule @Inject constructor
         }
 
         connection.connect()
-        val data = connection.inputStream
+        val contentSize = connection.getHeaderField("Content-length")?.toLongOrNull() ?: 0L
+        val fileSize = if (file.exists()) file.length() else 0
+        val size = contentSize + fileSize
 
-        val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, data.available())
+        val data = connection.inputStream
         val out = FileOutputStream(file, file.exists())
 
-        var bytesCopied: Long = 0
-        val buffer = ByteArray(bufferSize)
-        var bytes = data.read(buffer)
-        while (bytes >= 0) {
-            out.write(buffer, 0, bytes)
-            bytesCopied += bytes
-            bytes = data.read(buffer)
+        data.use { inputStream ->
+            val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, inputStream.available())
+            out.use { outputStream ->
+                var bytesCopied: Long = 0
+                val buffer = ByteArray(bufferSize)
+                var bytes = 0
+                var first = true
 
-            progressListener.invoke(
-                Progress(
-                    file.length(), size,
-                    (file.length() * 100.0) / size,
-                    false
-                )
-            )
+                while (first || (bytes >= 0)) {
+                    first = false
+                    bytes = inputStream.read(buffer)
+                    if (bytes > 0) {
+                        outputStream.write(buffer, 0, bytes)
+                        bytesCopied += bytes
+                    }
+                    progressListener.invoke(
+                        Progress(
+                            file.length(), size,
+                            (file.length() * 100.0) / size,
+                            false
+                        )
+                    )
+                }
+            }
         }
-        out.close()
         progressListener.invoke(
             Progress(
                 file.length(), size,
