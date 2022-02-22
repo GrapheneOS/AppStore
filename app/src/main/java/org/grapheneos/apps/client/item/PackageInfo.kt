@@ -2,9 +2,9 @@ package org.grapheneos.apps.client.item
 
 import android.content.Context
 import org.grapheneos.apps.client.App
-import org.grapheneos.apps.client.utils.network.ApkDownloadHelper.Companion.getDownloadRootDir
-import org.grapheneos.apps.client.utils.network.ApkDownloadHelper.Companion.getResultDir
-import org.grapheneos.apps.client.utils.network.ApkDownloadHelper.Companion.getResultRootDir
+import org.grapheneos.apps.client.utils.network.getDownloadRootDir
+import org.grapheneos.apps.client.utils.network.getResultDir
+import org.grapheneos.apps.client.utils.network.getResultRootDir
 import java.io.File
 
 /**
