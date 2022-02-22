@@ -69,6 +69,7 @@ import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 import org.json.JSONException
 import java.io.File
 import java.lang.ref.WeakReference
+import java.net.ConnectException
 import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import javax.inject.Inject
@@ -98,6 +99,8 @@ class App : Application() {
         fun getString(@StringRes id: Int): String {
             return context.get()!!.getString(id)
         }
+
+        fun getContext() = context.get()!!
     }
 
     /*Injectable member var*/
@@ -318,6 +321,8 @@ class App : Application() {
             return MetadataCallBack.UnknownHostError(e)
         } catch (e: SSLHandshakeException) {
             return MetadataCallBack.SecurityError(e)
+        } catch (e: ConnectException) {
+            return MetadataCallBack.UnknownHostError(e)
         }
     }
 

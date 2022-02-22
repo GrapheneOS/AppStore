@@ -17,6 +17,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
+import java.net.ConnectException
 import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import javax.net.ssl.SSLHandshakeException
@@ -52,7 +53,8 @@ class MetaDataHelper constructor(context: Context) {
         JSONException::class,
         UnknownHostException::class,
         FileNotFoundException::class,
-        SSLHandshakeException::class
+        SSLHandshakeException::class,
+        ConnectException::class
     )
     fun downloadAndVerifyMetadata(callback: (metadata: MetaData) -> Unit): MetaData {
 
@@ -197,7 +199,12 @@ class MetaDataHelper constructor(context: Context) {
         return result
     }
 
-    @Throws(UnknownHostException::class, GeneralSecurityException::class, SecurityException::class)
+    @Throws(
+        UnknownHostException::class,
+        GeneralSecurityException::class,
+        SecurityException::class,
+        ConnectException::class
+    )
     private fun fetchContent(
         pathAfterBaseUrl: String,
         downloadTo: File,
