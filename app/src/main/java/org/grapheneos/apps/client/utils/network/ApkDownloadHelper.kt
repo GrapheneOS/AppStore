@@ -108,7 +108,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
                             }
                             .build()
                             .downloader()
-                            .saveToFile()
+                            .saveToFileHandleConnectionsDrop()
 
                         ensureActive()
                         if (!verifyHash(downloadableFile, sha256Hash)) {
