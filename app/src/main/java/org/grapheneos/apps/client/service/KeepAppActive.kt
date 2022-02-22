@@ -35,7 +35,7 @@ class KeepAppActive : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         app.isDownloadRunning().observeForever(observer)
         val notification = Notification.Builder(this, App.BACKGROUND_SERVICE_CHANNEL)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_downloading)
             .setContentTitle(App.getString(R.string.packagesDownloading))
             .setOnlyAlertOnce(true)
             .build()
