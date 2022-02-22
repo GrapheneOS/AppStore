@@ -28,29 +28,6 @@ import javax.net.ssl.SSLHandshakeException
 
 class ApkDownloadHelper constructor(private val context: Context) {
 
-    companion object {
-
-        fun PackageVariant.getResultRootDir(context: Context): File {
-            val files = context.filesDir.absolutePath
-            return File("${files}/downloadedPkg/${pkgName}")
-        }
-
-        fun PackageVariant.getResultDir(context: Context): File {
-            return File("${getResultRootDir(context)}/$versionCode")
-        }
-
-
-        fun PackageVariant.getDownloadRootDir(context: Context): File {
-            val cacheDir = context.cacheDir.absolutePath
-            return File("${cacheDir}/tmp/${pkgName}")
-        }
-
-        fun PackageVariant.getDownloadDir(context: Context): File {
-            return File("${getDownloadRootDir(context).absolutePath}/$versionCode")
-        }
-
-    }
-
     @RequiresPermission(Manifest.permission.INTERNET)
     suspend fun downloadAndVerifySHA256(
         variant: PackageVariant,
