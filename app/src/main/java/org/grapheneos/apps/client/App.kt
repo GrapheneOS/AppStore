@@ -208,7 +208,7 @@ class App : Application() {
                 notificationMgr.cancel(task.id)
             } else {
                 val notification = Notification.Builder(this, BACKGROUND_SERVICE_CHANNEL)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_downloading)
                     .setContentTitle(task.title)
                     .setOnlyAlertOnce(true)
                     .setProgress(100, task.progress, false)
@@ -249,7 +249,7 @@ class App : Application() {
             (activity as MainActivity).navigateToErrorScreen(error)
         } else {
             val notification = Notification.Builder(this, INSTALLATION_FAILED_CHANNEL)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("${info.selectedVariant.appName} ${getString(R.string.installationFailed)}")
                 .setContentText(error.description)
                 .setAutoCancel(true)
