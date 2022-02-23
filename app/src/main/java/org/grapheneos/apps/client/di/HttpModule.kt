@@ -5,14 +5,13 @@ import kotlinx.coroutines.delay
 import org.grapheneos.apps.client.item.Progress
 import org.grapheneos.apps.client.item.network.Response
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.SocketException
-import java.net.SocketTimeoutException
 import java.net.URL
-import java.net.UnknownHostException
 import java.util.Locale
+import java.util.zip.GZIPInputStream
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -55,13 +54,16 @@ class HttpModule @Inject constructor
         }
     }
 
-    private fun addRange() {
-        val range: String = String.format(
-            Locale.ENGLISH,
-            "bytes=%d-",
-            if (file.exists()) file.length() else 0
-        )
-        connection.addRequestProperty("Range", range)
+    private fun addRange(existingFile: File) {
+        if (existingFile.exists()) {
+            val range: String = String.format(
+                Locale.ENGLISH,
+                "bytes=%d-",
+                if (existingFile.exists()) existingFile.length() else 0
+            )
+            connection.addRequestProperty("Range", range)
+        }
+
     }
 
     fun connect(): Response {
@@ -75,7 +77,7 @@ class HttpModule @Inject constructor
         saveAsFile(clean)
     }
 
-    suspend fun saveToFileHandleConnectionsDrop() {
+    suspend fun saveToFileHandleConnectionsDrop(clean: Boolean = false) {
         var callSuccess = false
         var retryCount = 0
         val maxRetryCount = 20
@@ -84,42 +86,58 @@ class HttpModule @Inject constructor
         while (!callSuccess && retryCount <= maxRetryCount) {
             retryCount++
             try {
-                saveAsFile(false)
+                saveAsFile(clean && retryCount == 0)
                 callSuccess = true
-            } catch (e: SocketTimeoutException) {
-                delay(delayAfterFailure)
-            } catch (e: SocketException) {
-                delay(delayAfterFailure)
-            } catch (e: UnknownHostException) {
-                delay(delayAfterFailure)
             } catch (e: IOException) {
                 delay(delayAfterFailure)
+                if (retryCount >= maxRetryCount) throw e
             }
         }
     }
 
+    private fun isDownloadAsGzipSupported(): Boolean {
+        connection.disconnect()
+        connection = URL(uri.toGzipUri()).openConnection() as HttpURLConnection
+        addBasicHeader()
+        connection.connect()
+        return connection.responseCode == 200
+    }
+
+    private fun uncompressedSize(): Long {
+        connection.disconnect()
+        connection = URL(uri).openConnection() as HttpURLConnection
+        addBasicHeader()
+        connection.connect()
+        val size = connection.getHeaderField("Content-length")?.toLongOrNull() ?: 0L
+        connection.disconnect()
+        return size
+    }
+
+    private fun String.toGzipUri() = "$this.gz"
+    private fun File.asGzipFile() = File(parent, "$name.gz")
+
     private fun saveAsFile(clean: Boolean = false) {
         connection.disconnect()
+        val gzipSupported = isDownloadAsGzipSupported()
+        val url = if (gzipSupported) uri.toGzipUri() else uri
+        val size = uncompressedSize()
+        val outFile = if (gzipSupported) file.asGzipFile() else file
 
         if (clean) {
-            file.delete()
-            connection = URL(uri).openConnection() as HttpURLConnection
+            outFile.delete()
+            connection = URL(url).openConnection() as HttpURLConnection
             addBasicHeader()
         } else {
-            connection = URL(uri).openConnection() as HttpURLConnection
+            connection = URL(url).openConnection() as HttpURLConnection
             addBasicHeader()
-            addRange()
+            addRange(outFile)
         }
 
         connection.connect()
-        val contentSize = connection.getHeaderField("Content-length")?.toLongOrNull() ?: 0L
-        val fileSize = if (file.exists()) file.length() else 0
-        val size = contentSize + fileSize
+        val stream = connection.inputStream
+        val out = FileOutputStream(outFile, outFile.exists())
 
-        val data = connection.inputStream
-        val out = FileOutputStream(file, file.exists())
-
-        data.use { inputStream ->
+        stream.use { inputStream ->
             val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, inputStream.available())
             out.use { outputStream ->
                 var bytesCopied: Long = 0
@@ -136,14 +154,44 @@ class HttpModule @Inject constructor
                     }
                     progressListener.invoke(
                         Progress(
-                            file.length(), size,
-                            (file.length() * 100.0) / size,
+                            outFile.length(), size,
+                            (outFile.length() * 100.0) / size,
                             false
                         )
                     )
                 }
             }
         }
+
+        if (gzipSupported) {
+            GZIPInputStream(FileInputStream(file.asGzipFile())).use { gzipStream ->
+                if (file.exists()) {
+                    file.delete()
+                }
+                file.createNewFile()
+                val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, gzipStream.available())
+                FileOutputStream(file).use { uncompressedStream ->
+                    var bytesCopied: Long = 0
+                    val buffer = ByteArray(bufferSize)
+                    var bytes = 0
+                    var first = true
+
+                    while (first || (bytes >= 0)) {
+                        first = false
+                        bytes = gzipStream.read(buffer)
+                        if (bytes > 0) {
+                            uncompressedStream.write(buffer, 0, bytes)
+                            bytesCopied += bytes
+                        }
+                    }
+                }
+            }
+        }
+
+        if (file.asGzipFile().exists()) {
+            file.asGzipFile().delete()
+        }
+
         progressListener.invoke(
             Progress(
                 file.length(), size,
