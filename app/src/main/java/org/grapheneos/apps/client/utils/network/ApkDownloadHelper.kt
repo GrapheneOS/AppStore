@@ -122,8 +122,6 @@ class ApkDownloadHelper constructor(private val context: Context) {
             }
             val apks = downloadTasks.awaitAll()
             DownloadCallBack.Success(apks = apks)
-        } catch (e: IOException) {
-            DownloadCallBack.IoError(e)
         } catch (e: GeneralSecurityException) {
             DownloadCallBack.SecurityError(e)
         } catch (e: UnknownHostException) {
@@ -131,6 +129,8 @@ class ApkDownloadHelper constructor(private val context: Context) {
         } catch (e: SSLHandshakeException) {
             DownloadCallBack.SecurityError(e)
         } catch (e: java.net.SocketException) {
+            DownloadCallBack.IoError(e)
+        } catch (e: IOException) {
             DownloadCallBack.IoError(e)
         } catch (e: CancellationException) {
             DownloadCallBack.Canceled()
