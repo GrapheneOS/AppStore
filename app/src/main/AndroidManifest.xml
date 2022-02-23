@@ -32,14 +32,20 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".utils.APKInstallReceiver" />
-        <receiver android:name=".utils.APKUninstallReceiver" />
+        <receiver
+            android:name=".utils.APKInstallReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".utils.APKUninstallReceiver"
+            android:exported="false" />
 
         <service
+            android:exported="false"
             android:name=".service.SeamlessUpdaterJob"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
+            android:exported="false"
             android:name=".service.KeepAppActive"
             android:foregroundServiceType="dataSync" />
     </application>
