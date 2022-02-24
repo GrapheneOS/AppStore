@@ -62,6 +62,7 @@ import org.grapheneos.apps.client.ui.container.MainActivity
 import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
+import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
@@ -709,6 +710,11 @@ class App : Application() {
             return
         }
 
+        if (isInstallBlockedByAdmin()) {
+            callback.invoke(getString(R.string.icBlocked))
+            return
+        }
+
         CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
             when (status) {
                 is InstallStatus.Installable -> {
@@ -752,6 +758,11 @@ class App : Application() {
             return
         }
 
+        if (isInstallBlockedByAdmin()) {
+            callback.invoke(getString(R.string.icBlocked))
+            return
+        }
+
         val appsToUpdate = mutableListOf<PackageVariant>()
         packagesInfo.values.forEach { info ->
             val installStatus = info.installStatus
@@ -789,6 +800,10 @@ class App : Application() {
                 && !seamlessUpdaterJob.isCompleted && !seamlessUpdaterJob.isCancelled
 
     fun seamlesslyUpdateApps(onFinished: (result: SeamlessUpdateResponse) -> Unit) {
+        if (isInstallBlockedByAdmin()) {
+            onFinished.invoke(SeamlessUpdateResponse())
+            return
+        }
         if (isActivityRunning != null) {
             // don't auto update if app is in foreground
             onFinished.invoke(SeamlessUpdateResponse())
