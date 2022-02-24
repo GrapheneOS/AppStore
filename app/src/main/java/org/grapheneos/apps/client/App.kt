@@ -146,16 +146,6 @@ class App : Application() {
             val action = intent?.action ?: return
             val pkgName = intent.data?.schemeSpecificPart ?: return
 
-            val installedVersion = try {
-                val appInfo = packageManager.getPackageInfo(
-                    pkgName,
-                    PackageManager.GET_META_DATA
-                )
-                appInfo.longVersionCode
-            } catch (e: PackageManager.NameNotFoundException) {
-                -1L
-            }
-
             val info = packagesInfo[pkgName]
             if (!packagesInfo.containsKey(pkgName) || info == null) {
                 //If other package is installed or uninstalled we don't care
@@ -164,22 +154,15 @@ class App : Application() {
             val latestVersion = info.selectedVariant.versionCode.toLong()
 
             when (action) {
-                Intent.ACTION_PACKAGE_ADDED -> {
-                    packagesInfo[pkgName] = info.withUpdatedInstallStatus(
-                        InstallStatus.Installed(installedVersion, latestVersion)
-                    )
+                Intent.ACTION_PACKAGE_ADDED,
+                Intent.ACTION_PACKAGE_REPLACED,
+                Intent.ACTION_PACKAGE_REMOVED,
+                Intent.ACTION_PACKAGE_FULLY_REMOVED -> {
+
+                    val installStatus = getInstalledStatus(pkgName, latestVersion, true)
+                    packagesInfo[pkgName] = info.withUpdatedInstallStatus(installStatus)
                 }
-                Intent.ACTION_PACKAGE_REPLACED -> {
-                    packagesInfo[pkgName] = info.withUpdatedInstallStatus(
-                        InstallStatus.Updated(installedVersion, latestVersion)
-                    )
-                }
-                Intent.ACTION_PACKAGE_FULLY_REMOVED,
-                Intent.ACTION_PACKAGE_REMOVED -> {
-                    packagesInfo[pkgName] = info.withUpdatedInstallStatus(
-                        InstallStatus.Installable(latestVersion)
-                    )
-                }
+
             }
             updateLiveData()
         }
@@ -343,8 +326,14 @@ class App : Application() {
         }
     }
 
-    private fun getInstalledStatus(pkgName: String, latestVersion: Long): InstallStatus {
+    private fun getInstalledStatus(
+        pkgName: String,
+        latestVersion: Long,
+        isBroadcast: Boolean = false
+    ): InstallStatus {
         val pm = packageManager
+        val currentInfo = packagesInfo[pkgName]
+        val installedVersion = currentInfo?.installStatus?.installedV?.toLongOrNull() ?: 0
         return try {
             val appInfo = pm.getPackageInfo(pkgName, 0)
             val installerInfo = pm.getInstallSourceInfo(pkgName)
@@ -354,7 +343,11 @@ class App : Application() {
                 if (currentVersion < latestVersion) {
                     InstallStatus.Updatable(currentVersion, latestVersion)
                 } else {
-                    InstallStatus.Installed(currentVersion, latestVersion)
+                    if (isBroadcast && currentInfo != null && installedVersion == latestVersion) {
+                        InstallStatus.Updated(currentVersion, latestVersion)
+                    } else {
+                        InstallStatus.Installed(currentVersion, latestVersion)
+                    }
                 }
             } else {
                 InstallStatus.ReinstallRequired(currentVersion, latestVersion)
