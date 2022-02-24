@@ -90,6 +90,7 @@ class SeamlessUpdaterJob : JobService() {
 
             } else {
                 notification.setChannelId(App.SEAMLESS_UPDATE_FAILED_CHANNEL)
+                notification.setSmallIcon(R.drawable.ic_failed)
                 notification.setContentTitle(App.getString(R.string.seamlessUpdatesCheckFailed))
             }
 
