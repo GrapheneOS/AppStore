@@ -144,7 +144,7 @@ class MetaDataHelper constructor(context: Context) {
                     signature.decodeToString()
                 )
 
-            if (lastTimestamp != 0L && lastTimestamp > timestamp || TIMESTAMP > timestamp) {
+            if ((lastTimestamp != 0L && lastTimestamp > timestamp) || TIMESTAMP > timestamp) {
                 throw GeneralSecurityException(App.getString(R.string.downgradeNotAllowed))
             }
             messageAsString
