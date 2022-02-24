@@ -17,7 +17,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.SystemClock
 import android.provider.Settings
-import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationChannelCompat
@@ -705,7 +704,7 @@ class App : Application() {
             return
         }
 
-        if (!isRequestInstallPackagesGranted()) {
+        if (!isPrivilegeInstallPermissionGranted() && !canRequestPackageInstalls()) {
             callback.invoke(getString(R.string.allowUnknownSources))
             return
         }
@@ -748,7 +747,7 @@ class App : Application() {
     }
 
     fun updateAllUpdatableApps(callback: (result: String) -> Unit) {
-        if (!isRequestInstallPackagesGranted()) {
+        if (!isPrivilegeInstallPermissionGranted() && !canRequestPackageInstalls()) {
             callback.invoke(getString(R.string.allowUnknownSources))
             return
         }
@@ -769,9 +768,8 @@ class App : Application() {
         })
     }
 
-    private fun isRequestInstallPackagesGranted(): Boolean {
+    private fun canRequestPackageInstalls(): Boolean {
         if (!packageManager.canRequestPackageInstalls()) {
-            Toast.makeText(this, getString(R.string.allowUnknownSources), Toast.LENGTH_SHORT).show()
             isActivityRunning?.startActivity(
                 Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
                     Uri.parse(String.format("package:%s", packageName))
@@ -781,6 +779,9 @@ class App : Application() {
         }
         return true
     }
+
+    private fun isPrivilegeInstallPermissionGranted() =
+        checkSelfPermission(Manifest.permission.INSTALL_PACKAGES) == PackageManager.PERMISSION_GRANTED
 
     private fun isSeamlessUpdateRunning() =
         this::seamlessUpdaterJob.isInitialized
