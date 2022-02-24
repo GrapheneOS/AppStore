@@ -33,10 +33,10 @@ class MetaDataHelper constructor(context: Context) {
     private val tmpDir = context.metadataTmpDir()
 
     private val tmpMetaData = File(tmpDir, metadataFileName)
-    private val tmpSign = File(tmpDir, "metadata.json.${version}.sig")
+    private val tmpSign = File(tmpDir, metadataSignFileName)
 
     private val metadata = File(baseDir, metadataFileName)
-    private val sign = File(baseDir, "metadata.json.${version}.sig")
+    private val sign = File(baseDir, metadataSignFileName)
 
     private val eTagPreferences: SharedPreferences = context.getSharedPreferences(
         "metadata",
