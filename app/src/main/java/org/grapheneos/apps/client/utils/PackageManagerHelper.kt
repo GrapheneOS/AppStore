@@ -5,12 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionParams
+import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.security.GeneralSecurityException
 
 class PackageManagerHelper(private val context: Context) {
 
@@ -26,7 +28,13 @@ class PackageManagerHelper(private val context: Context) {
         return result.toTypedArray()
     }
 
+    @Throws(GeneralSecurityException::class)
     private fun installApks(files: Array<String>): Int {
+
+        if (context.isInstallBlockedByAdmin()) {
+            throw GeneralSecurityException(context.getString(R.string.icBlocked))
+        }
+
         val packageInstaller: PackageInstaller = context.packageManager.packageInstaller
         val nameSizeMap = HashMap<String, Long>()
         val filenameToPathMap = HashMap<String, String>()
@@ -97,7 +105,11 @@ class PackageManagerHelper(private val context: Context) {
         session.close()
     }
 
+    @Throws(GeneralSecurityException::class)
     fun uninstall(packageName: String) {
+        if (context.isInstallBlockedByAdmin()) {
+            throw GeneralSecurityException(context.getString(R.string.icBlocked))
+        }
         val pendingIntent =
             PendingIntent.getBroadcast(
                 context.applicationContext,
