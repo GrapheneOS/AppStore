@@ -11,6 +11,7 @@ class AppSourceHelper {
         /*package name, category name, */
         private val listOfKnownApps = mutableMapOf<String, String>().apply {
             put("app.attestation.auditor", gos)
+            put("app.grapheneos.apps", gos)
             put("app.grapheneos.camera", gos)
             put("app.grapheneos.pdfviewer", gos)
 
