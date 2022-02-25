@@ -110,7 +110,7 @@
     <string name="nUpdatedDescription">Notification regarding updated apps</string>
     <string name="nUpdateAvailableTitle">Updates available</string>
     <string name="nUpdateAvailableDescription">Notification regarding available app updates</string>
-    <string name="nUpToDateTitle">Apps are already up to date</string>
+    <string name="nUpToDateTitle">All your apps are up to date</string>
     <string name="nUpToDateDescription">Notification regarding no update available</string>
     <string name="nUpdatesFailedTitle">Seamless updates failed</string>
     <string name="nUpdatesFailedDescription">Notification regarding failed seamless updates</string>
