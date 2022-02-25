@@ -33,7 +33,7 @@ android {
     buildToolsVersion = "32.0.0"
 
     defaultConfig {
-        applicationId = "org.grapheneos.apps.client"
+        applicationId = "app.grapheneos.apps"
         minSdk = 31
         targetSdk = 31
         versionCode = 1
