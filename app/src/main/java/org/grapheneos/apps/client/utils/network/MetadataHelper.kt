@@ -22,7 +22,21 @@ import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import javax.net.ssl.SSLHandshakeException
 
-class MetaDataHelper constructor(context: Context) {
+class MetadataHelper constructor(context: Context) {
+
+    private enum class FilePhase {
+        INITIAL {
+            override fun next() = VERIFIED
+        },
+        VERIFIED {
+            override fun next() = STORED
+        },
+        STORED {
+            override fun next() = STORED
+        };
+
+        abstract fun next(): FilePhase
+    }
 
     private val version = CURRENT_VERSION
 
@@ -30,10 +44,14 @@ class MetaDataHelper constructor(context: Context) {
     private val metadataSignFileName = "metadata.${version}.json.${version}.sig"
 
     private val baseDir = context.metadataVerifiedDir()
+    private val tmpVerifiedDir = context.metadataTmpVerifiedDir()
     private val tmpDir = context.metadataTmpDir()
 
-    private val tmpMetaData = File(tmpDir, metadataFileName)
+    private val tmpMetadata = File(tmpDir, metadataFileName)
     private val tmpSign = File(tmpDir, metadataSignFileName)
+
+    private val tmpVerifiedMetadata = File(tmpVerifiedDir, metadataFileName)
+    private val tmpVerifiedSign = File(tmpVerifiedDir, metadataSignFileName)
 
     private val metadata = File(baseDir, metadataFileName)
     private val sign = File(baseDir, metadataSignFileName)
@@ -45,6 +63,24 @@ class MetaDataHelper constructor(context: Context) {
 
     companion object {
         private const val TIMESTAMP_KEY = "timestamp"
+    }
+
+    private fun directoryPhase(filePhase: FilePhase) = when (filePhase) {
+        FilePhase.INITIAL -> tmpDir
+        FilePhase.VERIFIED -> tmpVerifiedDir
+        FilePhase.STORED -> baseDir
+    }
+
+    private fun metadataFile(filePhase: FilePhase) = when (filePhase) {
+        FilePhase.INITIAL -> tmpMetadata
+        FilePhase.VERIFIED -> tmpVerifiedMetadata
+        FilePhase.STORED -> metadata
+    }
+
+    private fun metadataSignFile(filePhase: FilePhase) = when (filePhase) {
+        FilePhase.INITIAL -> tmpSign
+        FilePhase.VERIFIED -> tmpVerifiedSign
+        FilePhase.STORED -> sign
     }
 
     @Throws(
@@ -61,25 +97,25 @@ class MetaDataHelper constructor(context: Context) {
         //create both tmp and base dir if it doesn't exist
         if (!File(baseDir).exists()) File(baseDir).mkdirs()
         File(tmpDir).clean()
+        File(tmpVerifiedDir).clean()
 
         try {
             /*download metadata json, sign and pub files in tmp dir*/
-            val metadataETag = fetchContent(metadataFileName, tmpMetaData, metadata)
+            val metadataETag = fetchContent(metadataFileName, tmpMetadata, metadata)
             val metadataSignETag = fetchContent(metadataSignFileName, tmpSign, sign)
 
             //if file doesn't exist in local tmp dir means existing file are up to date aka http response code 304
-            if (tmpMetaData.exists() && tmpSign.exists()) {
-                verifyMetadata(tmp = true)
+            if (tmpMetadata.exists() && tmpSign.exists()) {
+                verifyMetadata(FilePhase.INITIAL)
 
                 //tmp dir content is verified now, delete the existing content of base dir
                 // and move the verified stuff from tmp dir
-                File(baseDir).clean()
-                tmpMetaData.renameTo(metadata)
-                tmpSign.renameTo(sign)
-                File(tmpDir).clean()
+                moveMetadataFilesToVerify(FilePhase.INITIAL)
 
                 //verify the base dir content again
-                val timestamp = verifyMetadata(tmp = false).toTimestamp()
+                val timestamp = verifyMetadata(FilePhase.VERIFIED).toTimestamp()
+                moveMetadataFilesToVerify(FilePhase.VERIFIED)
+                verifyMetadata(FilePhase.STORED)
 
                 //base dir content is verified now, save eTags and timestamp
                 saveETag(metadataFileName, metadataETag)
@@ -102,7 +138,7 @@ class MetaDataHelper constructor(context: Context) {
         if (!metadata.exists()) {
             throw GeneralSecurityException(App.getString(R.string.fileDoesNotExist))
         }
-        val message = verifyMetadata(tmp = false)
+        val message = verifyMetadata(FilePhase.STORED)
         val jsonData = JSONObject(message)
         val response = MetaData(
             jsonData.getLong("time"),
@@ -122,9 +158,9 @@ class MetaDataHelper constructor(context: Context) {
         }
     }
 
-    private fun verifyMetadata(tmp: Boolean): String {
-        val metadataFile = if (tmp) tmpMetaData else metadata
-        val signFile = if (tmp) tmpSign else sign
+    private fun verifyMetadata(filePhase: FilePhase): String {
+        val metadataFile = metadataFile(filePhase)
+        val signFile = metadataSignFile(filePhase)
 
         if (!metadataFile.exists() || !signFile.exists()) {
             throw GeneralSecurityException(App.getString(R.string.fileDoesNotExist))
@@ -149,9 +185,21 @@ class MetaDataHelper constructor(context: Context) {
             }
             messageAsString
         } catch (e: GeneralSecurityException) {
-            if (tmp) deleteTmpFiles() else deleteSavedFiles()
+            File(directoryPhase(filePhase)).deleteRecursively()
             throw e
         }
+    }
+
+    private fun moveMetadataFilesToVerify(filePhase: FilePhase) {
+        if (filePhase == FilePhase.STORED) return
+        val metadataFile = metadataFile(filePhase)
+        val metadataSignFile = metadataSignFile(filePhase)
+        val nextMetadataFile = metadataFile(filePhase.next())
+        val nextSignFile = metadataSignFile(filePhase.next())
+        if (filePhase == FilePhase.INITIAL) File(baseDir).clean()
+        metadataFile.renameTo(nextMetadataFile)
+        metadataSignFile.renameTo(nextSignFile)
+        File(directoryPhase(filePhase)).clean()
     }
 
     private fun InputStream.toSignByteArray(): ByteArray {
@@ -261,9 +309,6 @@ class MetaDataHelper constructor(context: Context) {
 
         return response.eTag ?: ""
     }
-
-    private fun deleteTmpFiles() = File(tmpDir).deleteRecursively()
-    private fun deleteSavedFiles() = File(baseDir).deleteRecursively()
 
     private fun String.toTimestamp(): Long {
         return try {

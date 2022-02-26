@@ -7,7 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
-import org.grapheneos.apps.client.utils.network.MetaDataHelper
+import org.grapheneos.apps.client.utils.network.MetadataHelper
 import javax.inject.Singleton
 
 @Module
@@ -16,9 +16,9 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideMetaDataHelper(
+    fun provideMetadataHelper(
         @ApplicationContext context: Context
-    ): MetaDataHelper = MetaDataHelper(context)
+    ): MetadataHelper = MetadataHelper(context)
 
     @Singleton
     @Provides

@@ -64,7 +64,7 @@ import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
-import org.grapheneos.apps.client.utils.network.MetaDataHelper
+import org.grapheneos.apps.client.utils.network.MetadataHelper
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 import org.json.JSONException
 import java.io.File
@@ -105,7 +105,7 @@ class App : Application() {
 
     /*Injectable member var*/
     @Inject
-    lateinit var metaDataHelper: MetaDataHelper
+    lateinit var metadataHelper: MetadataHelper
 
     @Inject
     lateinit var apkDownloadHelper: ApkDownloadHelper
@@ -282,7 +282,7 @@ class App : Application() {
 
     private fun refreshMetadata(): MetadataCallBack {
         try {
-            val res = metaDataHelper.downloadAndVerifyMetadata { response ->
+            val res = metadataHelper.downloadAndVerifyMetadata { response ->
                 response.packages.forEach {
                     val value = it.value
                     val pkgName = value.packageName
@@ -820,8 +820,8 @@ class App : Application() {
 
         CoroutineScope(seamlessUpdaterJob + Dispatchers.IO).launch {
 
-            val metaData = refreshMetadata()
-            if (!metaData.isSuccessFull) {
+            val metadata = refreshMetadata()
+            if (!metadata.isSuccessFull) {
                 //sync failed, will try again
                 onFinished.invoke(SeamlessUpdateResponse())
                 return@launch

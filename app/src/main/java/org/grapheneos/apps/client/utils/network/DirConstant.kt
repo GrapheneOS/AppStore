@@ -9,6 +9,9 @@ import java.io.File
 fun Context.metadataVerifiedDir() =
     "${filesDir.absolutePath}/verified/metadata"
 
+fun Context.metadataTmpVerifiedDir() =
+    "${cacheDir.absolutePath}/temporary/verified/metadata"
+
 fun Context.metadataTmpDir() =
     "${cacheDir.absolutePath}/temporary/files/metadata"
 
