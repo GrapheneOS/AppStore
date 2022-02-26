@@ -339,7 +339,7 @@ class App : Application() {
             val installerInfo = pm.getInstallSourceInfo(pkgName)
             val currentVersion = appInfo.longVersionCode
 
-            if (packageName.equals(installerInfo.initiatingPackageName)) {
+            if (packageName.equals(installerInfo.initiatingPackageName) || isPrivilegeInstallPermissionGranted()) {
                 if (currentVersion < latestVersion) {
                     InstallStatus.Updatable(currentVersion, latestVersion)
                 } else {
