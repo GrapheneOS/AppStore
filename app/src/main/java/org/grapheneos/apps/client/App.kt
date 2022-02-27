@@ -826,6 +826,7 @@ class App : Application() {
         }
 
         refreshJob = Job()
+        val privilegeMode = isPrivilegeInstallPermissionGranted()
 
         CoroutineScope(seamlessUpdaterJob + Dispatchers.IO).launch {
 
@@ -846,7 +847,9 @@ class App : Application() {
                 val installStatus = info.value.installStatus
                 val variant = info.value.selectedVariant
 
-                if (installStatus is InstallStatus.Updatable) {
+                if (installStatus is InstallStatus.Updatable ||
+                    (privilegeMode && installStatus.installedV.toLongOrNull() ?: 0 < installStatus.latestV.toLong())
+                ) {
                     if (isDownloadJobRunning(variant.pkgName)) {
                         throw IllegalStateException("download get called while a download task is already running")
                     }
