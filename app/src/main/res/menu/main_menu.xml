@@ -9,10 +9,4 @@
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/update_all_menu"
-        android:title="@string/update_all_apps"
-        android:menuCategory="secondary"
-        app:showAsAction="never"/>
-
 </menu>

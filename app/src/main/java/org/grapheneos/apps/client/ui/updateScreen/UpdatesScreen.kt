@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -22,6 +23,7 @@ import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.UpdatesScreenBinding
 import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
+import org.grapheneos.apps.client.utils.showSnackbar
 
 @AndroidEntryPoint
 class UpdatesScreen : Fragment() {
@@ -37,8 +39,16 @@ class UpdatesScreen : Fragment() {
         { newValue: Map<String, PackageInfo> ->
             val items = InstallablePackageInfo.updatableFromMap(newValue)
             binding.nothingToUpdateUI.isGone = items.isNotEmpty()
+            binding.updatesRecyclerView.isVisible = items.isNotEmpty()
+            binding.updateCounter.isVisible = items.isNotEmpty()
+            binding.updateAll.isVisible = items.isNotEmpty()
+            binding.updateAll.isEnabled = items.isNotEmpty()
             updatableAdapter.submitList(items)
         }
+    }
+
+    private val updateCounter by lazy {
+        appsViewModel.updateCount
     }
 
     override fun onCreateView(
@@ -73,11 +83,18 @@ class UpdatesScreen : Fragment() {
         }
 
         appsViewModel.packageLiveData.observe(viewLifecycleOwner, observer)
+        updateCounter.observe(viewLifecycleOwner) { count ->
+            binding.updateCounter.text = String.format(getString(R.string.xUpdates), count)
+        }
+        binding.updateAll.setOnClickListener {
+            binding.updateAll.isEnabled = false
+            appsViewModel.updateAllUpdatableApps { msg -> showSnackbar(msg) }
+        }
 
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.updates_top_menu, menu)
+        inflater.inflate(R.menu.main_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
