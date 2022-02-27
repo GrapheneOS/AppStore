@@ -75,7 +75,8 @@
 
     <!--main_menu.xml-->
     <string name="settings">Settings</string>
-    <string name="update_all_apps">Update all apps</string>
+    <string name="update_all">Update all</string>
+    <string name="xUpdates">%d updates</string>
 
     <!--update_screen.xml-->
     <string name="allAppUpToDate">All apps are up to date</string>

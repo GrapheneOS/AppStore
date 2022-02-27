@@ -54,14 +54,8 @@ class MainScreen : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.update_all_menu -> {
-                appsViewModel.updateAllUpdatableApps { msg -> showSnackbar(msg) }
-                true
-            }
-            else -> item.onNavDestinationSelected(findNavController()) ||
-                    super.onOptionsItemSelected(item)
-        }
+        return item.onNavDestinationSelected(findNavController()) ||
+                super.onOptionsItemSelected(item)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
