@@ -4,8 +4,8 @@ class AppSourceHelper {
 
     companion object {
         private const val gos = "GrapheneOS"
+        private const val buildByGos = "GrapheneOS build"
         private const val google = "Google (mirror)"
-        private const val buildByGos = "Third party apps"
 
 
         /*package name, category name, */
