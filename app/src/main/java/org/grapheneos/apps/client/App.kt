@@ -846,10 +846,11 @@ class App : Application() {
             packagesInfo.forEach { info ->
                 val installStatus = info.value.installStatus
                 val variant = info.value.selectedVariant
+                val installedVersion = installStatus.installedV.toLongOrNull() ?: 0
+                val isInstalled = installedVersion != 0L
+                val isUpdatable = installedVersion < installStatus.latestV.toLong()
 
-                if (installStatus is InstallStatus.Updatable ||
-                    (privilegeMode && installStatus.installedV.toLongOrNull() ?: 0 < installStatus.latestV.toLong())
-                ) {
+                if (installStatus is InstallStatus.Updatable || (privilegeMode && isInstalled && isUpdatable)) {
                     if (isDownloadJobRunning(variant.pkgName)) {
                         throw IllegalStateException("download get called while a download task is already running")
                     }
