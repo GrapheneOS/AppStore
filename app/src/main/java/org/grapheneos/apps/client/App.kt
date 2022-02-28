@@ -343,6 +343,11 @@ class App : Application() {
             val installerInfo = pm.getInstallSourceInfo(pkgName)
             val currentVersion = appInfo.longVersionCode
 
+            if (currentVersion > latestVersion) return InstallStatus.NewerVersionInstalled(
+                currentVersion,
+                latestVersion
+            )
+
             if (packageName.equals(installerInfo.initiatingPackageName) || isPrivilegeMode) {
                 if (currentVersion < latestVersion) {
                     InstallStatus.Updatable(currentVersion, latestVersion)
@@ -727,7 +732,7 @@ class App : Application() {
                     downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.genericMsg) }
                 }
-                is InstallStatus.Installed -> {
+                is InstallStatus.Installed, is InstallStatus.NewerVersionInstalled -> {
                     openApp(pkgName, callback)
                 }
                 is InstallStatus.Installing -> {

@@ -98,6 +98,15 @@ sealed class InstallStatus(
         installedV = installedVersion.toApkVersion()
     )
 
+    data class NewerVersionInstalled(
+        val installedVersion: Long,
+        val latestVersion: Long
+    ) : InstallStatus(
+        App.getString(R.string.open),
+        installedV = installedVersion.toApkVersion(),
+        latestV = latestVersion.toApkVersion()
+    )
+
     data class ReinstallRequired(
         val installedVersion: Long,
         val latestVersion: Long
