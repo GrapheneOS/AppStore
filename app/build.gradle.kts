@@ -76,11 +76,10 @@ android {
 }
 
 dependencies {
-    /*Default android*/
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.10")
+
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.1")
-    implementation("com.google.android.material:material:1.5.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.activity:activity-ktx:1.4.0")
     implementation("androidx.fragment:fragment-ktx:1.4.1")
@@ -89,15 +88,14 @@ dependencies {
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
 
-    /*Signify java */
+    implementation("com.google.android.material:material:1.5.0")
+
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.70")
 
-    /*Kotlin coroutines*/
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
-    /*Dagger Hilt*/
     implementation("com.google.dagger:hilt-android:2.41")
     kapt("com.google.dagger:hilt-android-compiler:2.41")
 }
