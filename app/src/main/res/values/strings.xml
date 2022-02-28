@@ -68,6 +68,7 @@
     <string name="installationInProgress">"An installation is in progress"</string>
     <string name="uninstallationInProgress">An uninstallation is in progress</string>
     <string name="allowUnknownSources">You must allow installation from this source first</string>
+    <string name="newerVersionIsInstalled">Newer version is already installed</string>
 
     <!--details_screen.xml-->
     <string name="installed">Installed</string>

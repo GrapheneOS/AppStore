@@ -24,6 +24,7 @@ class AppsListAdapter(private val mainScreen: MainScreen) :
             val installStatus = info.installStatus
             val downloadStatus = info.downloadStatus
             val packageName = packageVariant.pkgName
+            val isDownloading = downloadStatus != null && downloadStatus.isDownloading
 
             binding.apply {
                 root.transitionName = packageName
@@ -42,7 +43,7 @@ class AppsListAdapter(private val mainScreen: MainScreen) :
                         packageName
                     )
                 }
-                quickAction.isEnabled = downloadStatus == null || !downloadStatus.isDownloading
+                quickAction.isEnabled = !isDownloading
                 quickAction.text = installStatus.status
                 publisher.text = AppSourceHelper.getCategoryName(packageName)
                 releaseTag.isVisible = "stable" != packageVariant.type
