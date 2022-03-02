@@ -146,4 +146,9 @@
     <string name="icBlocked">The policy on this device prevents app installation</string>
     <string name="icIncompatible">A newer version of the app is already installed</string>
 
+    <!--AppSourceHelper.kt && main_screen -->
+    <string name="grapheneOS">GrapheneOS</string>
+    <string name="googleMirror">Google (mirror)</string>
+    <string name="grapheneOSBuild">GrapheneOS build</string>
+
 </resources>

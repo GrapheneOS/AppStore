@@ -11,6 +11,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -23,9 +24,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.MainScreenBinding
-import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.MetadataCallBack
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
+import org.grapheneos.apps.client.uiItem.InstallablePackageInfo.Companion.applyFilter
 import org.grapheneos.apps.client.utils.showSnackbar
 
 @AndroidEntryPoint
@@ -35,6 +36,8 @@ class MainScreen : Fragment() {
     private val appsViewModel by lazy {
         requireContext().applicationContext as App
     }
+    private val state by viewModels<MainScreenState>()
+    private var lastItems: List<InstallablePackageInfo>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -76,16 +79,38 @@ class MainScreen : Fragment() {
             }
         }
 
+        state.getFilter().observe(viewLifecycleOwner) { filters ->
+            binding.apply {
+                grapheneOS.isChecked = filters.contains(state.grapheneOs)
+                googleMirror.isChecked = filters.contains(state.googleMirror)
+                thirdPartyApps.isChecked = filters.contains(state.buildByGrapheneOs)
+            }
+            lastItems?.applyFilter(state.getLastFilter())?.let {
+                appsListAdapter.submitList(it)
+            }
+        }
+
+        binding.apply {
+            grapheneOS.setOnCheckedChangeListener { _, isChecked ->
+                state.modifyFilter(state.grapheneOs, isChecked)
+            }
+            googleMirror.setOnCheckedChangeListener { _, isChecked ->
+                state.modifyFilter(state.googleMirror, isChecked)
+            }
+            thirdPartyApps.setOnCheckedChangeListener { _, isChecked ->
+                state.modifyFilter(state.buildByGrapheneOs, isChecked)
+            }
+        }
+
         appsViewModel.packageLiveData.observe(
             viewLifecycleOwner
         ) { newValue ->
             runOnUiThread {
                 val packagesInfoMap = newValue ?: return@runOnUiThread
                 val sent = InstallablePackageInfo.fromMap(newValue)
+                lastItems = sent
                 updateUi(isSyncing = false, packagesInfoMap.isNullOrEmpty())
-                appsListAdapter.submitList(sent.sortedByDescending {
-                    it.packageInfo.installStatus is InstallStatus.Installable
-                })
+                appsListAdapter.submitList(sent.applyFilter(state.getLastFilter()))
             }
         }
 
