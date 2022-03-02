@@ -93,15 +93,15 @@
     <string name="background_update_summary_off">Don\'t check for update in background</string>
 
     <!-- Auto update Preferences -->
-    <string name="auto_install_title">Auto update installed apps</string>
-    <string name="auto_install_summary_on">Install/update apps seamlessly without confirmation</string>
-    <string name="auto_install_summary_off">Only install/update apps when manually requested</string>
+    <string name="auto_install_title">Update installed apps in background</string>
+    <string name="auto_install_summary_on">Update installed apps in background without user confirmation</string>
+    <string name="auto_install_summary_off">Only install app updates downloaded in background when manually requested</string>
 
     <string name="network_type_title">Permitted network</string>
     <string name="network_type_summary">Permitted network type for downloading seamless updates</string>
 
     <string name="background_update_configuration_title">Auto download configuration</string>
-    <string name="background_update_duration_title">Auto download app updates interval</string>
+    <string name="background_update_duration_title">Check for app updates interval</string>
     <string name="background_update_duration_summary">Check for available updates after selected number of hours</string>
 
     <!--Notifications-->
