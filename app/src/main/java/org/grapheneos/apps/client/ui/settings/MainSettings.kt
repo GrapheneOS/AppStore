@@ -1,5 +1,7 @@
 package org.grapheneos.apps.client.ui.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.doOnPreDraw
@@ -24,6 +26,12 @@ class MainSettings : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = JobPsfsMgr.AUTO_UPDATE_PREFERENCE
         addPreferencesFromResource(R.xml.settings)
+        val autoInstallPref = findPreference(JobPsfsMgr.AUTO_INSTALL_KEY) ?: return
+        if (requireContext().applicationContext.checkSelfPermission(
+            Manifest.permission.INSTALL_PACKAGES) == PackageManager.PERMISSION_GRANTED
+        ) {
+            getPreferenceScreen().removePreference(autoInstallPref)
+        }
     }
 
 }
