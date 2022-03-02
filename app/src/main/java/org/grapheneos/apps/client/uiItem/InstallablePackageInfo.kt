@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 import org.grapheneos.apps.client.item.DownloadStatus
 import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.PackageInfo
+import org.grapheneos.apps.client.utils.AppSourceHelper
 
 data class InstallablePackageInfo(
     val name: String,
@@ -16,6 +17,20 @@ data class InstallablePackageInfo(
             val value = list.values
             for (item in value) {
                 result.add(InstallablePackageInfo(item.id, item))
+            }
+            return result
+        }
+
+        fun List<InstallablePackageInfo>.applyFilter(
+            filters: List<AppSourceHelper.BuildType>
+        ): List<InstallablePackageInfo> {
+
+            if (filters.isEmpty()) return this
+
+            val items = this
+            val result = mutableListOf<InstallablePackageInfo>()
+            items.forEach { item ->
+                if (filters.contains(AppSourceHelper.getCategory(item.name))) result.add(item)
             }
             return result
         }
