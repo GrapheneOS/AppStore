@@ -478,10 +478,13 @@ class App : Application() {
 
             val dependency = this@App.packagesInfo[name]
             dependency?.let {
+                val downloadStatus = it.downloadStatus
+                val isDownloading = downloadStatus != null && downloadStatus.isDownloading
                 if (dependency.installStatus !is InstallStatus.Installed &&
                     dependency.installStatus !is InstallStatus.Updated &&
                     dependency.installStatus !is InstallStatus.Installing &&
-                    dependency.installStatus !is InstallStatus.Pending
+                    dependency.installStatus !is InstallStatus.Pending &&
+                    !isDownloading
                 ) {
                     result.add(0, dependency.selectedVariant)
                 }
