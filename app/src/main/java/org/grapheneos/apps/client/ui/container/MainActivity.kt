@@ -3,12 +3,15 @@ package org.grapheneos.apps.client.ui.container
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -21,11 +24,17 @@ import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ActivityMainBinding
 import org.grapheneos.apps.client.item.InstallCallBack
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
+import org.grapheneos.apps.client.ui.search.SearchScreenState
+import org.grapheneos.apps.client.utils.hideKeyboard
 import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
+import org.grapheneos.apps.client.utils.showKeyboard
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var searchState: SearchScreenState
     private lateinit var views: ActivityMainBinding
     private val navCtrl by lazy {
         val navHostFragment =
@@ -91,14 +100,40 @@ class MainActivity : AppCompatActivity() {
         navCtrl.addOnDestinationChangedListener { _, destination, _ ->
             views.bottomNavView.isGone =
                 !appBarConfiguration.topLevelDestinations.contains(destination.id)
+            val isMainScreen = destination.id == R.id.mainScreen
+            val isSearchScreen = destination.id == R.id.searchScreen
+            views.searchBar.isVisible = isMainScreen || isSearchScreen
+            views.searchTitle.isVisible = isMainScreen
+            views.searchInput.isVisible = isSearchScreen
+            if (isSearchScreen) {
+                views.searchInput.showKeyboard()
+            } else {
+                views.searchInput.hideKeyboard()
+            }
         }
+        views.searchInput.setOnClickListener { navCtrl.navigate(R.id.searchScreen) }
+        views.searchBar.setOnClickListener { navCtrl.navigate(R.id.searchScreen) }
         (applicationContext as App).updateCount.observe(this, obs)
+
+        views.searchInput.addTextChangedListener { editable ->
+            searchState.updateQuery(editable?.trim()?.toString() ?: "")
+        }
     }
 
     override fun onPostResume() {
         super.onPostResume()
         if (isInstallBlockedByAdmin()) {
             navCtrl.navigate(R.id.installRestrictionScreen)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.clear -> {
+                views.searchInput.text?.clear()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

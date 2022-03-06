@@ -1,6 +1,8 @@
 package org.grapheneos.apps.client.utils
 
+import android.app.Service
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
@@ -22,3 +24,18 @@ fun View.showSnackbar(msg: String, isError: Boolean? = null) {
 }
 
 fun Fragment.showSnackbar(msg: String, isError: Boolean? = null) = view?.showSnackbar(msg, isError)
+
+fun View.hideKeyboard() {
+    val imm = context.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(this.windowToken, 0)
+}
+
+fun View.showKeyboard() {
+    requestFocus()
+    val imm = context.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.showSoftInput(this, 0)
+}
+
+fun Fragment.runOnUiThread(action: Runnable) {
+    activity?.runOnUiThread(action)
+}

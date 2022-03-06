@@ -11,15 +11,6 @@
         <item name="android:minHeight">48dp</item>
     </style>
 
-    <style name="Widget.Material3.Toolbar.BrandColor" parent="Widget.Material3.Toolbar">
-        <item name="android:background">@color/toolbarColor</item>
-        <item name="titleTextColor">?attr/colorControlNormal</item>
-    </style>
-
-    <style name="Widget.Material3.BottomNavigationView.BrandColor" parent="Widget.Material3.BottomNavigationView">
-        <item name="android:background">@color/bottomBarColor</item>
-    </style>
-
     <style name="ShapeAppearance.MaterialComponents.SmallComponent.RoundedCorner">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">10dp</item>
