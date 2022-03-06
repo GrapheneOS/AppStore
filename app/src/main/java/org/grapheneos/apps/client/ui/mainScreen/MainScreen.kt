@@ -173,6 +173,7 @@ class MainScreen : Fragment() {
                 syncingProgressbar.isVisible = isSyncing
                 appsRecyclerView.isGone = isSyncing || canRetry
                 retrySync.isVisible = !isSyncing && canRetry
+                filter.isVisible = !isSyncing && !canRetry
             }
         }
     }

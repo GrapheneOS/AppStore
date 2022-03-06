@@ -23,6 +23,7 @@ import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ActivityMainBinding
 import org.grapheneos.apps.client.item.InstallCallBack
+import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
 import org.grapheneos.apps.client.ui.search.SearchScreenState
 import org.grapheneos.apps.client.utils.hideKeyboard
@@ -54,6 +55,29 @@ class MainActivity : AppCompatActivity() {
             views.bottomNavView.getOrCreateBadge(R.id.updatesScreen).number = updatableCount
         }
 
+    }
+
+    var isMainScreen = false
+    var isSearchScreen = false
+    var currentDestinations = -1
+    private val packagesObserver = Observer<Map<String, PackageInfo>> { updateUi(it.isNotEmpty()) }
+
+    private fun updateUi(isSyncFinished: Boolean = app.isSyncingSuccessful()) {
+        views.searchBar.isVisible = (isMainScreen || isSearchScreen) && isSyncFinished
+        views.searchTitle.isVisible = isMainScreen && isSyncFinished
+        views.searchInput.isVisible = isSearchScreen && isSyncFinished
+        views.toolbar.isVisible = isSyncFinished
+        views.bottomNavView.isGone =
+            !appBarConfiguration.topLevelDestinations.contains(currentDestinations) || !isSyncFinished
+        if (isSearchScreen) {
+            views.searchInput.showKeyboard()
+        } else {
+            views.searchInput.hideKeyboard()
+        }
+    }
+
+    private val app by lazy {
+        applicationContext as App
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,22 +122,15 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navCtrl, appBarConfiguration)
 
         navCtrl.addOnDestinationChangedListener { _, destination, _ ->
-            views.bottomNavView.isGone =
-                !appBarConfiguration.topLevelDestinations.contains(destination.id)
-            val isMainScreen = destination.id == R.id.mainScreen
-            val isSearchScreen = destination.id == R.id.searchScreen
-            views.searchBar.isVisible = isMainScreen || isSearchScreen
-            views.searchTitle.isVisible = isMainScreen
-            views.searchInput.isVisible = isSearchScreen
-            if (isSearchScreen) {
-                views.searchInput.showKeyboard()
-            } else {
-                views.searchInput.hideKeyboard()
-            }
+            isMainScreen = destination.id == R.id.mainScreen
+            isSearchScreen = destination.id == R.id.searchScreen
+            currentDestinations = destination.id
+            updateUi()
         }
         views.searchInput.setOnClickListener { navCtrl.navigate(R.id.searchScreen) }
         views.searchBar.setOnClickListener { navCtrl.navigate(R.id.searchScreen) }
-        (applicationContext as App).updateCount.observe(this, obs)
+        app.updateCount.observe(this, obs)
+        app.packageLiveData.observe(this, packagesObserver)
 
         views.searchInput.addTextChangedListener { editable ->
             searchState.updateQuery(editable?.trim()?.toString() ?: "")
