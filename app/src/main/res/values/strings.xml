@@ -67,6 +67,7 @@
     <!--App.kt-->
     <string name="installationInProgress">"An installation is in progress"</string>
     <string name="uninstallationInProgress">An uninstallation is in progress</string>
+    <string name="dependencyDownloadInProgress">Dependencies are in progress of being downloaded and/or installed</string>
     <string name="allowUnknownSources">You must allow installation from this source first</string>
 
     <!--details_screen.xml-->
