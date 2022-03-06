@@ -750,7 +750,7 @@ class App : Application() {
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
                 is InstallStatus.Pending -> {
-                    /* stub! */
+                    callback.invoke(getString(R.string.dependencyDownloadInProgress))
                 }
             }
         }
