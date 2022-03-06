@@ -69,4 +69,13 @@
         android:name="org.grapheneos.apps.client.ui.installRestriction.InstallRestriction"
         android:label="InstallRestriction" />
     <action android:id="@+id/installRestrictionScreen" app:destination="@id/installRestriction" />
+    <fragment
+        android:id="@+id/searchScreen"
+        android:name="org.grapheneos.apps.client.ui.search.SearchScreen"
+        android:label="Search Screen"
+        tools:layout="@layout/search_screen" >
+        <action
+            android:id="@+id/action_to_detailsScreen"
+            app:destination="@id/detailsScreen" />
+    </fragment>
 </navigation>

@@ -148,7 +148,12 @@
 
     <!--AppSourceHelper.kt && main_screen -->
     <string name="grapheneOS">GrapheneOS</string>
-    <string name="googleMirror">Google (mirror)</string>
+    <string name="googleMirror">Google (Mirror)</string>
     <string name="grapheneOSBuild">GrapheneOS build</string>
+
+    <!--search_screen_menu-->
+    <string name="clear">Clear</string>
+    <string name="searchForApps">Search for apps</string>
+    <string name="noMatchFound">No apps found</string>
 
 </resources>

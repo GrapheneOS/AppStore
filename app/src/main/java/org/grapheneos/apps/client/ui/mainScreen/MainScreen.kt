@@ -27,6 +27,7 @@ import org.grapheneos.apps.client.databinding.MainScreenBinding
 import org.grapheneos.apps.client.item.MetadataCallBack
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo.Companion.applyFilter
+import org.grapheneos.apps.client.utils.runOnUiThread
 import org.grapheneos.apps.client.utils.showSnackbar
 
 @AndroidEntryPoint
@@ -150,10 +151,6 @@ class MainScreen : Fragment() {
                 installationRequested
             ), extra
         )
-    }
-
-    private fun runOnUiThread(action: Runnable) {
-        activity?.runOnUiThread(action)
     }
 
     private fun refresh() {

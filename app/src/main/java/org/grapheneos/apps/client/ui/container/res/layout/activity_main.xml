@@ -8,16 +8,53 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        style="@style/Widget.Material3.Toolbar.BrandColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:elevation="4dp"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/Theme.Apps.PopUpOverlay"
         tools:menu="@menu/main_menu"
-        tools:title="@string/app_name" />
+        tools:title="@string/app_name">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/searchBar"
+            style="?attr/materialCardViewFilledStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="25dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchInput"
+                style="@style/Widget.Material3.TextInputEditText.FilledBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:hint="@string/searchForApps"
+                android:imeOptions="actionSearch"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:textColor="?attr/colorControlNormal" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/searchTitle"
+                style="@style/TextAppearance.Material3.TitleMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="12dp"
+                android:layout_margin="0dp"
+                android:padding="12dp"
+                android:hint="@string/searchForApps"
+                tools:visibility="gone"
+                android:textColor="?attr/colorControlNormal" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container"
@@ -33,7 +70,6 @@
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavView"
-        style="@style/Widget.Material3.BottomNavigationView.BrandColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

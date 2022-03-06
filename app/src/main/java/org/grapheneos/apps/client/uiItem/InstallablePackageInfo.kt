@@ -35,6 +35,24 @@ data class InstallablePackageInfo(
             return result
         }
 
+        fun List<InstallablePackageInfo>.applySearchQueryFilter(query: String): List<InstallablePackageInfo> {
+            if (query.isBlank() || query.isEmpty()) return emptyList()
+
+            val result = mutableListOf<InstallablePackageInfo>()
+            val items = this
+            items.forEach { item ->
+                val variant = item.packageInfo.selectedVariant
+                if (item.name.contains(query, true) ||
+                    variant.pkgName.contains(query, true) ||
+                    variant.appName.contains(query, true)
+                ) {
+                    result.add(item)
+                }
+            }
+
+            return result
+        }
+
         fun updatableFromMap(list: Map<String, PackageInfo>): List<InstallablePackageInfo> {
             val result = mutableListOf<InstallablePackageInfo>()
             val value = list.values
