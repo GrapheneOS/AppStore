@@ -145,7 +145,12 @@ class App : Application() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
             val action = intent?.action ?: return
-            val pkgName = intent.data?.schemeSpecificPart ?: return
+            val oldPkgName = intent.data?.schemeSpecificPart ?: return
+            val pkgName = if (oldPkgName == "org.grapheneos.pdfviewer" && isSystemApp("app.grapheneos.pdfviewer", oldPkgName)) {
+                "app.grapheneos.pdfviewer"
+            } else {
+                oldPkgName
+            }
 
             val info = packagesInfo[pkgName]
             if (!packagesInfo.containsKey(pkgName) || info == null) {
