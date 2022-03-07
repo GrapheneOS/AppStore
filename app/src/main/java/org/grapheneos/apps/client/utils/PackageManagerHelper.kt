@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionParams
 import org.grapheneos.apps.client.R
+import org.grapheneos.apps.client.receiver.APKInstallReceiver
+import org.grapheneos.apps.client.receiver.APKUninstallReceiver
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 import java.io.File
 import java.io.FileInputStream
