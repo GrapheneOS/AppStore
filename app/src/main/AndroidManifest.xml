@@ -35,10 +35,10 @@
         </activity>
 
         <receiver
-            android:name=".utils.APKInstallReceiver"
+            android:name=".receiver.APKInstallReceiver"
             android:exported="false" />
         <receiver
-            android:name=".utils.APKUninstallReceiver"
+            android:name=".receiver.APKUninstallReceiver"
             android:exported="false" />
 
         <service

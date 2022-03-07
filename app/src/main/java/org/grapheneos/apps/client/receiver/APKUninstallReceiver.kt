@@ -1,4 +1,4 @@
-package org.grapheneos.apps.client.utils
+package org.grapheneos.apps.client.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
