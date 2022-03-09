@@ -763,17 +763,7 @@ class App : Application() {
             return
         }
 
-        val appsToUpdate = mutableListOf<PackageVariant>()
-        packagesInfo.values.forEach { info ->
-            val installStatus = info.installStatus
-            val variant = info.selectedVariant
-
-            if (installStatus is InstallStatus.Updatable &&
-                info.downloadStatus !is DownloadStatus.Downloading
-            ) {
-                appsToUpdate.add(variant)
-            }
-        }
+        val appsToUpdate = filterUpdatableApps()
         downloadMultipleApps(appsToUpdate, {
             callback.invoke(it.toUiMsg())
         })
@@ -826,7 +816,6 @@ class App : Application() {
         }
 
         refreshJob = Job()
-        val privilegeMode = isPrivilegeInstallPermissionGranted()
 
         CoroutineScope(seamlessUpdaterJob + Dispatchers.IO).launch {
 
@@ -843,31 +832,23 @@ class App : Application() {
 
             val isAutoInstallEnabled = jobPsfsMgr.autoInstallEnabled()
 
-            packagesInfo.forEach { info ->
-                val installStatus = info.value.installStatus
-                val variant = info.value.selectedVariant
-                val installedVersion = installStatus.installedV.toLongOrNull() ?: 0
-                val isInstalled = installedVersion != 0L
-                val isUpdatable = installedVersion < installStatus.latestV.toLong()
-
-                if (installStatus is InstallStatus.Updatable || (privilegeMode && isInstalled && isUpdatable)) {
-                    if (isDownloadJobRunning(variant.pkgName)) {
-                        throw IllegalStateException("download get called while a download task is already running")
-                    }
-                    val downloadResult = downloadPackages(variant)
-                    if (downloadResult is DownloadCallBack.Success) {
-                        if (isAutoInstallEnabled) {
-                            if (installApps(downloadResult.apks, variant.pkgName)) {
-                                updatedPackages.add(variant.appName)
-                            } else {
-                                updateFailedPackages.add(variant.appName)
-                            }
+            filterUpdatableApps().forEach { variant ->
+                if (isDownloadJobRunning(variant.pkgName)) {
+                    throw IllegalStateException("download get called while a download task is already running")
+                }
+                val downloadResult = downloadPackages(variant)
+                if (downloadResult is DownloadCallBack.Success) {
+                    if (isAutoInstallEnabled) {
+                        if (installApps(downloadResult.apks, variant.pkgName)) {
+                            updatedPackages.add(variant.appName)
                         } else {
-                            requireConfirmationPackages.add(variant.appName)
+                            updateFailedPackages.add(variant.appName)
                         }
                     } else {
-                        updateFailedPackages.add(variant.appName)
+                        requireConfirmationPackages.add(variant.appName)
                     }
+                } else {
+                    updateFailedPackages.add(variant.appName)
                 }
             }
 
@@ -888,6 +869,29 @@ class App : Application() {
     private fun cancelScheduleAutoUpdate() {
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.cancel(SEAMLESS_UPDATER_JOB_ID)
+    }
+
+    private fun filterUpdatableApps(): List<PackageVariant> {
+        val privilegeMode = isPrivilegeInstallPermissionGranted()
+        val mutableUpdatableAppsList = mutableListOf<PackageVariant>()
+        packagesInfo.forEach { info ->
+            val installStatus = info.value.installStatus
+            val variant = info.value.selectedVariant
+            val installedVersion = installStatus.installedV.toLongOrNull() ?: 0
+            val isInstalled = installedVersion != 0L
+            val isUpdatable = installedVersion < installStatus.latestV.toLong() && isInstalled
+            val isDownloading = info.value.downloadStatus is DownloadStatus.Downloading
+
+            if ((installStatus is InstallStatus.Updatable || (privilegeMode && isUpdatable)) && !isDownloading) {
+                when {
+                    variant in mutableUpdatableAppsList -> { /* Don't do anything */ }
+                    // Always put this app itself last for background updates if it has an update.
+                    variant.pkgName == packageName -> mutableUpdatableAppsList.add(variant)
+                    else -> mutableUpdatableAppsList.add(0, variant)
+                }
+            }
+        }
+        return mutableUpdatableAppsList.distinct().toList()
     }
 
     override fun onTerminate() {
