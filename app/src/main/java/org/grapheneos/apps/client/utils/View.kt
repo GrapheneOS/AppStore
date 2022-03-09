@@ -18,7 +18,8 @@ fun View.showSnackbar(msg: String, isError: Boolean? = null) {
         Snackbar.LENGTH_SHORT
     )
     if (isError == true) {
-        snackbar.setTextColor(MaterialColors.getColor(this, R.attr.colorError))
+        snackbar.setTextColor(MaterialColors.getColor(this, R.attr.colorOnError))
+        snackbar.setBackgroundTint(MaterialColors.getColor(this, R.attr.colorError))
     }
     snackbar.show()
 }
