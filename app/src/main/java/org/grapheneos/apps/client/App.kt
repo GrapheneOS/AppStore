@@ -216,12 +216,7 @@ class App : Application() {
 
         if (!isServiceRunning) {
             if (foregroundServiceNeeded && !isSeamlessUpdateRunning()) {
-                startService(
-                    Intent(
-                        this@App,
-                        KeepAppActive::class.java
-                    )
-                )
+                startService(Intent(this@App, KeepAppActive::class.java))
             }
         }
     }
