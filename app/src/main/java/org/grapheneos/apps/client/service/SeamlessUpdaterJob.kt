@@ -54,6 +54,7 @@ class SeamlessUpdaterJob : JobService() {
             .addAction(action)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
+            .setShowWhen(true)
 
         app.seamlesslyUpdateApps { result ->
 

@@ -201,6 +201,7 @@ class App : Application() {
                     .setSmallIcon(R.drawable.ic_downloading)
                     .setContentTitle(task.title)
                     .setOnlyAlertOnce(true)
+                    .setShowWhen(true)
                     .setProgress(100, task.progress, false)
                     .build()
                 notification.flags = Notification.FLAG_ONGOING_EVENT
@@ -242,6 +243,7 @@ class App : Application() {
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("${info.selectedVariant.appName} ${getString(R.string.installationFailed)}")
                 .setContentText(error.description)
+                .setShowWhen(true)
                 .setAutoCancel(true)
                 .build()
             notificationMgr.notify(sessionId, notification)
