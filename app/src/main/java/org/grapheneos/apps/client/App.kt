@@ -97,10 +97,10 @@ class App : Application() {
         private const val SEAMLESS_UPDATER_JOB_ID = 1000
 
         fun getString(@StringRes id: Int): String {
-            return context.get()!!.getString(id)
+            return getContext().getString(id)
         }
 
-        fun getContext() = context.get()!!
+        private fun getContext() = context.get()!!
     }
 
     /*Injectable member var*/
