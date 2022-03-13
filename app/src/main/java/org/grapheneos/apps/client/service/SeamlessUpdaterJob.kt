@@ -94,8 +94,7 @@ class SeamlessUpdaterJob : JobService() {
                 notification.setContentTitle(App.getString(R.string.seamlessUpdatesCheckFailed))
             }
 
-            val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.notify(NOTIFICATION_ID, notification.build())
 
             jobFinished(params, true)

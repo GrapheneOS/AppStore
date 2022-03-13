@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.UserManager
 
 fun Context.isInstallBlockedByAdmin(): Boolean {
-    val um = getSystemService(Application.USER_SERVICE) as UserManager
+    val um = getSystemService(UserManager::class.java)
 
     return um.hasUserRestriction(UserManager.DISALLOW_INSTALL_APPS) ||
             um.hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES) ||

@@ -886,7 +886,7 @@ class App : Application() {
     }
 
     private fun cancelScheduleAutoUpdate() {
-        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobScheduler = getSystemService(JobScheduler::class.java)
         jobScheduler.cancel(SEAMLESS_UPDATER_JOB_ID)
     }
 
@@ -933,7 +933,7 @@ class App : Application() {
                     .setPeriodic(time)
                     .build()
 
-                val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+                val jobScheduler = getSystemService(JobScheduler::class.java)
                 jobScheduler.schedule(jobInfo)
             } else {
                 cancelScheduleAutoUpdate()

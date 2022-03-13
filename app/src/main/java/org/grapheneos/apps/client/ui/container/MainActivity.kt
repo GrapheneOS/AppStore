@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (SeamlessUpdaterJob.NOTIFICATION_ACTION == intent.action) {
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(
+            (getSystemService(NotificationManager::class.java)).cancel(
                 SeamlessUpdaterJob.NOTIFICATION_ID
             )
         }
