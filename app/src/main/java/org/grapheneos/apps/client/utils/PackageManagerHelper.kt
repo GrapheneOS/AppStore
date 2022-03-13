@@ -107,7 +107,7 @@ class PackageManagerHelper(private val context: Context) {
 
     @Throws(GeneralSecurityException::class)
     fun uninstall(packageName: String) {
-        if (context.isInstallBlockedByAdmin()) {
+        if (context.isUninstallBlockedByAdmin()) {
             throw GeneralSecurityException(context.getString(R.string.icBlocked))
         }
         val pendingIntent =
