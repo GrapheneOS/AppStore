@@ -63,6 +63,7 @@ import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
+import org.grapheneos.apps.client.utils.isUninstallBlockedByAdmin
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
@@ -124,6 +125,9 @@ class App : Application() {
     val packageLiveData: LiveData<Map<String, PackageInfo>> = packagesMutableLiveData
     private val updatableAppsCount: MutableLiveData<Int> = MutableLiveData()
     val updateCount: LiveData<Int> = updatableAppsCount
+    val isPrivilegeMode by lazy {
+        checkSelfPermission(Manifest.permission.INSTALL_PACKAGES) == PackageManager.PERMISSION_GRANTED
+    }
 
     private val jobPsfsMgr by lazy {
         JobPsfsMgr(this)
@@ -339,7 +343,7 @@ class App : Application() {
             val installerInfo = pm.getInstallSourceInfo(pkgName)
             val currentVersion = appInfo.longVersionCode
 
-            if (packageName.equals(installerInfo.initiatingPackageName) || isPrivilegeInstallPermissionGranted()) {
+            if (packageName.equals(installerInfo.initiatingPackageName) || isPrivilegeMode) {
                 if (currentVersion < latestVersion) {
                     InstallStatus.Updatable(currentVersion, latestVersion)
                 } else {
@@ -639,7 +643,9 @@ class App : Application() {
     }
 
     fun uninstallPackage(pkgName: String) {
-        pmHelper().uninstall(pkgName)
+        if (!isUninstallBlockedByAdmin()) {
+            pmHelper().uninstall(pkgName)
+        }
     }
 
     private fun openApp(pkgName: String, callback: (result: String) -> Unit): Boolean {
@@ -705,7 +711,7 @@ class App : Application() {
             return
         }
 
-        if (!isPrivilegeInstallPermissionGranted() && !canRequestPackageInstalls()) {
+        if (!isPrivilegeMode && !canRequestPackageInstalls()) {
             callback.invoke(getString(R.string.allowUnknownSources))
             return
         }
@@ -753,7 +759,7 @@ class App : Application() {
     }
 
     fun updateAllUpdatableApps(callback: (result: String) -> Unit) {
-        if (!isPrivilegeInstallPermissionGranted() && !canRequestPackageInstalls()) {
+        if (!isPrivilegeMode && !canRequestPackageInstalls()) {
             callback.invoke(getString(R.string.allowUnknownSources))
             return
         }
@@ -791,9 +797,6 @@ class App : Application() {
         return true
     }
 
-    private fun isPrivilegeInstallPermissionGranted() =
-        checkSelfPermission(Manifest.permission.INSTALL_PACKAGES) == PackageManager.PERMISSION_GRANTED
-
     private fun isSeamlessUpdateRunning() =
         this::seamlessUpdaterJob.isInitialized
                 && seamlessUpdaterJob.isActive
@@ -826,7 +829,6 @@ class App : Application() {
         }
 
         refreshJob = Job()
-        val privilegeMode = isPrivilegeInstallPermissionGranted()
 
         CoroutineScope(seamlessUpdaterJob + Dispatchers.IO).launch {
 
@@ -850,7 +852,7 @@ class App : Application() {
                 val isInstalled = installedVersion != 0L
                 val isUpdatable = installedVersion < installStatus.latestV.toLong()
 
-                if (installStatus is InstallStatus.Updatable || (privilegeMode && isInstalled && isUpdatable)) {
+                if (installStatus is InstallStatus.Updatable || (isPrivilegeMode && isInstalled && isUpdatable)) {
                     if (isDownloadJobRunning(variant.pkgName)) {
                         throw IllegalStateException("download get called while a download task is already running")
                     }
