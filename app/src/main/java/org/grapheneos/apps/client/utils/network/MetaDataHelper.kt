@@ -179,6 +179,11 @@ class MetaDataHelper constructor(context: Context) {
                 for (itemIndex in 0 until channelItemsJson.length()) {
                     val channelItemJson = channelItemsJson.getJSONObject(itemIndex)
 
+                    val originalPackage = try {
+                        channelItemJson.getString("originalPackage")
+                    } catch (e: JSONException) {
+                        null
+                    }
                     val packages = channelItemJson.getJSONArray("packages")
                     val hashes = channelItemJson.getJSONArray("hashes")
                     val appName = channelItemJson.getString("label")
@@ -206,7 +211,8 @@ class MetaDataHelper constructor(context: Context) {
                             channelName,
                             packageInfoMap,
                             versionCode,
-                            dependencies
+                            dependencies,
+                            originalPackage,
                         )
                     }
                 }
