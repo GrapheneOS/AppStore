@@ -703,9 +703,13 @@ class App : Application() {
         }
     }
 
-    private fun openApp(pkgName: String, callback: (result: String) -> Unit): Boolean {
+    private tailrec fun openApp(pkgName: String, callback: (result: String) -> Unit): Boolean {
         val intent = packageManager.getLaunchIntentForPackage(pkgName)
         if (intent == null) {
+            val otherPkgName = samePackagesMap[pkgName]
+            if (otherPkgName != null && isSystemApp(otherPkgName)) {
+                return openApp(otherPkgName, callback)
+            }
             callback.invoke(getString(R.string.unOpenable))
             return false
         }
