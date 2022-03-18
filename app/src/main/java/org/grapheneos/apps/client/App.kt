@@ -121,6 +121,7 @@ class App : Application() {
     private val confirmationAwaitedPackages = mutableMapOf<String, List<File>>()
 
     private val packagesInfo: MutableMap<String, PackageInfo> = mutableMapOf()
+    private val samePackagesMap: MutableMap<String, String> = mutableMapOf()
     private val packagesMutableLiveData = MutableLiveData<Map<String, PackageInfo>>()
     val packageLiveData: LiveData<Map<String, PackageInfo>> = packagesMutableLiveData
     private val updatableAppsCount: MutableLiveData<Int> = MutableLiveData()
@@ -274,6 +275,13 @@ class App : Application() {
                         .getPackageChannel(this@App, pkgName)
                     val channelVariant = value.variants[channelPref]
                         ?: value.variants[App.getString(R.string.channel_default)]!!
+                    val oldPkgName = channelVariant.originalPkgName
+                    val shouldMapOnSamePackages = !samePackagesMap.containsKey(oldPkgName)
+                            && !samePackagesMap.containsKey(pkgName)
+                    if (oldPkgName != null && shouldMapOnSamePackages) {
+                        samePackagesMap[oldPkgName] = pkgName
+                        samePackagesMap[pkgName] = oldPkgName
+                    }
                     val installStatus = getInstalledStatus(
                         pkgName,
                         channelVariant.versionCode.toLong()
