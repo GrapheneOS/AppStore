@@ -13,6 +13,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.SystemClock
@@ -164,7 +165,7 @@ class App : Application() {
                 Intent.ACTION_PACKAGE_REMOVED,
                 Intent.ACTION_PACKAGE_FULLY_REMOVED -> {
 
-                    val installStatus = getInstalledStatus(pkgName, latestVersion, true)
+                    val installStatus = getInstallStatusCompat(pkgName, latestVersion, true)
                     packagesInfo[pkgName] = info.withUpdatedInstallStatus(installStatus)
                 }
 
@@ -282,9 +283,10 @@ class App : Application() {
                         samePackagesMap[oldPkgName] = pkgName
                         samePackagesMap[pkgName] = oldPkgName
                     }
-                    val installStatus = getInstalledStatus(
+                    val installStatus = getInstallStatusCompat(
                         pkgName,
-                        channelVariant.versionCode.toLong()
+                        channelVariant.versionCode.toLong(),
+                        fallback = oldPkgName
                     )
 
                     val info = packagesInfo.getOrDefault(
@@ -332,7 +334,43 @@ class App : Application() {
         }
     }
 
-    private fun getInstalledStatus(
+    private fun getInstallStatusCompat(
+        pkgName: String,
+        latestVersion: Long,
+        isBroadcast: Boolean = false,
+        fallback: String? = samePackagesMap[pkgName]
+    ): InstallStatus {
+        return if (fallback != null) {
+            val isSystem = isSystemApp(pkgName, fallback)
+            val originalStatus = getInstallStatus(pkgName, latestVersion, isBroadcast)
+            val fallbackStatus = getInstallStatus(fallback, latestVersion, isBroadcast)
+            val status = when {
+                !isSystem -> originalStatus
+                originalStatus is InstallStatus.Installable -> fallbackStatus
+                else -> originalStatus
+            }
+            status
+        } else {
+            getInstallStatus(pkgName, latestVersion, isBroadcast)
+        }
+    }
+
+    private tailrec fun isSystemApp(pkgName: String, fallback: String? = null): Boolean {
+        val sigFlags = PackageManager.GET_SIGNING_CERTIFICATES
+        val isSystem = try {
+            val pmInfo = packageManager.getPackageInfo(pkgName, sigFlags)
+            (pmInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+        return when {
+            isSystem -> true
+            fallback.isNullOrEmpty() || fallback.isBlank() -> false
+            else -> isSystemApp(fallback)
+        }
+    }
+
+    private fun getInstallStatus(
         pkgName: String,
         latestVersion: Long,
         isBroadcast: Boolean = false
@@ -341,9 +379,9 @@ class App : Application() {
         val currentInfo = packagesInfo[pkgName]
         val installedVersion = currentInfo?.installStatus?.installedV?.toLongOrNull() ?: 0
         return try {
-            val appInfo = pm.getPackageInfo(pkgName, 0)
+            val pmInfo = pm.getPackageInfo(pkgName, 0)
             val installerInfo = pm.getInstallSourceInfo(pkgName)
-            val currentVersion = appInfo.longVersionCode
+            val currentVersion = pmInfo.longVersionCode
 
             if (currentVersion > latestVersion) return InstallStatus.NewerVersionInstalled(
                 currentVersion,
@@ -540,7 +578,7 @@ class App : Application() {
                     result !is DownloadCallBack.Success || !shouldProceed -> {
                         packagesInfo[pkgName] =
                             packagesInfo[pkgName]!!.withUpdatedInstallStatus(
-                                getInstalledStatus(pkgName, variant.versionCode.toLong())
+                                getInstallStatusCompat(pkgName, variant.versionCode.toLong())
                             )
                         shouldProceed = !shouldAllSucceed
                         updateLiveData()
@@ -686,7 +724,7 @@ class App : Application() {
                 channelVariant = packageVariant
             }
         }
-        val installStatus = getInstalledStatus(packageName, channelVariant.versionCode.toLong())
+        val installStatus = getInstallStatusCompat(packageName, channelVariant.versionCode.toLong())
         packagesInfo[packageName] = infoToCheck.withUpdatedVariant(channelVariant)
             .withUpdatedInstallStatus(installStatus)
         updateLiveData()
