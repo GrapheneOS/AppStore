@@ -150,7 +150,14 @@ class App : Application() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
             val action = intent?.action ?: return
-            val pkgName = intent.data?.schemeSpecificPart ?: return
+            val oldPkgName = intent.data?.schemeSpecificPart ?: return
+            val newPkgName = samePackagesMap[oldPkgName] ?: oldPkgName
+            val pkgName =
+                when {
+                    oldPkgName == newPkgName -> oldPkgName
+                    isSystemApp(newPkgName, oldPkgName) -> newPkgName
+                    else -> oldPkgName
+                }
 
             val info = packagesInfo[pkgName]
             if (!packagesInfo.containsKey(pkgName) || info == null) {
