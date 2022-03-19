@@ -164,7 +164,6 @@ class App : Application() {
                 //If other package is installed or uninstalled we don't care
                 return
             }
-            val latestVersion = info.selectedVariant.versionCode.toLong()
 
             when (action) {
                 Intent.ACTION_PACKAGE_ADDED,
@@ -172,7 +171,7 @@ class App : Application() {
                 Intent.ACTION_PACKAGE_REMOVED,
                 Intent.ACTION_PACKAGE_FULLY_REMOVED -> {
 
-                    val installStatus = getInstallStatusCompat(pkgName, latestVersion, true)
+                    val installStatus = info.selectedVariant.getInstallStatusCompat(true)
                     packagesInfo[pkgName] = info.withUpdatedInstallStatus(installStatus)
                 }
 
@@ -290,11 +289,7 @@ class App : Application() {
                         samePackagesMap[oldPkgName] = pkgName
                         samePackagesMap[pkgName] = oldPkgName
                     }
-                    val installStatus = getInstallStatusCompat(
-                        pkgName,
-                        channelVariant.versionCode.toLong(),
-                        fallback = oldPkgName
-                    )
+                    val installStatus = channelVariant.getInstallStatusCompat()
 
                     val info = packagesInfo.getOrDefault(
                         pkgName,
@@ -341,12 +336,9 @@ class App : Application() {
         }
     }
 
-    private fun getInstallStatusCompat(
-        pkgName: String,
-        latestVersion: Long,
-        isBroadcast: Boolean = false,
-        fallback: String? = samePackagesMap[pkgName]
-    ): InstallStatus {
+    private fun PackageVariant.getInstallStatusCompat(isBroadcast: Boolean = false): InstallStatus {
+        val latestVersion = versionCode.toLong()
+        val fallback = originalPkgName
         return if (fallback != null) {
             val isSystem = isSystemApp(pkgName, fallback)
             val originalStatus = getInstallStatus(pkgName, latestVersion, isBroadcast)
@@ -585,7 +577,7 @@ class App : Application() {
                     result !is DownloadCallBack.Success || !shouldProceed -> {
                         packagesInfo[pkgName] =
                             packagesInfo[pkgName]!!.withUpdatedInstallStatus(
-                                getInstallStatusCompat(pkgName, variant.versionCode.toLong())
+                                variant.getInstallStatusCompat()
                             )
                         shouldProceed = !shouldAllSucceed
                         updateLiveData()
@@ -683,18 +675,13 @@ class App : Application() {
         }
     }
 
-    fun openAppDetails(pkgName: String, callback: (result: String) -> Unit) {
-        try {
-            packageManager.getApplicationInfo(pkgName, PackageManager.GET_META_DATA)
-            startActivity(
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    .setData(Uri.parse(String.format("package:%s", pkgName)))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .addCategory(Intent.CATEGORY_DEFAULT)
-            )
-        } catch (e: PackageManager.NameNotFoundException) {
-            callback.invoke(getString(R.string.appIsNotInstalled))
-        }
+    fun openAppDetails(pkgName: String) {
+        startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.parse(String.format("package:%s", pkgName)))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .addCategory(Intent.CATEGORY_DEFAULT)
+        )
     }
 
     fun uninstallPackage(pkgName: String) {
@@ -735,7 +722,7 @@ class App : Application() {
                 channelVariant = packageVariant
             }
         }
-        val installStatus = getInstallStatusCompat(packageName, channelVariant.versionCode.toLong())
+        val installStatus = channelVariant.getInstallStatusCompat()
         packagesInfo[packageName] = infoToCheck.withUpdatedVariant(channelVariant)
             .withUpdatedInstallStatus(installStatus)
         updateLiveData()
