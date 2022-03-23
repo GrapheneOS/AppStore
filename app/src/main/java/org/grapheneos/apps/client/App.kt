@@ -735,10 +735,7 @@ class App : Application() {
         var result = true
         variant?.dependencies?.forEach {
             val status = packagesInfo[it]
-            if (status == null || (status.installStatus !is InstallStatus.Installed ||
-                        status.installStatus !is InstallStatus.Updatable ||
-                        status.installStatus !is InstallStatus.Updated)
-            ) {
+            if (status == null || !status.installStatus.isInstalled) {
                 result = false
             }
         }
