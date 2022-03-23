@@ -2,6 +2,8 @@ package org.grapheneos.apps.client.utils.network
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Build
 import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.App
@@ -22,7 +24,7 @@ import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import javax.net.ssl.SSLHandshakeException
 
-class MetaDataHelper constructor(context: Context) {
+class MetaDataHelper constructor(val context: Context) {
 
     private val version = CURRENT_VERSION
 
@@ -212,6 +214,7 @@ class MetaDataHelper constructor(context: Context) {
                             packageInfoMap,
                             versionCode,
                             dependencies,
+                            isSystemApp(pkgName, originalPackage),
                             originalPackage,
                         )
                     }
@@ -223,6 +226,19 @@ class MetaDataHelper constructor(context: Context) {
         }
         return result
     }
+
+    private fun isSystemApp(packageName: String, ogPackageName: String? = null): Boolean {
+        return try {
+            val pmInfo = context.packageManager.getPackageInfo(packageName, 0)
+            (pmInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        } catch (e: PackageManager.NameNotFoundException) {
+            if (ogPackageName != null && ogPackageName.isNotEmpty()) {
+                return isSystemApp(ogPackageName)
+            }
+            return false
+        }
+    }
+
 
     @Throws(
         UnknownHostException::class,

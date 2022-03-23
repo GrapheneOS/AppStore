@@ -83,6 +83,9 @@ class DetailsScreen : Fragment() {
             when (it.itemId) {
                 R.id.uninstall -> {
                     it.isEnabled = isInstalled
+                    if (pkgInfo?.selectedVariant?.isSystemApp == true) {
+                        it.title = App.getString(R.string.uninstall_updates)
+                    }
                 }
                 R.id.appInfo -> {
                     it.isEnabled = isInstalled

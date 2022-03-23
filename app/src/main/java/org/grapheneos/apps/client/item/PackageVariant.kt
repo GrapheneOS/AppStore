@@ -7,5 +7,6 @@ data class PackageVariant(
     val packagesInfo: Map<String, String>, //package and hash
     val versionCode: Int,
     val dependencies: List<String> = listOf(),
+    val isSystemApp: Boolean = false,
     val originalPkgName: String? = null
 )
