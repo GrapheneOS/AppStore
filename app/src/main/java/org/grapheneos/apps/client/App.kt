@@ -13,7 +13,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.SystemClock
@@ -354,20 +353,9 @@ class App : Application() {
         }
     }
 
-    private tailrec fun isSystemApp(pkgName: String, fallback: String? = null): Boolean {
-        val sigFlags = PackageManager.GET_SIGNING_CERTIFICATES
-        val isSystem = try {
-            val pmInfo = packageManager.getPackageInfo(pkgName, sigFlags)
-            (pmInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-        return when {
-            isSystem -> true
-            fallback.isNullOrEmpty() || fallback.isBlank() -> false
-            else -> isSystemApp(fallback)
-        }
-    }
+    private fun isSystemApp(pkgName: String, fallback: String? = null) =
+        pmHelper().isSystemApp(pkgName, fallback)
+
 
     private fun getInstallStatus(
         pkgName: String,

@@ -3,8 +3,10 @@ package org.grapheneos.apps.client.utils
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionParams
+import android.content.pm.PackageManager
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.receiver.APKInstallReceiver
 import org.grapheneos.apps.client.receiver.APKUninstallReceiver
@@ -124,6 +126,16 @@ class PackageManagerHelper(private val context: Context) {
         packageInstaller.uninstall(packageName, pendingIntent.intentSender)
 
     }
+
+    fun isSystemApp(pkgName: String, fallback: String? = null): Boolean {
+        return try {
+            val pmInfo = context.packageManager.getPackageInfo(pkgName, 0)
+            (pmInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        } catch (e: PackageManager.NameNotFoundException) {
+            if (fallback != null) isSystemApp(fallback) else false
+        }
+    }
+
 
     companion object {
         fun Context.pmHelper() = PackageManagerHelper(this)

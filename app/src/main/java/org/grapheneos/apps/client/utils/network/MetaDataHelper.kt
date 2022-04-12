@@ -2,8 +2,6 @@ package org.grapheneos.apps.client.utils.network
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.os.Build
 import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.App
@@ -13,6 +11,7 @@ import org.grapheneos.apps.client.di.HttpHelperComponent.Companion.defaultConfig
 import org.grapheneos.apps.client.item.MetaData
 import org.grapheneos.apps.client.item.Package
 import org.grapheneos.apps.client.item.PackageVariant
+import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
@@ -214,7 +213,7 @@ class MetaDataHelper constructor(val context: Context) {
                             packageInfoMap,
                             versionCode,
                             dependencies,
-                            isSystemApp(pkgName, originalPackage),
+                            context.pmHelper().isSystemApp(pkgName, originalPackage),
                             originalPackage,
                         )
                     }
@@ -226,19 +225,6 @@ class MetaDataHelper constructor(val context: Context) {
         }
         return result
     }
-
-    private fun isSystemApp(packageName: String, ogPackageName: String? = null): Boolean {
-        return try {
-            val pmInfo = context.packageManager.getPackageInfo(packageName, 0)
-            (pmInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-        } catch (e: PackageManager.NameNotFoundException) {
-            if (ogPackageName != null && ogPackageName.isNotEmpty()) {
-                return isSystemApp(ogPackageName)
-            }
-            return false
-        }
-    }
-
 
     @Throws(
         UnknownHostException::class,
