@@ -188,7 +188,7 @@ class MetaDataHelper constructor(context: Context) {
                     val hashes = channelItemJson.getJSONArray("hashes")
                     val appName = channelItemJson.getString("label")
                     val minSdkVersion = channelItemJson.getInt("minSdkVersion")
-                    val versionCode = channelItemJson.getInt("versionCode")
+                    val versionCode = channelItemJson.getLong("versionCode")
                     val dependenciesArray = channelItemJson.getJSONArray("dependencies")
                     val dependencies = mutableListOf<String>()
 
