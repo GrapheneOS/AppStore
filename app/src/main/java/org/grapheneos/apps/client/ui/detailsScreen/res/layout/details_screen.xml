@@ -95,28 +95,27 @@
                     tools:text="GrapheneOS" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/installedLabel"
+                    android:id="@+id/latestLabel"
                     style="?attr/textAppearanceLabelMedium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/installed"
+                    android:text="@string/latest"
                     android:textColor="?attr/colorPrimaryDark"
-                    app:layout_constraintBottom_toTopOf="@+id/installed"
+                    app:layout_constraintBottom_toTopOf="@+id/latest"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/appIcon" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/installed"
+                    android:id="@+id/latest"
                     style="?attr/textAppearanceBodySmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
                     android:layout_marginTop="4dp"
-                    app:layout_constraintBottom_toTopOf="@+id/releaseNoteLabel"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/installedLabel"
+                    app:layout_constraintTop_toBottomOf="@+id/latestLabel"
                     tools:text="2.0" />
 
                 <androidx.constraintlayout.widget.Barrier
@@ -124,29 +123,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="end"
-                    app:constraint_referenced_ids="installed,installedLabel"
+                    app:constraint_referenced_ids="latest,latestLabel"
                     tools:layout_editor_absoluteX="89dp"
                     tools:layout_editor_absoluteY="16dp" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/latestLabel"
+                    android:id="@+id/installedLabel"
                     style="?attr/textAppearanceLabelMedium"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
-                    android:text="@string/latest"
+                    android:text="@string/installed"
                     android:textColor="?attr/colorPrimaryDark"
                     app:layout_constraintStart_toEndOf="@+id/installedInfoBarrier"
-                    app:layout_constraintTop_toTopOf="@+id/installedLabel" />
+                    app:layout_constraintTop_toTopOf="@id/latestLabel" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/latest"
+                    android:id="@+id/installed"
                     style="?attr/textAppearanceBodySmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    app:layout_constraintStart_toStartOf="@+id/latestLabel"
-                    app:layout_constraintTop_toBottomOf="@+id/latestLabel"
+                    app:layout_constraintStart_toStartOf="@+id/installedLabel"
+                    app:layout_constraintTop_toBottomOf="@+id/installedLabel"
                     tools:text="7.0.1" />
 
                 <com.google.android.material.textview.MaterialTextView
