@@ -194,7 +194,16 @@ class DetailsScreen : Fragment() {
             publisher.text = AppSourceHelper.getCategoryName(variant.pkgName)
             install.isEnabled = !isDownloading
             install.text = packageInfo.installStatus()
-            installed.text = packageInfo.installStatus.installedVersion.toString()
+
+            packageInfo.installStatus.installedVersion.let {
+                if (it != null) {
+                    installed.text = it.toString()
+                }
+                val vis = if (it != null) View.VISIBLE else View.INVISIBLE
+                installedLabel.visibility = vis
+                installed.visibility = vis
+            }
+
             latest.text = packageInfo.selectedVariant.versionCode.toString()
             progressBar.progress = progress
             progressSize.text = progressSizeInfo
