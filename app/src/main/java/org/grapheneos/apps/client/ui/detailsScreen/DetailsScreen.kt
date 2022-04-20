@@ -195,7 +195,7 @@ class DetailsScreen : Fragment() {
             install.isEnabled = !isDownloading
             install.text = packageInfo.installStatus()
             installed.text = packageInfo.installStatus.installedV
-            latest.text = packageInfo.installStatus.latestV
+            latest.text = packageInfo.selectedVariant.versionCode.toString()
             progressBar.progress = progress
             progressSize.text = progressSizeInfo
             downloadPercentInfo.text = String.format("%s %%", progress)
