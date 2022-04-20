@@ -384,7 +384,7 @@ class App : Application() {
     ): InstallStatus {
         val pm = packageManager
         val currentInfo = packagesInfo[pkgName]
-        val installedVersion = currentInfo?.installStatus?.installedV?.toLongOrNull() ?: 0
+        val installedVersion = currentInfo?.installStatus?.installedVersion
         return try {
             val pmInfo = pm.getPackageInfo(pkgName, 0)
             val installerInfo = pm.getInstallSourceInfo(pkgName)
@@ -898,9 +898,9 @@ class App : Application() {
             packagesInfo.forEach { info ->
                 val installStatus = info.value.installStatus
                 val variant = info.value.selectedVariant
-                val installedVersion = installStatus.installedV.toLongOrNull() ?: 0
-                val isInstalled = installedVersion != 0L
-                val isUpdatable = installedVersion < variant.versionCode
+                val installedVersion = installStatus.installedVersion
+                val isInstalled = installedVersion != null
+                val isUpdatable = installedVersion == null || installedVersion < variant.versionCode
 
                 if (installStatus is InstallStatus.Updatable || (isPrivilegeMode && isInstalled && isUpdatable)) {
                     if (isDownloadJobRunning(variant.pkgName)) {
