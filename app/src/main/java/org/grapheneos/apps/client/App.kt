@@ -164,7 +164,7 @@ class App : Application() {
                 //If other package is installed or uninstalled we don't care
                 return
             }
-            val latestVersion = info.selectedVariant.versionCode.toLong()
+            val latestVersion = info.selectedVariant.versionCode
 
             when (action) {
                 Intent.ACTION_PACKAGE_ADDED,
@@ -292,7 +292,7 @@ class App : Application() {
                     }
                     val installStatus = getInstallStatusCompat(
                         pkgName,
-                        channelVariant.versionCode.toLong(),
+                        channelVariant.versionCode,
                         fallback = oldPkgName
                     )
 
@@ -585,7 +585,7 @@ class App : Application() {
                     result !is DownloadCallBack.Success || !shouldProceed -> {
                         packagesInfo[pkgName] =
                             packagesInfo[pkgName]!!.withUpdatedInstallStatus(
-                                getInstallStatusCompat(pkgName, variant.versionCode.toLong())
+                                getInstallStatusCompat(pkgName, variant.versionCode)
                             )
                         shouldProceed = !shouldAllSucceed
                         updateLiveData()
@@ -735,7 +735,7 @@ class App : Application() {
                 channelVariant = packageVariant
             }
         }
-        val installStatus = getInstallStatusCompat(packageName, channelVariant.versionCode.toLong())
+        val installStatus = getInstallStatusCompat(packageName, channelVariant.versionCode)
         packagesInfo[packageName] = infoToCheck.withUpdatedVariant(channelVariant)
             .withUpdatedInstallStatus(installStatus)
         updateLiveData()
