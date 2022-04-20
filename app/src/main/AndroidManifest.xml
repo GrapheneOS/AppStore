@@ -50,6 +50,16 @@
             android:exported="false"
             android:name=".service.KeepAppActive"
             android:foregroundServiceType="dataSync" />
+
+        <receiver
+            android:exported="false"
+            android:name=".receiver.BootCompletedReceiver"
+        >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
