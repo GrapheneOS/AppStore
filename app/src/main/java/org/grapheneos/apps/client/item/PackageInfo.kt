@@ -26,11 +26,11 @@ data class PackageInfo(
 
     companion object {
         fun PackageInfo.cleanCachedFiles(context: Context) {
-            val installedVersion = installStatus.installedV.toLongOrNull() ?: 0L
+            val installedVersion = installStatus.installedVersion
             val latestVersion = selectedVariant.versionCode
 
             //if the app is installed purge any cached apk files
-            if (installedVersion != 0L && installedVersion == latestVersion) {
+            if (installedVersion == latestVersion) {
                 selectedVariant.apply {
                     getResultRootDir(context).deleteRecursively()
                     getDownloadRootDir(context).deleteRecursively()

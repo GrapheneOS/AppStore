@@ -155,7 +155,7 @@ class DetailsScreen : Fragment() {
                     }
                 }
                 dependencyAdapter.submitList(InstallablePackageInfo.fromMap(packageList))
-                isInstalled = appData.installStatus.installedV.toLongOrNull() != null
+                isInstalled = appData.installStatus.installedVersion != null
             }
         }
 
@@ -194,7 +194,7 @@ class DetailsScreen : Fragment() {
             publisher.text = AppSourceHelper.getCategoryName(variant.pkgName)
             install.isEnabled = !isDownloading
             install.text = packageInfo.installStatus()
-            installed.text = packageInfo.installStatus.installedV
+            installed.text = packageInfo.installStatus.installedVersion.toString()
             latest.text = packageInfo.selectedVariant.versionCode.toString()
             progressBar.progress = progress
             progressSize.text = progressSizeInfo
