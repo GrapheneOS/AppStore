@@ -392,24 +392,23 @@ class App : Application() {
 
             if (currentVersion > latestVersion) return InstallStatus.NewerVersionInstalled(
                 currentVersion,
-                latestVersion
             )
 
             if (packageName.equals(installerInfo.initiatingPackageName) || isPrivilegeMode) {
                 if (currentVersion < latestVersion) {
-                    InstallStatus.Updatable(currentVersion, latestVersion)
+                    InstallStatus.Updatable(currentVersion)
                 } else {
                     if (isBroadcast && currentInfo != null && installedVersion == latestVersion) {
-                        InstallStatus.Updated(currentVersion, latestVersion)
+                        InstallStatus.Updated(currentVersion)
                     } else {
-                        InstallStatus.Installed(currentVersion, latestVersion)
+                        InstallStatus.Installed(currentVersion)
                     }
                 }
             } else {
-                InstallStatus.ReinstallRequired(currentVersion, latestVersion)
+                InstallStatus.ReinstallRequired(currentVersion)
             }
         } catch (e: PackageManager.NameNotFoundException) {
-            return InstallStatus.Installable(latestVersion)
+            return InstallStatus.Installable()
         }
     }
 
@@ -901,7 +900,7 @@ class App : Application() {
                 val variant = info.value.selectedVariant
                 val installedVersion = installStatus.installedV.toLongOrNull() ?: 0
                 val isInstalled = installedVersion != 0L
-                val isUpdatable = installedVersion < installStatus.latestV.toLong()
+                val isUpdatable = installedVersion < variant.versionCode
 
                 if (installStatus is InstallStatus.Updatable || (isPrivilegeMode && isInstalled && isUpdatable)) {
                     if (isDownloadJobRunning(variant.pkgName)) {
