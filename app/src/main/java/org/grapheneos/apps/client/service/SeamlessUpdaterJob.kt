@@ -8,6 +8,7 @@ import android.app.job.JobService
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.util.Log
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.ui.container.MainActivity
@@ -18,6 +19,8 @@ class SeamlessUpdaterJob : JobService() {
         const val REQUEST_CODE = 100
         const val NOTIFICATION_ID = 10001
         const val NOTIFICATION_ACTION = "OpenViaNotification"
+
+        const val TAG = "SeamlessUpdaterJob"
     }
 
     private fun List<String>.valuesAsString(): String {
@@ -34,9 +37,13 @@ class SeamlessUpdaterJob : JobService() {
     }
 
     override fun onStartJob(params: JobParameters?): Boolean {
+        Log.d(TAG, "onStartJob")
 
         val app = (this as Context).applicationContext as App
-        if (app.isActivityRunning()) return true
+        if (app.isActivityRunning()) {
+            Log.d(TAG, "activity is running, skipping the job")
+            return false
+        }
 
         val action = Notification.Action.Builder(
             Icon.createWithResource(this, R.drawable.app_info),
