@@ -7,10 +7,7 @@ import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -59,7 +56,6 @@ import org.grapheneos.apps.client.item.SeamlessUpdateResponse
 import org.grapheneos.apps.client.item.SessionInfo
 import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
-import org.grapheneos.apps.client.service.SeamlessUpdaterJob
 import org.grapheneos.apps.client.ui.container.MainActivity
 import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
@@ -84,6 +80,8 @@ import kotlin.random.Random
 class App : Application() {
 
     companion object {
+        const val JOB_ID_SEAMLESS_UPDATER = 1000
+
         const val INSTALLATION_FAILED_CHANNEL = "installationFailed"
         const val BACKGROUND_SERVICE_CHANNEL = "backgroundTask"
         const val SEAMLESS_UPDATE_FAILED_CHANNEL = "seamlessUpdateFailed"
@@ -96,8 +94,6 @@ class App : Application() {
 
         const val DOWNLOAD_TASK_FINISHED = 1000
         private lateinit var context: WeakReference<Context>
-
-        private const val SEAMLESS_UPDATER_JOB_ID = 1000
 
         fun getString(@StringRes id: Int): String {
             return getContext().getString(id)
@@ -976,24 +972,7 @@ class App : Application() {
 
 
         jobPsfsMgr = JobPsfsMgr(this)
-        jobPsfsMgr.onJobPsfsChanged { isEnabled, networkType, time ->
-            val jobScheduler = getSystemService(JobScheduler::class.java)
-
-            if (isEnabled) {
-                val jobInfo = JobInfo.Builder(
-                    SEAMLESS_UPDATER_JOB_ID,
-                    ComponentName(this, SeamlessUpdaterJob::class.java)
-                ).setRequiredNetworkType(networkType)
-                    .setPersisted(true)
-                    .setPeriodic(time)
-                    .build()
-
-                jobScheduler.schedule(jobInfo)
-            } else {
-                jobScheduler.cancel(SEAMLESS_UPDATER_JOB_ID)
-            }
-        }
-
+        jobPsfsMgr.initialize()
     }
 
     private fun createNotificationChannel() {
