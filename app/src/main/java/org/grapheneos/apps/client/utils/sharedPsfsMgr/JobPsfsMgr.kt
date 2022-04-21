@@ -38,7 +38,7 @@ class JobPsfsMgr(val context: Context) {
     private val defaultRescheduleTiming =
         context.resources.getString(R.string.reschedule_timing_default).toLong()
 
-    private fun rescheduleTimingInMilli() = sharedPrefs.getString(
+    private fun jobRepeatIntervalMillis() = sharedPrefs.getString(
         RESCHEDULE_TIME_KEY,
         defaultRescheduleTiming.toString()
     )?.toLongOrNull() ?: defaultRescheduleTiming
@@ -49,31 +49,32 @@ class JobPsfsMgr(val context: Context) {
     )!!.toInt()
 
     fun initialize() {
-        onJobPsfsChanged(backgroundUpdateEnabled(), jobNetworkType(), rescheduleTimingInMilli())
+        onJobPsfsChanged()
 
         sharedPrefs.registerOnSharedPreferenceChangeListener { _, key ->
             if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
-                onJobPsfsChanged(backgroundUpdateEnabled(), jobNetworkType(), rescheduleTimingInMilli())
+                onJobPsfsChanged()
             }
         }
     }
 
-    fun onJobPsfsChanged(isEnabled: Boolean, networkType: Int, rescheduleTimingInMilli: Long) {
+    fun onJobPsfsChanged() {
         val jobScheduler = context.getSystemService(JobScheduler::class.java)
 
-        if (isEnabled) {
-            val jobInfo = JobInfo.Builder(
-                App.JOB_ID_SEAMLESS_UPDATER,
-                ComponentName(context, SeamlessUpdaterJob::class.java)
-            ).setRequiredNetworkType(networkType)
-                .setPersisted(true)
-                .setPeriodic(rescheduleTimingInMilli)
-                .build()
-
-            jobScheduler.schedule(jobInfo)
-        } else {
+        if (!backgroundUpdateEnabled()) {
             jobScheduler.cancel(App.JOB_ID_SEAMLESS_UPDATER)
+            return
         }
+
+        val jobInfo = JobInfo.Builder(
+            App.JOB_ID_SEAMLESS_UPDATER,
+            ComponentName(context, SeamlessUpdaterJob::class.java)
+        ).setRequiredNetworkType(jobNetworkType())
+            .setPersisted(true)
+            .setPeriodic(jobRepeatIntervalMillis())
+            .build()
+
+        jobScheduler.schedule(jobInfo)
     }
 
     fun autoInstallEnabled() = sharedPrefs.getBoolean(
