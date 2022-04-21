@@ -29,6 +29,7 @@
     <string name="downloaded">Downloaded</string>
     <string name="failed">Failed</string>
     <string name="retry">Retry</string>
+    <string name="seamlessUpdateResult">Seamless update result</string>
     <string name="seamlessUpdatesCheckFailed">Checking for seamless updates failed</string>
     <string name="serverUnexpectedResponse">Server responded with unexpected HTTP code</string>
     <string name="pending_install">Pending</string>

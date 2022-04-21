@@ -64,6 +64,7 @@ class SeamlessUpdaterJob : JobService() {
             .setShowWhen(true)
 
         app.seamlesslyUpdateApps { result ->
+            var skipNotification = false
 
             if (result.executedSuccessfully) {
                 val updated = result.updatedSuccessfully.valuesAsString()
@@ -90,20 +91,22 @@ class SeamlessUpdaterJob : JobService() {
                     notification.setSmallIcon(R.drawable.ic_pending)
                 }
 
-                notification.setContentText(content)
-                    .setContentTitle(
-                        if (updated.isNotEmpty() || failed.isNotEmpty() || requireConfirmation.isNotEmpty()) "Seamless update result"
-                        else App.getString(R.string.alreadyUpToDate)
-                    )
-
+                if (content.isNotBlank()) {
+                    notification.setContentTitle(app.getString(R.string.seamlessUpdateResult))
+                    notification.setContentText(content)
+                } else {
+                    skipNotification = true
+                }
             } else {
                 notification.setChannelId(App.SEAMLESS_UPDATE_FAILED_CHANNEL)
                 notification.setSmallIcon(R.drawable.ic_failed)
                 notification.setContentTitle(App.getString(R.string.seamlessUpdatesCheckFailed))
             }
 
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.notify(NOTIFICATION_ID, notification.build())
+            if (!skipNotification) {
+                val notificationManager = getSystemService(NotificationManager::class.java)
+                notificationManager.notify(NOTIFICATION_ID, notification.build())
+            }
 
             jobFinished(params, false)
             Log.d(TAG, "job finished")
