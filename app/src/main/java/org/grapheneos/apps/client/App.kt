@@ -949,11 +949,6 @@ class App : Application() {
     private fun isMetadataSyncing(): Boolean = this::refreshJob.isInitialized && refreshJob.isActive
             && !refreshJob.isCompleted && !refreshJob.isCancelled
 
-    override fun onTerminate() {
-        super.onTerminate()
-        unregisterReceiver(appsChangesReceiver)
-    }
-
     override fun onCreate() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)
