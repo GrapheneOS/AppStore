@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.util.Log
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
@@ -19,6 +20,8 @@ class JobPsfsMgr(val context: Context) {
 
         val NETWORK_TYPE_KEY = App.getString(R.string.networkType)
         val RESCHEDULE_TIME_KEY = App.getString(R.string.rescheduleTiming)
+
+        val TAG = "JobPsfsMgr"
     }
 
     private val jobScheduler = context.getSystemService(JobScheduler::class.java)
@@ -52,10 +55,7 @@ class JobPsfsMgr(val context: Context) {
     )!!.toInt()
 
     fun initialize() {
-        if (jobScheduler.getPendingJob(App.JOB_ID_SEAMLESS_UPDATER) == null) {
-            updateJob()
-        }
-
+        updateJob()
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefsChangeListener)
     }
 
@@ -66,8 +66,22 @@ class JobPsfsMgr(val context: Context) {
     }
 
     fun updateJob() {
+        val pendingJob = jobScheduler.getPendingJob(App.JOB_ID_SEAMLESS_UPDATER)
+
         if (!backgroundUpdateEnabled()) {
-            jobScheduler.cancel(App.JOB_ID_SEAMLESS_UPDATER)
+            if (pendingJob != null) {
+                jobScheduler.cancel(App.JOB_ID_SEAMLESS_UPDATER)
+                Log.d(TAG, "job cancelled")
+            }
+            return
+        }
+
+        val networkType = jobNetworkType()
+        val repeatInterval = jobRepeatIntervalMillis()
+
+        // no way to read back the network type without the deprecated getNetworkType() method
+        @Suppress("DEPRECATION")
+        if (pendingJob != null && pendingJob.networkType == networkType && pendingJob.intervalMillis == repeatInterval) {
             return
         }
 
@@ -80,6 +94,7 @@ class JobPsfsMgr(val context: Context) {
             .build()
 
         jobScheduler.schedule(jobInfo)
+        Log.d(TAG, "job scheduled, interval: ${jobInfo.intervalMillis}")
     }
 
     fun autoInstallEnabled() = sharedPrefs.getBoolean(
