@@ -941,12 +941,6 @@ class App : Application() {
     private fun isMetadataSyncing(): Boolean = this::refreshJob.isInitialized && refreshJob.isActive
             && !refreshJob.isCompleted && !refreshJob.isCancelled
 
-
-    private fun cancelScheduleAutoUpdate() {
-        val jobScheduler = getSystemService(JobScheduler::class.java)
-        jobScheduler.cancel(SEAMLESS_UPDATER_JOB_ID)
-    }
-
     override fun onTerminate() {
         super.onTerminate()
         unregisterReceiver(appsChangesReceiver)
@@ -983,6 +977,8 @@ class App : Application() {
 
         jobPsfsMgr = JobPsfsMgr(this)
         jobPsfsMgr.onJobPsfsChanged { isEnabled, networkType, time ->
+            val jobScheduler = getSystemService(JobScheduler::class.java)
+
             if (isEnabled) {
                 val jobInfo = JobInfo.Builder(
                     SEAMLESS_UPDATER_JOB_ID,
@@ -992,10 +988,9 @@ class App : Application() {
                     .setPeriodic(time)
                     .build()
 
-                val jobScheduler = getSystemService(JobScheduler::class.java)
                 jobScheduler.schedule(jobInfo)
             } else {
-                cancelScheduleAutoUpdate()
+                jobScheduler.cancel(SEAMLESS_UPDATER_JOB_ID)
             }
         }
 
