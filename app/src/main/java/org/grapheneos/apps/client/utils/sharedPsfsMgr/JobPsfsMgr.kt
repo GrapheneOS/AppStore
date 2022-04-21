@@ -17,9 +17,9 @@ class JobPsfsMgr(val context: Context) {
         val RESCHEDULE_TIME_KEY = App.getString(R.string.rescheduleTiming)
     }
 
-    private val sharedPsfs = context.getSharedPreferences(AUTO_UPDATE_PREFERENCE, MODE_PRIVATE)
+    private val sharedPrefs = context.getSharedPreferences(AUTO_UPDATE_PREFERENCE, MODE_PRIVATE)
 
-    private fun backgroundUpdateEnabled() = sharedPsfs.getBoolean(
+    private fun backgroundUpdateEnabled() = sharedPrefs.getBoolean(
         BACKGROUND_UPDATE_KEY,
         context.resources.getBoolean(R.bool.background_update_default)
     )
@@ -35,12 +35,12 @@ class JobPsfsMgr(val context: Context) {
     private val defaultRescheduleTiming =
         context.resources.getString(R.string.reschedule_timing_default).toLong()
 
-    private fun rescheduleTimingInMilli() = sharedPsfs.getString(
+    private fun rescheduleTimingInMilli() = sharedPrefs.getString(
         RESCHEDULE_TIME_KEY,
         defaultRescheduleTiming.toString()
     )?.toLongOrNull() ?: defaultRescheduleTiming
 
-    private fun networkType(): Int = sharedPsfs.getString(
+    private fun networkType(): Int = sharedPrefs.getString(
         NETWORK_TYPE_KEY,
         context.resources.getString(R.string.network_type_default)
     )!!.toInt()
@@ -51,7 +51,7 @@ class JobPsfsMgr(val context: Context) {
             jobNetworkType(),
             rescheduleTimingInMilli()
         )
-        sharedPsfs.registerOnSharedPreferenceChangeListener { _, key ->
+        sharedPrefs.registerOnSharedPreferenceChangeListener { _, key ->
             if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
                 listener.invoke(
                     backgroundUpdateEnabled(),
@@ -62,7 +62,7 @@ class JobPsfsMgr(val context: Context) {
         }
     }
 
-    fun autoInstallEnabled() = sharedPsfs.getBoolean(
+    fun autoInstallEnabled() = sharedPrefs.getBoolean(
         AUTO_INSTALL_KEY,
         context.resources.getBoolean(R.bool.background_update_default)
     )
