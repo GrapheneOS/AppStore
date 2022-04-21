@@ -29,6 +29,9 @@ sealed class InstallStatus(
     class Installed(installedVersion: Long)
         : InstallStatus(App.getString(R.string.open), installedVersion)
 
+    class Disabled(installedVersion: Long)
+        : InstallStatus(App.getString(R.string.btn_enable_package), installedVersion)
+
     class Updatable(installedVersion: Long)
         : InstallStatus(App.getString(R.string.update), installedVersion)
 
