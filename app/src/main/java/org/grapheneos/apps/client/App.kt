@@ -781,38 +781,32 @@ class App : Application() {
             return
         }
 
-        CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
-            when (status) {
-                is InstallStatus.Installable -> {
-                    downloadAndInstallPackages(variant)
-                    { error -> callback.invoke(error.genericMsg) }
-                }
-                is InstallStatus.Installed, is InstallStatus.NewerVersionInstalled -> {
-                    openApp(pkgName, callback)
-                }
-                is InstallStatus.Disabled -> {
-                    openAppDetails(pkgName, callback)
-                }
-                is InstallStatus.Installing -> {
-                    callback.invoke(getString(R.string.installationInProgress))
-                }
-                is InstallStatus.Uninstalling -> {
-                    callback.invoke(getString(R.string.uninstallationInProgress))
-                }
-                is InstallStatus.Updated -> {
-                    openApp(pkgName, callback)
-                }
-                is InstallStatus.Updatable, is InstallStatus.ReinstallRequired -> {
+        when (status) {
+            is InstallStatus.Installable,
+            is InstallStatus.Updatable,
+            is InstallStatus.ReinstallRequired,
+            is InstallStatus.Failed -> {
+                CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
                     downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
-                is InstallStatus.Failed -> {
-                    downloadAndInstallPackages(variant)
-                    { error -> callback.invoke(error.toUiMsg()) }
-                }
-                is InstallStatus.Pending -> {
-                    callback.invoke(getString(R.string.dependencyDownloadInProgress))
-                }
+            }
+            is InstallStatus.Installed,
+            is InstallStatus.NewerVersionInstalled,
+            is InstallStatus.Updated -> {
+                openApp(pkgName, callback)
+            }
+            is InstallStatus.Disabled -> {
+                openAppDetails(pkgName, callback)
+            }
+            is InstallStatus.Installing -> {
+                callback.invoke(getString(R.string.installationInProgress))
+            }
+            is InstallStatus.Uninstalling -> {
+                callback.invoke(getString(R.string.uninstallationInProgress))
+            }
+            is InstallStatus.Pending -> {
+                callback.invoke(getString(R.string.dependencyDownloadInProgress))
             }
         }
     }
