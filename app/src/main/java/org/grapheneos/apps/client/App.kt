@@ -165,6 +165,7 @@ class App : Application() {
 
             when (action) {
                 Intent.ACTION_PACKAGE_ADDED,
+                Intent.ACTION_PACKAGE_CHANGED,
                 Intent.ACTION_PACKAGE_REPLACED,
                 Intent.ACTION_PACKAGE_REMOVED,
                 Intent.ACTION_PACKAGE_FULLY_REMOVED -> {
@@ -172,6 +173,7 @@ class App : Application() {
                     val installStatus = getInstallStatusCompat(pkgName, latestVersion, true)
                     packagesInfo[pkgName] = info.withUpdatedInstallStatus(installStatus)
                 }
+                else -> throw IllegalStateException("unexpected $intent")
 
             }
             updateLiveData()
@@ -382,16 +384,20 @@ class App : Application() {
         val pm = packageManager
         val currentInfo = packagesInfo[pkgName]
         val installedVersion = currentInfo?.installStatus?.installedVersion
-        return try {
+        try {
             val pmInfo = pm.getPackageInfo(pkgName, 0)
             val installerInfo = pm.getInstallSourceInfo(pkgName)
             val currentVersion = pmInfo.longVersionCode
 
-            if (currentVersion > latestVersion) return InstallStatus.NewerVersionInstalled(
-                currentVersion,
-            )
+            if (!pmInfo.applicationInfo.enabled) {
+                return InstallStatus.Disabled(currentVersion)
+            }
 
-            if (packageName.equals(installerInfo.initiatingPackageName) || isPrivilegeMode) {
+            if (currentVersion > latestVersion) {
+                return InstallStatus.NewerVersionInstalled(currentVersion)
+            }
+
+            return if (packageName.equals(installerInfo.initiatingPackageName) || isPrivilegeMode) {
                 if (currentVersion < latestVersion) {
                     InstallStatus.Updatable(currentVersion)
                 } else {
@@ -785,6 +791,9 @@ class App : Application() {
                 is InstallStatus.Installed, is InstallStatus.NewerVersionInstalled -> {
                     openApp(pkgName, callback)
                 }
+                is InstallStatus.Disabled -> {
+                    openAppDetails(pkgName, callback)
+                }
                 is InstallStatus.Installing -> {
                     callback.invoke(getString(R.string.installationInProgress))
                 }
@@ -892,9 +901,14 @@ class App : Application() {
 
             val isAutoInstallEnabled = jobPsfsMgr.autoInstallEnabled()
 
-            packagesInfo.forEach { info ->
-                val installStatus = info.value.installStatus
-                val variant = info.value.selectedVariant
+            packagesInfo.values.forEach { info ->
+                val installStatus = info.installStatus
+
+                if (installStatus is InstallStatus.Disabled) {
+                    return@forEach
+                }
+
+                val variant = info.selectedVariant
                 val installedVersion = installStatus.installedVersion
                 val isInstalled = installedVersion != null
                 val isUpdatable = installedVersion == null || installedVersion < variant.versionCode
@@ -950,6 +964,7 @@ class App : Application() {
 
         val appsChangesFilter = IntentFilter()
         appsChangesFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
+        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_CHANGED)
         appsChangesFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
         appsChangesFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED)
         appsChangesFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)

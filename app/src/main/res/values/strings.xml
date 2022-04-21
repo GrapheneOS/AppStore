@@ -22,6 +22,8 @@
     <string name="switchChannel">Release channel</string>
     <string name="appIsNotInstalled">App is not installed</string>
 
+    <string name="btn_enable_package">Enable</string>
+
     <string name="processing">Processing…</string>
     <string name="startingDownload">Starting download</string>
     <string name="downloading">Downloading…</string>
