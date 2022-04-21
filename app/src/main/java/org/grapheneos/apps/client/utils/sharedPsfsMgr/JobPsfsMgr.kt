@@ -1,10 +1,13 @@
 package org.grapheneos.apps.client.utils.sharedPsfsMgr
 
 import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
+import org.grapheneos.apps.client.service.SeamlessUpdaterJob
 
 class JobPsfsMgr(val context: Context) {
 
@@ -45,20 +48,31 @@ class JobPsfsMgr(val context: Context) {
         context.resources.getString(R.string.network_type_default)
     )!!.toInt()
 
-    fun onJobPsfsChanged(listener: (isEnabled: Boolean, networkType: Int, rescheduleTimingInMilli: Long) -> Unit) {
-        listener.invoke(
-            backgroundUpdateEnabled(),
-            jobNetworkType(),
-            rescheduleTimingInMilli()
-        )
+    fun initialize() {
+        onJobPsfsChanged(backgroundUpdateEnabled(), jobNetworkType(), rescheduleTimingInMilli())
+
         sharedPrefs.registerOnSharedPreferenceChangeListener { _, key ->
             if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
-                listener.invoke(
-                    backgroundUpdateEnabled(),
-                    jobNetworkType(),
-                    rescheduleTimingInMilli()
-                )
+                onJobPsfsChanged(backgroundUpdateEnabled(), jobNetworkType(), rescheduleTimingInMilli())
             }
+        }
+    }
+
+    fun onJobPsfsChanged(isEnabled: Boolean, networkType: Int, rescheduleTimingInMilli: Long) {
+        val jobScheduler = context.getSystemService(JobScheduler::class.java)
+
+        if (isEnabled) {
+            val jobInfo = JobInfo.Builder(
+                App.JOB_ID_SEAMLESS_UPDATER,
+                ComponentName(context, SeamlessUpdaterJob::class.java)
+            ).setRequiredNetworkType(networkType)
+                .setPersisted(true)
+                .setPeriodic(rescheduleTimingInMilli)
+                .build()
+
+            jobScheduler.schedule(jobInfo)
+        } else {
+            jobScheduler.cancel(App.JOB_ID_SEAMLESS_UPDATER)
         }
     }
 
