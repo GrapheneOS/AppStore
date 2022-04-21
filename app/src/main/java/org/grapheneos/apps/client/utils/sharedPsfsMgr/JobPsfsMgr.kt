@@ -21,6 +21,8 @@ class JobPsfsMgr(val context: Context) {
         val RESCHEDULE_TIME_KEY = App.getString(R.string.rescheduleTiming)
     }
 
+    private val jobScheduler = context.getSystemService(JobScheduler::class.java)
+
     private val sharedPrefs = context.getSharedPreferences(AUTO_UPDATE_PREFERENCE, MODE_PRIVATE)
 
     private fun backgroundUpdateEnabled() = sharedPrefs.getBoolean(
@@ -50,7 +52,9 @@ class JobPsfsMgr(val context: Context) {
     )!!.toInt()
 
     fun initialize() {
-        updateJob()
+        if (jobScheduler.getPendingJob(App.JOB_ID_SEAMLESS_UPDATER) == null) {
+            updateJob()
+        }
 
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefsChangeListener)
     }
@@ -62,8 +66,6 @@ class JobPsfsMgr(val context: Context) {
     }
 
     fun updateJob() {
-        val jobScheduler = context.getSystemService(JobScheduler::class.java)
-
         if (!backgroundUpdateEnabled()) {
             jobScheduler.cancel(App.JOB_ID_SEAMLESS_UPDATER)
             return
