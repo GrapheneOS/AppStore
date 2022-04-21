@@ -687,12 +687,10 @@ class App : Application() {
 
     fun openAppDetails(pkgName: String, callback: (result: String) -> Unit) {
         try {
-            packageManager.getApplicationInfo(pkgName, PackageManager.GET_META_DATA)
             startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    .setData(Uri.parse(String.format("package:%s", pkgName)))
+                    .setData(Uri.fromParts("package", pkgName, null))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .addCategory(Intent.CATEGORY_DEFAULT)
             )
         } catch (e: PackageManager.NameNotFoundException) {
             callback.invoke(getString(R.string.appIsNotInstalled))
