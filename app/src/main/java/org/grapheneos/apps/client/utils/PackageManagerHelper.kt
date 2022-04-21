@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionParams
+import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.receiver.APKInstallReceiver
 import org.grapheneos.apps.client.receiver.APKUninstallReceiver
@@ -51,7 +52,7 @@ class PackageManagerHelper(private val context: Context) {
         }
         val sessionParams = SessionParams(SessionParams.MODE_FULL_INSTALL)
         sessionParams.setSize(totalSize)
-        if (JobPsfsMgr(context).autoInstallEnabled()) {
+        if (App.jobPsfsMgr.autoInstallEnabled()) {
             sessionParams.setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
         }
         try {

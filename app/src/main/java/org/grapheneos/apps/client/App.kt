@@ -1,6 +1,7 @@
 package org.grapheneos.apps.client
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.Notification
@@ -103,6 +104,10 @@ class App : Application() {
         }
 
         private fun getContext() = context.get()!!
+
+        @SuppressLint("StaticFieldLeak")
+        // not a memory leak: uses an application Context
+        lateinit var jobPsfsMgr: JobPsfsMgr
     }
 
     /*Injectable member var*/
@@ -131,13 +136,9 @@ class App : Application() {
         checkSelfPermission(Manifest.permission.INSTALL_PACKAGES) == PackageManager.PERMISSION_GRANTED
     }
 
-    private val jobPsfsMgr by lazy {
-        JobPsfsMgr(this)
-    }
     private val notificationMgr: NotificationManagerCompat by lazy {
         NotificationManagerCompat.from(this)
     }
-
 
     /*Coroutine scope and jobs var*/
     private val apkJobsMap = mutableMapOf<String, CompletableJob>()
@@ -979,6 +980,8 @@ class App : Application() {
 
         context = WeakReference(this)
 
+
+        jobPsfsMgr = JobPsfsMgr(this)
         jobPsfsMgr.onJobPsfsChanged { isEnabled, networkType, time ->
             if (isEnabled) {
                 val jobInfo = JobInfo.Builder(
