@@ -93,13 +93,14 @@ class App : Application() {
         const val INSTALLATION_FAILED_GROUP = "installationFailedGroup"
 
         const val DOWNLOAD_TASK_FINISHED = 1000
-        private lateinit var context: WeakReference<Context>
+
+        @SuppressLint("StaticFieldLeak")
+        // not a memory leak: this is an application Context
+        lateinit var context: Context
 
         fun getString(@StringRes id: Int): String {
-            return getContext().getString(id)
+            return context.getString(id)
         }
-
-        private fun getContext() = context.get()!!
 
         @SuppressLint("StaticFieldLeak")
         // not a memory leak: uses an application Context
@@ -976,8 +977,7 @@ class App : Application() {
             }
         })
 
-        context = WeakReference(this)
-
+        context = this
 
         jobPsfsMgr = JobPsfsMgr(this)
         jobPsfsMgr.initialize()
