@@ -5,6 +5,7 @@ import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
@@ -51,10 +52,12 @@ class JobPsfsMgr(val context: Context) {
     fun initialize() {
         onJobPsfsChanged()
 
-        sharedPrefs.registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
-                onJobPsfsChanged()
-            }
+        sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefsChangeListener)
+    }
+
+    val sharedPrefsChangeListener = SharedPreferences.OnSharedPreferenceChangeListener  { _, key ->
+        if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
+            onJobPsfsChanged()
         }
     }
 
