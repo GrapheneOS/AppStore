@@ -105,12 +105,14 @@ class SeamlessUpdaterJob : JobService() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.notify(NOTIFICATION_ID, notification.build())
 
-            jobFinished(params, true)
+            jobFinished(params, false)
+            Log.d(TAG, "job finished")
         }
         return true
     }
 
     override fun onStopJob(params: JobParameters?): Boolean {
+        Log.d(TAG, "onStopJob, reason ${params?.stopReason}")
         return true
     }
 }
