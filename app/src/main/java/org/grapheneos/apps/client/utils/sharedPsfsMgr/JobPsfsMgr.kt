@@ -50,18 +50,18 @@ class JobPsfsMgr(val context: Context) {
     )!!.toInt()
 
     fun initialize() {
-        onJobPsfsChanged()
+        updateJob()
 
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefsChangeListener)
     }
 
     val sharedPrefsChangeListener = SharedPreferences.OnSharedPreferenceChangeListener  { _, key ->
         if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
-            onJobPsfsChanged()
+            updateJob()
         }
     }
 
-    fun onJobPsfsChanged() {
+    fun updateJob() {
         val jobScheduler = context.getSystemService(JobScheduler::class.java)
 
         if (!backgroundUpdateEnabled()) {
