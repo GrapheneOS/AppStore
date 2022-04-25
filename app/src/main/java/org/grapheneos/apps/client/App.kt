@@ -152,7 +152,7 @@ class App : Application() {
             val pkgName =
                 when {
                     oldPkgName == newPkgName -> oldPkgName
-                    isSystemApp(newPkgName, oldPkgName) -> newPkgName
+                    pmHelper().isSystemApp(newPkgName, oldPkgName) -> newPkgName
                     else -> oldPkgName
                 }
 
@@ -338,7 +338,7 @@ class App : Application() {
     private fun PackageVariant.getInstallStatusCompat(isBroadcast: Boolean = false): InstallStatus {
         val fallback = originalPkgName
         return if (fallback != null) {
-            val isSystem = isSystemApp(pkgName, fallback)
+            val isSystem = pmHelper().isSystemApp(this)
             val originalStatus = getInstallStatus(pkgName, versionCode, isBroadcast)
             val fallbackStatus = getInstallStatus(fallback, versionCode, isBroadcast)
             val status = when {
@@ -349,21 +349,6 @@ class App : Application() {
             status
         } else {
             getInstallStatus(pkgName, versionCode, isBroadcast)
-        }
-    }
-
-    private tailrec fun isSystemApp(pkgName: String, fallback: String? = null): Boolean {
-        val sigFlags = PackageManager.GET_SIGNING_CERTIFICATES
-        val isSystem = try {
-            val pmInfo = packageManager.getPackageInfo(pkgName, sigFlags)
-            (pmInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-        return when {
-            isSystem -> true
-            fallback.isNullOrEmpty() || fallback.isBlank() -> false
-            else -> isSystemApp(fallback)
         }
     }
 
@@ -694,7 +679,7 @@ class App : Application() {
         val intent = packageManager.getLaunchIntentForPackage(pkgName)
         if (intent == null) {
             val otherPkgName = samePackagesMap[pkgName]
-            if (otherPkgName != null && isSystemApp(otherPkgName)) {
+            if (otherPkgName != null && pmHelper().isSystemApp(otherPkgName)) {
                 return openApp(otherPkgName, callback)
             }
             callback.invoke(getString(R.string.unOpenable))
