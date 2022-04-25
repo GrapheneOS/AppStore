@@ -67,7 +67,6 @@ import org.grapheneos.apps.client.utils.network.MetaDataHelper
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 import org.json.JSONException
 import java.io.File
-import java.lang.ref.WeakReference
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.security.GeneralSecurityException
@@ -686,16 +685,12 @@ class App : Application() {
         }
     }
 
-    fun openAppDetails(pkgName: String, callback: (result: String) -> Unit) {
-        try {
-            startActivity(
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    .setData(Uri.fromParts("package", pkgName, null))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-        } catch (e: PackageManager.NameNotFoundException) {
-            callback.invoke(getString(R.string.appIsNotInstalled))
-        }
+    fun openAppDetails(pkgName: String) {
+        startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.fromParts("package", pkgName, null))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
     fun uninstallPackage(pkgName: String) {
@@ -797,7 +792,7 @@ class App : Application() {
                 openApp(pkgName, callback)
             }
             is InstallStatus.Disabled -> {
-                openAppDetails(pkgName, callback)
+                openAppDetails(pkgName)
             }
             is InstallStatus.Installing -> {
                 callback.invoke(getString(R.string.installationInProgress))
