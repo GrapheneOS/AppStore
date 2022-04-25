@@ -719,14 +719,11 @@ class App : Application() {
         var result = true
         variant?.dependencies?.forEach {
             val status = packagesInfo[it]
-            if (status == null || (status.installStatus !is InstallStatus.Installed ||
-                        status.installStatus !is InstallStatus.Updatable ||
-                        status.installStatus !is InstallStatus.Updated)
-            ) {
-                result = false
+            if (status == null || status.installStatus.installedVersion == null) {
+                return false
             }
         }
-        return result
+        return true
     }
 
     fun handleOnClick(
