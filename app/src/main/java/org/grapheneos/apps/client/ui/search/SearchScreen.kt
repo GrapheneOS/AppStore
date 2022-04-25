@@ -137,7 +137,7 @@ class SearchScreen : Fragment() {
     }
 
     fun installPackage(root: View, appName: String, pkgName: String) {
-        if (!appDataModel.isDependenciesInstalled(pkgName)) {
+        if (!appDataModel.areDependenciesInstalled(pkgName)) {
             navigateToDetailsScreen(root, appName, pkgName, true)
         } else {
             appDataModel.handleOnClick(pkgName) { msg ->
