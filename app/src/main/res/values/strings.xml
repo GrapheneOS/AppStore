@@ -16,6 +16,7 @@
     <string name="alreadyUpToDate">Apps are already fully up-to-date</string>
 
     <string name="uninstall">Uninstall</string>
+    <string name="uninstall_updates">Uninstall updates</string>
     <string name="uninstalling">Uninstalling</string>
     <string name="unOpenable">This app can\'t be opened</string>
     <string name="appInfo">App Info</string>

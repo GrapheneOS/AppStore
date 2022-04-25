@@ -30,6 +30,7 @@ import org.grapheneos.apps.client.item.PackageVariant
 import org.grapheneos.apps.client.ui.detailsScreen.DependencyAdapter.Companion.toSizeInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import org.grapheneos.apps.client.utils.AppSourceHelper
+import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.showSnackbar
 import kotlin.collections.set
 import kotlin.math.roundToInt
@@ -83,6 +84,12 @@ class DetailsScreen : Fragment() {
             when (it.itemId) {
                 R.id.uninstall -> {
                     it.isEnabled = isInstalled
+
+                    pkgInfo?.selectedVariant?.let { selVariant ->
+                        if (app.pmHelper().isSystemApp(selVariant)) {
+                            it.setTitle(R.string.uninstall_updates)
+                        }
+                    }
                 }
                 R.id.appInfo -> {
                     it.isEnabled = isInstalled
