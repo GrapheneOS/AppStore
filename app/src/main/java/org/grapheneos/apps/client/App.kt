@@ -11,7 +11,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.SystemClock
@@ -473,7 +472,7 @@ class App : Application() {
         callback: (error: DownloadCallBack) -> Unit
     ) {
 
-        if (!isDependenciesInstalled(variant)) {
+        if (!areDependenciesInstalled(variant)) {
             val packages = mutableListOf<PackageVariant>()
             packages.add(variant)
             val dependencies = variant.includeAllDependency()
@@ -712,11 +711,10 @@ class App : Application() {
         updateLiveData()
     }
 
-    fun isDependenciesInstalled(pkgName: String) =
-        isDependenciesInstalled(packagesInfo[pkgName]?.selectedVariant)
+    fun areDependenciesInstalled(pkgName: String) =
+        areDependenciesInstalled(packagesInfo[pkgName]?.selectedVariant)
 
-    private fun isDependenciesInstalled(variant: PackageVariant?): Boolean {
-        var result = true
+    private fun areDependenciesInstalled(variant: PackageVariant?): Boolean {
         variant?.dependencies?.forEach {
             val status = packagesInfo[it]
             if (status == null || status.installStatus.installedVersion == null) {

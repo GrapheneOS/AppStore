@@ -126,7 +126,7 @@ class MainScreen : Fragment() {
     }
 
     fun installPackage(root: View, appName: String, pkgName: String) {
-        if (!appsViewModel.isDependenciesInstalled(pkgName)) {
+        if (!appsViewModel.areDependenciesInstalled(pkgName)) {
             navigateToDetailsScreen(root, appName, pkgName, true)
         } else {
             appsViewModel.handleOnClick(pkgName) { msg ->
