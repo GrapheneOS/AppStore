@@ -101,9 +101,7 @@ class DetailsScreen : Fragment() {
                 true
             }
             R.id.appInfo -> {
-                app.openAppDetails(info.pkgName) {
-                    showSnackbar(it)
-                }
+                app.openAppDetails(info.pkgName)
                 true
             }
             R.id.switchChannel -> {
