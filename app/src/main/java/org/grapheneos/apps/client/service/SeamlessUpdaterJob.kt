@@ -30,7 +30,7 @@ class SeamlessUpdaterJob : JobService() {
             result += if (i != (size - 1) && isMultiple) {
                 "${get(i)}, "
             } else {
-                "${get(i)} "
+                "${get(i)}"
             }
         }
         return result
