@@ -7,7 +7,6 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
 import android.util.Log
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
@@ -45,20 +44,16 @@ class SeamlessUpdaterJob : JobService() {
             return false
         }
 
-        val action = Notification.Action.Builder(
-            Icon.createWithResource(this, R.drawable.app_info),
-            App.getString(R.string.openApp),
-            PendingIntent.getActivity(
-                this,
-                REQUEST_CODE,
-                Intent(this, MainActivity::class.java).setAction(NOTIFICATION_ACTION),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        ).build()
-
         val notification = Notification.Builder(this, App.ALREADY_UP_TO_DATE_CHANNEL)
             .setSmallIcon(R.drawable.ic_check)
-            .addAction(action)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this,
+                    REQUEST_CODE,
+                    Intent(this, MainActivity::class.java).setAction(NOTIFICATION_ACTION),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(true)
