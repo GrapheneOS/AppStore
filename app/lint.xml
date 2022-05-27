@@ -3,4 +3,9 @@
     <issue id="TrustAllX509TrustManager">
         <ignore regexp="org/bouncycastle/est/jcajce/JcaJceUtils\$.\.class"/>
     </issue>
+
+    <!-- overly aggressive check -->
+    <issue id="VectorPath">
+        <ignore path="src/main/java/org/grapheneos/apps/client/ui/mainScreen/res/drawable/settings.xml"/>
+    </issue>
 </lint>
