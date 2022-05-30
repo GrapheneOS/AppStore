@@ -94,9 +94,6 @@ class MetaDataHelper constructor(context: Context) {
             response that indicate it's cache data
              */
             throw e
-        } catch (e: SecurityException) {
-            //user can deny INTERNET permission instead of crashing app let user know it's failed
-            throw GeneralSecurityException(e.localizedMessage)
         }
 
         if (!metadata.exists()) {
@@ -227,7 +224,6 @@ class MetaDataHelper constructor(context: Context) {
     @Throws(
         UnknownHostException::class,
         GeneralSecurityException::class,
-        SecurityException::class,
         ConnectException::class
     )
     private fun fetchContent(
