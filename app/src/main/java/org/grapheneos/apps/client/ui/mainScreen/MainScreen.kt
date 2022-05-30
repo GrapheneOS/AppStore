@@ -101,6 +101,10 @@ class MainScreen : Fragment() {
             thirdPartyApps.setOnCheckedChangeListener { _, isChecked ->
                 state.modifyFilter(state.buildByGrapheneOs, isChecked)
             }
+            swipeRefresh.setOnRefreshListener {
+                refreshMetadata(force = true)
+                swipeRefresh.isRefreshing = false
+            }
         }
 
         appsViewModel.packageLiveData.observe(
@@ -155,7 +159,11 @@ class MainScreen : Fragment() {
 
     private fun refresh() {
         updateUi(isSyncing = true, canRetry = false)
-        appsViewModel.refreshMetadata {
+        refreshMetadata()
+    }
+
+    private fun refreshMetadata(force: Boolean = false) {
+        appsViewModel.refreshMetadata(force) {
             updateUi(isSyncing = false, canRetry = !it.isSuccessFull)
             if (it !is MetadataCallBack.Success) {
                 showSnackbar(
