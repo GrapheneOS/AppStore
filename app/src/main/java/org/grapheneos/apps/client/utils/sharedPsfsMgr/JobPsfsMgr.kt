@@ -91,6 +91,7 @@ class JobPsfsMgr(val context: Context) {
         ).setRequiredNetworkType(jobNetworkType())
             .setPersisted(true)
             .setPeriodic(jobRepeatIntervalMillis())
+            .setRequiresDeviceIdle(true)
             .build()
 
         jobScheduler.schedule(jobInfo)
