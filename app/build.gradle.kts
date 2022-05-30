@@ -88,6 +88,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.4.2")
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     implementation("com.google.android.material:material:1.6.0")
 
