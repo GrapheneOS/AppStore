@@ -139,7 +139,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
         }
     }
 
-    @Throws(NoSuchAlgorithmException::class, GeneralSecurityException::class)
+    @Throws(GeneralSecurityException::class)
     private fun verifyHash(downloadedFile: File, sha256Hash: String): Boolean {
         try {
             val downloadedFileHash = bytesToHex(
