@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/mainScreen"
         android:name="org.grapheneos.apps.client.ui.mainScreen.MainScreen"
-        android:label="Apps"
+        android:label=""
         tools:layout="@layout/main_screen">
         <action
             android:id="@+id/action_to_detailsScreen"
