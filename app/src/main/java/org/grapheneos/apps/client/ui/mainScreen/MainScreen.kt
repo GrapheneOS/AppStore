@@ -185,6 +185,7 @@ class MainScreen : Fragment() {
                 if (!isFirstScreen && !isSuccess) return@runOnUiThread
                 syncing.isVisible = isSyncing
                 syncingProgressbar.isVisible = isSyncing
+                syncingFailed.isGone = isSuccess || isSyncing
                 appsRecyclerView.isGone = !isSuccess
                 filter.isVisible = isSuccess
             }

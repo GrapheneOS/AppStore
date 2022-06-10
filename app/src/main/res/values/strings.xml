@@ -36,6 +36,7 @@
     <string name="serverUnexpectedResponse">Server responded with unexpected HTTP code</string>
     <string name="pending_install">Pending</string>
 
+    <string name="syncingHasFailed">Sync failed, swipe down to resync and retry</string>
     <string name="syncingMetadata">Syncing metadata</string>
     <string name="syncUnfinished">Sync has not yet finished</string>
 
