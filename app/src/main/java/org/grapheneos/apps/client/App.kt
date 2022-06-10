@@ -771,7 +771,7 @@ class App : Application() {
                 callback.invoke(getString(R.string.uninstallationInProgress))
             }
             is InstallStatus.Pending -> {
-                callback.invoke(getString(R.string.dependencyDownloadInProgress))
+                callback.invoke(getString(R.string.otherAppsDownloadInProgress))
             }
         }
     }
