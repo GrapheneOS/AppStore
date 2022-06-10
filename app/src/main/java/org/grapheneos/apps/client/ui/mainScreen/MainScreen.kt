@@ -58,8 +58,14 @@ class MainScreen : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return item.onNavDestinationSelected(findNavController()) ||
+        return when (item.itemId) {
+            R.id.refresh -> {
+                refresh(true)
+                true
+            }
+            else -> item.onNavDestinationSelected(findNavController()) ||
                 super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
