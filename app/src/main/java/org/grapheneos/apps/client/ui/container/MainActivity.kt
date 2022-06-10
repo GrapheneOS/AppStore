@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
         views.searchBar.isVisible = (isMainScreen || isSearchScreen) && isSyncFinished
         views.searchTitle.isVisible = isMainScreen && isSyncFinished
         views.searchInput.isVisible = isSearchScreen && isSyncFinished
-        views.toolbar.isVisible = isSyncFinished
         views.bottomNavView.isGone =
             !appBarConfiguration.topLevelDestinations.contains(currentDestinations) || !isSyncFinished
         if (isSearchScreen) {
