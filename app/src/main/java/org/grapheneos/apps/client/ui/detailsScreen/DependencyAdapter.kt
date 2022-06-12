@@ -40,7 +40,7 @@ class DependencyAdapter :
                 appName.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     marginEnd = pxToDp(8)
                 }
-                publisher.text = AppSourceHelper.getCategoryName(info.id)
+                publisher.text = AppSourceHelper.getCategoryName(info.pkgName)
                 progressBar.isVisible = info.downloadStatus != null
                 downloadSize.isVisible = info.downloadStatus != null
             }
