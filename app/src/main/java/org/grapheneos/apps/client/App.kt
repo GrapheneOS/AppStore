@@ -294,7 +294,7 @@ class App : Application() {
                     val info = packagesInfo.getOrDefault(
                         pkgName,
                         PackageInfo(
-                            id = pkgName,
+                            pkgName = pkgName,
                             sessionInfo = SessionInfo(),
                             selectedVariant = packageVariant,
                             allVariant = value.variants.values.toList(),

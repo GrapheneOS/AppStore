@@ -16,7 +16,7 @@ data class InstallablePackageInfo(
             val result = mutableListOf<InstallablePackageInfo>()
             val value = list.values
             for (item in value) {
-                result.add(InstallablePackageInfo(item.id, item))
+                result.add(InstallablePackageInfo(item.pkgName, item))
             }
             return result
         }
@@ -60,7 +60,7 @@ data class InstallablePackageInfo(
                 if (item.installStatus is InstallStatus.Updatable
                     && item.downloadStatus !is DownloadStatus.Downloading
                 ) {
-                    result.add(InstallablePackageInfo(item.id, item))
+                    result.add(InstallablePackageInfo(item.pkgName, item))
                 }
             }
             return result
@@ -87,7 +87,7 @@ data class InstallablePackageInfo(
             val isChanged = oldItem.name == newItem.name &&
                     oldItem.packageInfo.selectedVariant == newItem.packageInfo.selectedVariant &&
                     oldItem.packageInfo.installStatus == newItem.packageInfo.installStatus &&
-                    oldItem.packageInfo.id == newItem.packageInfo.id
+                    oldItem.packageInfo.pkgName == newItem.packageInfo.pkgName
 
             if (isDownloadUi) {
                 return isChanged && oldItem.packageInfo.downloadStatus == newItem.packageInfo.downloadStatus
