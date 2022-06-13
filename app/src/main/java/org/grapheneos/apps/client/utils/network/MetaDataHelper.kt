@@ -202,7 +202,6 @@ class MetaDataHelper constructor(context: Context) {
                     if (minSdkVersion in sdkFound..maxSupportedSdk) {
                         variants[channelName] = PackageVariant(
                             appName,
-                            pkgName,
                             channelName,
                             packageInfoMap,
                             versionCode,
