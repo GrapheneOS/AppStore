@@ -43,7 +43,7 @@ data class InstallablePackageInfo(
             items.forEach { item ->
                 val variant = item.packageInfo.selectedVariant
                 if (item.name.contains(query, true) ||
-                    variant.pkgName.contains(query, true) ||
+                    item.packageInfo.pkgName.contains(query, true) ||
                     variant.appName.contains(query, true)
                 ) {
                     result.add(item)

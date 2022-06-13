@@ -85,8 +85,10 @@ class DetailsScreen : Fragment() {
                 R.id.uninstall -> {
                     it.isEnabled = isInstalled
 
-                    pkgInfo?.selectedVariant?.let { selVariant ->
-                        if (app.pmHelper().isSystemApp(selVariant)) {
+                    pkgInfo?.let { info ->
+                        val pkgName = info.pkgName
+                        val oldPkgName = info.selectedVariant.originalPkgName
+                        if (app.pmHelper().isSystemApp(pkgName, oldPkgName)) {
                             it.setTitle(R.string.uninstall_updates)
                         }
                     }
@@ -115,7 +117,7 @@ class DetailsScreen : Fragment() {
                 val packageInfo = pkgInfo ?: return false
                 findNavController().navigate(
                     DetailsScreenDirections.actionDetailsScreenToSwitchChannel(
-                        packageInfo.selectedVariant.pkgName,
+                        packageInfo.pkgName,
                         packageInfo.allVariant.map {
                             it.type
                         }.toTypedArray(),
@@ -196,7 +198,7 @@ class DetailsScreen : Fragment() {
             dependencyRecyclerView.isVisible = variant.dependencies.isNotEmpty()
 
             appName.text = variant.appName
-            publisher.text = AppSourceHelper.getCategoryName(variant.pkgName)
+            publisher.text = AppSourceHelper.getCategoryName(packageInfo.pkgName)
             install.isEnabled = !isDownloading
             install.text = packageInfo.installStatus()
 

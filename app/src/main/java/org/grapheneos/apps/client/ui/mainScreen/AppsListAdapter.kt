@@ -23,7 +23,7 @@ class AppsListAdapter(private val mainScreen: MainScreen) :
             val packageVariant = info.selectedVariant
             val installStatus = info.installStatus
             val downloadStatus = info.downloadStatus
-            val packageName = packageVariant.pkgName
+            val packageName = info.pkgName
             val isDownloading = downloadStatus != null && downloadStatus.isDownloading
 
             binding.apply {
