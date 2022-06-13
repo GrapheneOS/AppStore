@@ -14,20 +14,20 @@ fun Context.metadataTmpDir() =
 
 
 /*Apks related files*/
-fun PackageVariant.getResultRootDir(context: Context): File {
+fun PackageVariant.getResultRootDir(context: Context, pkgName: String): File {
     val files = context.filesDir.absolutePath
     return File("${files}/downloads/packages/${pkgName}")
 }
 
-fun PackageVariant.getResultDir(context: Context): File {
-    return File("${getResultRootDir(context)}/$versionCode")
+fun PackageVariant.getResultDir(context: Context, pkgName: String): File {
+    return File("${getResultRootDir(context, pkgName)}/$versionCode")
 }
 
-fun PackageVariant.getDownloadRootDir(context: Context): File {
+fun PackageVariant.getDownloadRootDir(context: Context, pkgName: String): File {
     val cacheDir = context.cacheDir.absolutePath
     return File("${cacheDir}/temporary/files/packages/${pkgName}")
 }
 
-fun PackageVariant.getDownloadDir(context: Context): File {
-    return File("${getDownloadRootDir(context).absolutePath}/$versionCode")
+fun PackageVariant.getDownloadDir(context: Context, pkgName: String): File {
+    return File("${getDownloadRootDir(context, pkgName).absolutePath}/$versionCode")
 }

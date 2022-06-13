@@ -30,17 +30,16 @@ class ApkDownloadHelper constructor(private val context: Context) {
 
     @RequiresPermission(Manifest.permission.INTERNET)
     suspend fun downloadAndVerifySHA256(
+        pkgName: String,
         variant: PackageVariant,
         progressListener: (read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean) -> Unit,
     ): DownloadCallBack {
         val scope = CoroutineScope(Dispatchers.IO + Job())
         return try {
-
             val vCode = variant.versionCode
-            val pkgName = variant.pkgName
 
-            val resultDir = variant.getResultDir(context)
-            val downloadDir = variant.getDownloadDir(context)
+            val resultDir = variant.getResultDir(context, pkgName)
+            val downloadDir = variant.getDownloadDir(context, pkgName)
 
             downloadDir.mkdirs()
             resultDir.mkdirs()

@@ -128,9 +128,6 @@ class PackageManagerHelper(private val context: Context) {
 
     }
 
-    fun isSystemApp(packageVariant: PackageVariant)
-            = isSystemApp(packageVariant.pkgName, packageVariant.originalPkgName)
-
     fun isSystemApp(pkgName: String, fallback: String? = null): Boolean {
         return try {
             val pmInfo = context.packageManager.getPackageInfo(pkgName, 0)

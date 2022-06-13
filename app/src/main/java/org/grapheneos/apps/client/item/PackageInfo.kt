@@ -32,15 +32,15 @@ data class PackageInfo(
             //if the app is installed purge any cached apk files
             if (installedVersion == latestVersion) {
                 selectedVariant.apply {
-                    getResultRootDir(context).deleteRecursively()
-                    getDownloadRootDir(context).deleteRecursively()
+                    getResultRootDir(context, pkgName).deleteRecursively()
+                    getDownloadRootDir(context, pkgName).deleteRecursively()
 
                 }
             } else {
                 // else only purge unneeded cached apk files
                 selectedVariant.apply {
-                    getResultRootDir(context).cleanOldFiles(getResultDir(context))
-                    getDownloadRootDir(context).cleanOldFiles(getResultDir(context))
+                    getResultRootDir(context, pkgName).cleanOldFiles(getResultDir(context, pkgName))
+                    getDownloadRootDir(context, pkgName).cleanOldFiles(getResultDir(context, pkgName))
                 }
             }
         }
