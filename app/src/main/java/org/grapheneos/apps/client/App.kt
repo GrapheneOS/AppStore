@@ -874,13 +874,13 @@ class App : Application() {
                 val isUpdatable = installedVersion == null || installedVersion < variant.versionCode
 
                 if (installStatus is InstallStatus.Updatable || (isPrivilegeMode && isInstalled && isUpdatable)) {
-                    if (isDownloadJobRunning(variant.pkgName)) {
+                    if (isDownloadJobRunning(info.pkgName)) {
                         throw IllegalStateException("download get called while a download task is already running")
                     }
                     val downloadResult = downloadPackages(variant)
                     if (downloadResult is DownloadCallBack.Success) {
                         if (isAutoInstallEnabled) {
-                            if (installApps(downloadResult.apks, variant.pkgName)) {
+                            if (installApps(downloadResult.apks, info.pkgName)) {
                                 updatedPackages.add(variant.appName)
                             } else {
                                 updateFailedPackages.add(variant.appName)
