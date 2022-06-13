@@ -277,7 +277,7 @@ class App : Application() {
             val res = metaDataHelper.downloadAndVerifyMetadata { response ->
                 response.packages.forEach {
                     val value = it.value
-                    val pkgName = value.packageName
+                    val pkgName = it.key
                     val channelPref = ChannelPreferenceManager
                         .getPackageChannel(this@App, pkgName)
                     val packageVariant = value.variants[channelPref]
