@@ -16,6 +16,7 @@
         android:layout_height="match_parent">
 
         <ScrollView
+            android:id="@+id/detailsContent"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/bottomActions"
@@ -244,7 +245,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="top"
-            app:constraint_referenced_ids="progressBar,install,downloadPercentInfo"
+            app:constraint_referenced_ids="progressBar,install,downloadPercentInfo,cancelButton"
             tools:layout_editor_absoluteY="731dp" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -253,13 +254,28 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:progress="50"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/cancelButton"
+            app:layout_constraintEnd_toStartOf="@+id/cancelButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/cancelButton"
+            tools:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancelButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/cancel"
+            android:textAllCaps="false"
             app:layout_constraintBottom_toTopOf="@+id/progressSize"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/detailsContent" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/progressSize"

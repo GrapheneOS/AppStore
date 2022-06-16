@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.grapheneos.apps.client.App
+import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ItemAppsBinding
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import org.grapheneos.apps.client.utils.AppSourceHelper
@@ -37,14 +39,19 @@ class AppsListAdapter(private val mainScreen: MainScreen) :
                     )
                 }
                 quickAction.setOnClickListener {
-                    mainScreen.installPackage(
-                        root,
-                        packageVariant.appName,
-                        packageName
-                    )
+                    if (isDownloading) {
+                        mainScreen.cancelDownload(packageName)
+                    } else {
+                        mainScreen.installPackage(
+                            root,
+                            packageVariant.appName,
+                            packageName
+                        )
+                    }
                 }
-                quickAction.isEnabled = !isDownloading
-                quickAction.text = installStatus.status
+
+                quickAction.text =
+                    if (isDownloading) App.getString(R.string.cancel) else installStatus.status
                 publisher.text = AppSourceHelper.getCategoryName(packageName)
                 releaseTag.isVisible = "stable" != packageVariant.type
                 releaseTag.text = packageVariant.type

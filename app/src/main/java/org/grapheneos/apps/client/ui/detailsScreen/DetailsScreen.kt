@@ -175,6 +175,9 @@ class DetailsScreen : Fragment() {
                     showSnackbar(it)
                 }
             }
+            cancelButton.setOnClickListener {
+                app.cancelDownload(info.pkgName)
+            }
         }
 
     }

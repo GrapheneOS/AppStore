@@ -89,11 +89,14 @@ data class InstallablePackageInfo(
                     oldItem.packageInfo.installStatus == newItem.packageInfo.installStatus &&
                     oldItem.packageInfo.id == newItem.packageInfo.id
 
+            val oldStatus = oldItem.packageInfo.downloadStatus
+            val newStatus = newItem.packageInfo.downloadStatus
+
             if (isDownloadUi) {
-                return isChanged && oldItem.packageInfo.downloadStatus == newItem.packageInfo.downloadStatus
+                return isChanged && oldStatus == newStatus
             }
 
-            return isChanged
+            return isChanged && oldStatus?.isDownloading == newStatus?.isDownloading
         }
     }
 

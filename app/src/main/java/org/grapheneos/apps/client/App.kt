@@ -23,6 +23,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -32,11 +33,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.item.DownloadCallBack
@@ -71,7 +71,6 @@ import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import javax.inject.Inject
 import javax.net.ssl.SSLHandshakeException
-import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
 @HiltAndroidApp
@@ -136,7 +135,7 @@ class App : Application() {
     }
 
     /*Coroutine scope and jobs var*/
-    private val apkJobsMap = mutableMapOf<String, CompletableJob>()
+    private val apkJobsMap = mutableMapOf<String, CoroutineScope>()
     private val scopeApkDownload by lazy { Dispatchers.IO }
     private val scopeMetadataRefresh by lazy { Dispatchers.IO }
     private lateinit var seamlessUpdaterJob: CompletableJob
@@ -401,71 +400,72 @@ class App : Application() {
         }
 
         val scope = scopeApkDownload.createJobForPackageDownload(variant.pkgName)
-        val resultTask: Deferred<DownloadCallBack> =
-            withContext(scope) {
-                return@withContext async {
-                    taskIdSeed++
-                    val taskId = taskIdSeed
-                    packagesInfo[variant.pkgName] =
-                        packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
-                            DownloadStatus.Downloading(
-                                App.getString(R.string.processing),
-                                0,
-                                0,
-                                0.0,
-                                false
-                            )
-                        ).withUpdatedTask(
-                            TaskInfo(
-                                taskId,
-                                App.getString(R.string.startingDownload),
-                                0
-                            )
+        val resultTask: Deferred<DownloadCallBack> = scope.async {
+            taskIdSeed++
+            val taskId = taskIdSeed
+            packagesInfo[variant.pkgName] =
+                packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
+                    DownloadStatus.Downloading(
+                        App.getString(R.string.processing),
+                        0,
+                        0,
+                        0.0,
+                        false
+                    )
+                ).withUpdatedTask(
+                    TaskInfo(
+                        taskId,
+                        App.getString(R.string.startingDownload),
+                        0
+                    )
+                )
+            updateLiveData()
+
+            val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)
+            val result = apkDownloadHelper.downloadAndVerifySHA256(variant = variant)
+            { read: Long, total: Long, doneInPercent: Double, completed: Boolean ->
+                if (doneInPercent == -1.0) return@downloadAndVerifySHA256
+                packagesInfo[variant.pkgName] =
+                    packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
+                        DownloadStatus.Downloading(
+                            downloadSize = total.toInt(),
+                            downloadedSize = read.toInt(),
+                            downloadedPercent = doneInPercent,
+                            completed = completed
                         )
-                    updateLiveData()
-
-                    val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)
-                    val result = apkDownloadHelper.downloadAndVerifySHA256(variant = variant)
-                    { read: Long, total: Long, doneInPercent: Double, completed: Boolean ->
-                        if (doneInPercent == -1.0) return@downloadAndVerifySHA256
-                        packagesInfo[variant.pkgName] =
-                            packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
-                                DownloadStatus.Downloading(
-                                    downloadSize = total.toInt(),
-                                    downloadedSize = read.toInt(),
-                                    downloadedPercent = doneInPercent,
-                                    completed = completed
-                                )
-                            ).withUpdatedTask(
-                                TaskInfo(
-                                    taskId,
-                                    "${variant.appName} ${getString(R.string.is_being_downloaded)} ...",
-                                    doneInPercent.toInt()
-                                )
-                            )
-                        updateLiveData()
-                    }
-
-                    when (result) {
-                        is DownloadCallBack.Success, is DownloadCallBack.Canceled -> {
-                            packagesInfo[variant.pkgName] =
-                                packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(null)
-                                    .withUpdatedTask(taskCompleted)
-                        }
-                        else -> {
-                            packagesInfo[variant.pkgName] =
-                                packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
-                                    DownloadStatus.Failed(result.error?.localizedMessage ?: "")
-                                ).withUpdatedTask(taskCompleted)
-                        }
-                    }
-                    updateLiveData()
-                    result
-                }
+                    ).withUpdatedTask(
+                        TaskInfo(
+                            taskId,
+                            "${variant.appName} ${getString(R.string.is_being_downloaded)} ...",
+                            doneInPercent.toInt()
+                        )
+                    )
+                updateLiveData()
             }
 
-        val result = resultTask.await()
-        scope.job.markAsCompleted(variant.pkgName)
+            when (result) {
+                is DownloadCallBack.Success, is DownloadCallBack.Canceled -> {
+                    packagesInfo[variant.pkgName] =
+                        packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(null)
+                            .withUpdatedTask(taskCompleted)
+                }
+                else -> {
+                    packagesInfo[variant.pkgName] =
+                        packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
+                            DownloadStatus.Failed(result.error?.localizedMessage ?: "")
+                        ).withUpdatedTask(taskCompleted)
+                }
+            }
+            updateLiveData()
+            result
+        }
+
+        val result = try {
+            resultTask.await()
+        } catch (e: CancellationException) {
+            DownloadCallBack.Canceled()
+        }
+        scope.markAsCompleted(variant.pkgName)
         return result
     }
 
@@ -574,25 +574,23 @@ class App : Application() {
         }
     }
 
-    private fun CoroutineDispatcher.createJobForPackageDownload(packageName: String): CoroutineContext {
+    private fun CoroutineDispatcher.createJobForPackageDownload(packageName: String): CoroutineScope {
         if (isDownloadJobRunning(packageName)) {
-            apkJobsMap[packageName]?.cancelChildren()
             apkJobsMap[packageName]?.cancel()
         }
-        val job = Job()
+        val job = CoroutineScope(this)
         apkJobsMap[packageName] = job
-        return this + job + Dispatchers.IO
+        return job
     }
 
     private fun isDownloadJobRunning(packageName: String): Boolean {
         val packageSpecificJob = apkJobsMap[packageName]
-        return ((packageSpecificJob != null && packageSpecificJob.isActive
-                && !packageSpecificJob.isCompleted && !packageSpecificJob.isCancelled))
+        return (packageSpecificJob != null && packageSpecificJob.isActive)
     }
 
-    private fun Job.markAsCompleted(packageName: String) {
+    private fun CoroutineScope.markAsCompleted(packageName: String) {
         apkJobsMap.remove(packageName)
-        (this as CompletableJob).complete()
+        this.cancel()
     }
 
     fun updateServiceStatus(isRunning: Boolean) {
@@ -1041,5 +1039,12 @@ class App : Application() {
     fun isActivityRunning() = isActivityRunning != null
     fun isDownloadRunning(): LiveData<Boolean> = isDownloadRunning
     fun isSyncingSuccessful() = !isMetadataSyncing() && packagesInfo.isNotEmpty()
+
+    fun cancelDownload(pkgName: String) {
+        apkJobsMap[pkgName]?.markAsCompleted(pkgName)
+        packagesInfo[pkgName]?.selectedVariant?.dependencies?.forEach { name ->
+            apkJobsMap[name]?.markAsCompleted(name)
+        }
+    }
 
 }

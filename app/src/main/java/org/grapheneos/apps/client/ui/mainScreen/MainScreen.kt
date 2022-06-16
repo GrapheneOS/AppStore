@@ -135,6 +135,8 @@ class MainScreen : Fragment() {
         }
     }
 
+    fun cancelDownload(pkgName: String) = appsViewModel.cancelDownload(pkgName)
+
     fun navigateToDetailsScreen(
         root: View,
         appName: String,
