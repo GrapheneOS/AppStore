@@ -728,10 +728,11 @@ class App : Application() {
         pkgName: String,
         callback: (result: String) -> Unit
     ) {
-        val status = packagesInfo[pkgName]?.installStatus
+        val instStatus = packagesInfo[pkgName]?.installStatus
+        val dnldStatus = packagesInfo[pkgName]?.downloadStatus
         val variant = packagesInfo[pkgName]?.selectedVariant
 
-        if (status == null || variant == null) {
+        if (instStatus == null || variant == null) {
             callback.invoke(getString(R.string.syncUnfinished))
             return
         }
@@ -746,7 +747,23 @@ class App : Application() {
             return
         }
 
-        when (status) {
+        when (dnldStatus) {
+            is DownloadStatus.Downloading -> {
+                apkJobsMap[pkgName]?.cancelChildren()
+                apkJobsMap[pkgName]?.cancel()
+                val info: PackageInfo = packagesInfo[pkgName]!!
+                packagesInfo[pkgName] = info.withUpdatedInstallStatus(
+                    info.installStatus.createFailed(
+                        "Installation was cancelled by the user",
+                        App.getString(R.string.retry)
+                    )
+                ).withUpdatedSession(SessionInfo(info.sessionInfo.id, false))
+                return
+            }
+            else -> {}
+        }
+
+        when (instStatus) {
             is InstallStatus.Installable,
             is InstallStatus.Updatable,
             is InstallStatus.ReinstallRequired,

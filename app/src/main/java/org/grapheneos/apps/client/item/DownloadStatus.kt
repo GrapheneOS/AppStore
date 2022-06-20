@@ -16,14 +16,14 @@ sealed class DownloadStatus(
     )
 
     data class Downloading(
-        override val status: String = App.getString(R.string.downloading),
+        override val status: String = App.getString(R.string.cancel),
         val downloadSize: Int, //KB
         val downloadedSize: Int, //KB
         val downloadedPercent: Double,
         val completed: Boolean
     ) : DownloadStatus(
         true,
-        App.getString(R.string.downloading)
+        App.getString(R.string.cancel)
     )
 
 }

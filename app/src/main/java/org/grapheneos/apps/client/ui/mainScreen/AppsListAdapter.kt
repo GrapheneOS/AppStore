@@ -43,8 +43,7 @@ class AppsListAdapter(private val mainScreen: MainScreen) :
                         packageName
                     )
                 }
-                quickAction.isEnabled = !isDownloading
-                quickAction.text = installStatus.status
+                quickAction.text = if (!isDownloading) installStatus.status else "Cancel"
                 publisher.text = AppSourceHelper.getCategoryName(packageName)
                 releaseTag.isVisible = "stable" != packageVariant.type
                 releaseTag.text = packageVariant.type

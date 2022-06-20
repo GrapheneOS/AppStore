@@ -188,7 +188,6 @@ class DetailsScreen : Fragment() {
         val progress =
             if (downloadInfo is DownloadStatus.Downloading) downloadInfo.downloadedPercent.roundToInt() else 0
         binding.apply {
-            install.isVisible = !isDownloading
             progressBar.isVisible = isDownloading
             progressSize.isVisible = isDownloading
             downloadPercentInfo.isVisible = isDownloading
@@ -197,7 +196,6 @@ class DetailsScreen : Fragment() {
 
             appName.text = variant.appName
             publisher.text = AppSourceHelper.getCategoryName(variant.pkgName)
-            install.isEnabled = !isDownloading
             install.text = packageInfo.installStatus()
 
             packageInfo.installStatus.installedVersion.let {
