@@ -8,6 +8,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.forEach
@@ -53,7 +55,6 @@ class DetailsScreen : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setHasOptionsMenu(true)
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             scrimColor = Color.TRANSPARENT
             drawingViewId = R.id.container
@@ -69,18 +70,14 @@ class DetailsScreen : Fragment() {
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(m: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.details_screen_menu, m)
-    }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
+    fun Menu.prepareOptionsMenu() {
 
         val mutableItems = mutableListOf<String>()
         pkgInfo?.allVariant?.forEach { variant: PackageVariant ->
             mutableItems.add(variant.type)
         }
-        menu.forEach {
+        forEach {
             when (it.itemId) {
                 R.id.uninstall -> {
                     it.isEnabled = isInstalled
@@ -101,8 +98,8 @@ class DetailsScreen : Fragment() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    fun MenuItem.itemSelected(): Boolean {
+        return when (itemId) {
             R.id.uninstall -> {
                 app.uninstallPackage(info.pkgName)
                 true
@@ -125,8 +122,7 @@ class DetailsScreen : Fragment() {
 
                 true
             }
-            else -> item.onNavDestinationSelected(findNavController()) ||
-                    super.onOptionsItemSelected(item)
+            else -> onNavDestinationSelected(findNavController())
         }
     }
 
@@ -144,6 +140,22 @@ class DetailsScreen : Fragment() {
 
             inset
         }
+
+        (requireActivity() as MenuHost).addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.details_screen_menu, menu)
+                }
+
+                override fun onPrepareMenu(menu: Menu) {
+                    super.onPrepareMenu(menu)
+                    menu.prepareOptionsMenu()
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem) = menuItem.itemSelected()
+            },
+            viewLifecycleOwner
+        )
 
         app.packageLiveData.observe(viewLifecycleOwner) { data ->
             val appData = data[info.pkgName]

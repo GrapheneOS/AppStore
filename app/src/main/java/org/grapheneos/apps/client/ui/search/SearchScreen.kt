@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
@@ -15,6 +18,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.transition.platform.MaterialElevationScale
@@ -50,7 +54,6 @@ class SearchScreen : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
         binding = SearchScreenBinding.inflate(layoutInflater, container, false)
 
         exitTransition = MaterialFadeThrough()
@@ -58,10 +61,6 @@ class SearchScreen : Fragment() {
         enterTransition = MaterialFade()
 
         return binding.root
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.search_screen_menu, menu)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,6 +81,19 @@ class SearchScreen : Fragment() {
             }
             inset
         }
+
+        (requireActivity() as MenuHost).addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.search_screen_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return menuItem.onNavDestinationSelected(findNavController())
+                }
+            },
+            viewLifecycleOwner
+        )
 
         binding.appsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)

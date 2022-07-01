@@ -7,6 +7,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -56,7 +58,20 @@ class UpdatesScreen : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
+
+        (requireActivity() as MenuHost).addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.main_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return menuItem.onNavDestinationSelected(findNavController())
+                }
+            },
+            viewLifecycleOwner
+        )
+
         binding = UpdatesScreenBinding.inflate(layoutInflater, container, false)
 
         exitTransition = MaterialFadeThrough()
@@ -92,14 +107,4 @@ class UpdatesScreen : Fragment() {
         }
 
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main_menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return item.onNavDestinationSelected(findNavController()) ||
-                super.onOptionsItemSelected(item)
-    }
-
 }
