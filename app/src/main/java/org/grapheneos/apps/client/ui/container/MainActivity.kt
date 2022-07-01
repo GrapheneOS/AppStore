@@ -1,7 +1,6 @@
 package org.grapheneos.apps.client.ui.container
 
 import android.app.NotificationManager
-import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewGroup
