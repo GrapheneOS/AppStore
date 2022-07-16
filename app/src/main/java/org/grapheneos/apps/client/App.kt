@@ -118,6 +118,8 @@ class App : Application() {
     private var isServiceRunning = false
     private var installationCreateRequestInProgress = false
     private val isDownloadRunning = MutableLiveData<Boolean>()
+    var isDownloading = false
+        private set
 
     /*Application info object*/
     private val sessionIdsMap = mutableMapOf<Int, String>()
@@ -221,7 +223,8 @@ class App : Application() {
             }
         }
 
-        isDownloadRunning.postValue(allTaskCompleted)
+        isDownloading = !allTaskCompleted
+        isDownloadRunning.postValue(isDownloading)
         updatableAppsCount.postValue(updatableCount)
 
         if (!isServiceRunning) {
@@ -329,6 +332,11 @@ class App : Application() {
             return
         }
 
+        if (isDownloading) {
+            callback.invoke(MetadataCallBack.SecurityError(Exception(
+                App.getString(R.string.pendingAppDownload))))
+            return
+        }
         refreshJob = Job()
         CoroutineScope(scopeMetadataRefresh + refreshJob).launch(Dispatchers.IO) {
             delay(500)
@@ -392,7 +400,7 @@ class App : Application() {
         pkgName: String,
     ): DownloadCallBack {
 
-        if (isDownloadJobRunning(pkgName)) {
+        if (isMetadataSyncing() || isDownloadJobRunning(pkgName)) {
             return DownloadCallBack.Canceled()
         }
 
@@ -820,7 +828,7 @@ class App : Application() {
             onFinished.invoke(SeamlessUpdateResponse())
             return
         }
-        if (isActivityRunning != null) {
+        if (isActivityRunning != null || isDownloading) {
             // don't auto update if app is in foreground
             onFinished.invoke(SeamlessUpdateResponse())
             return

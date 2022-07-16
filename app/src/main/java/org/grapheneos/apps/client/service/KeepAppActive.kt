@@ -15,7 +15,7 @@ class KeepAppActive : Service() {
     private val app: App by lazy { applicationContext as App }
 
     private val observer = Observer<Boolean> { isDownloadRunning ->
-        if (isDownloadRunning) stopService()
+        if (!isDownloadRunning) stopService()
     }
 
 

@@ -78,6 +78,7 @@
     <string name="otherAppsDownloadInProgress">Dependencies or other apps are in progress of being downloaded and/or installed</string>
     <string name="allowUnknownSources">You must allow installation from this source first</string>
     <string name="newerVersionIsInstalled">Newer version is already installed</string>
+    <string name="pendingAppDownload">Please wait for package to get downloaded</string>
 
     <!--details_screen.xml-->
     <string name="installed">Installed</string>

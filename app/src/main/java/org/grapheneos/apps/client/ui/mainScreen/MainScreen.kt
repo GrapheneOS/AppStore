@@ -108,7 +108,11 @@ class MainScreen : Fragment() {
                 state.modifyFilter(state.buildByGrapheneOs, isChecked)
             }
             swipeRefresh.setOnRefreshListener {
-                refresh(isForcedUpdate = !lastItems.isNullOrEmpty())
+                if (appsViewModel.isDownloading) {
+                    binding.swipeRefresh.isRefreshing = false
+                    return@setOnRefreshListener
+                }
+                refresh(true)
             }
         }
 
