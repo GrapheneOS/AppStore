@@ -122,6 +122,13 @@ class MainScreen : Fragment() {
         }
 
         binding.retrySync.setOnClickListener { refresh() }
+        binding.swipeToRefreshView.setOnRefreshListener {
+            if (appsViewModel.isDownloading) {
+                binding.swipeToRefreshView.isRefreshing = false
+                return@setOnRefreshListener
+            }
+            refresh(true)
+        }
         refresh()
     }
 
@@ -161,9 +168,9 @@ class MainScreen : Fragment() {
         )
     }
 
-    private fun refresh() {
+    private fun refresh(force: Boolean = false) {
         updateUi(isSyncing = true, canRetry = false)
-        appsViewModel.refreshMetadata {
+        appsViewModel.refreshMetadata(force) {
             updateUi(isSyncing = false, canRetry = !it.isSuccessFull)
             if (it !is MetadataCallBack.Success) {
                 showSnackbar(
@@ -182,6 +189,10 @@ class MainScreen : Fragment() {
                 appsRecyclerView.isGone = isSyncing || canRetry
                 retrySync.isVisible = !isSyncing && canRetry
                 filter.isVisible = !isSyncing && !canRetry
+                swipeToRefreshView.apply {
+                    isRefreshing = isRefreshing && isSyncing
+                    isEnabled = !isSyncing
+                }
             }
         }
     }

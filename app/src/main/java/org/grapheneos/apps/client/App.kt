@@ -115,6 +115,8 @@ class App : Application() {
     private var isServiceRunning = false
     private var installationCreateRequestInProgress = false
     private val isDownloadRunning = MutableLiveData<Boolean>()
+    var isDownloading = false
+        private set
 
     /*Application info object*/
     private val sessionIdsMap = mutableMapOf<Int, String>()
@@ -218,7 +220,8 @@ class App : Application() {
             }
         }
 
-        isDownloadRunning.postValue(allTaskCompleted)
+        isDownloading = !allTaskCompleted
+        isDownloadRunning.postValue(isDownloading)
         updatableAppsCount.postValue(updatableCount)
 
         if (!isServiceRunning) {
@@ -326,10 +329,17 @@ class App : Application() {
         if ((packagesInfo.isNotEmpty() && !force) || isMetadataSyncing()) {
             return
         }
+        println("Refresh metadata is called while isDownloading : $isDownloading")
+
+        if (isDownloading) {
+            callback.invoke(MetadataCallBack.SecurityError(Exception("Please wait for package to get downloaded")))
+            return
+        }
 
         refreshJob = Job()
         CoroutineScope(scopeMetadataRefresh + refreshJob).launch(Dispatchers.IO) {
             delay(500)
+            if (packagesInfo.isNotEmpty()) packagesInfo.clear()
             callback.invoke(refreshMetadata())
             refreshJob.complete()
         }
@@ -825,7 +835,7 @@ class App : Application() {
             onFinished.invoke(SeamlessUpdateResponse())
             return
         }
-        if (isActivityRunning != null) {
+        if (isActivityRunning != null || isDownloading) {
             // don't auto update if app is in foreground
             onFinished.invoke(SeamlessUpdateResponse())
             return
