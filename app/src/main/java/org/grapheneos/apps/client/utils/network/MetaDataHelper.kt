@@ -24,10 +24,8 @@ import javax.net.ssl.SSLHandshakeException
 
 class MetaDataHelper constructor(context: Context) {
 
-    private val version = CURRENT_VERSION
-
-    private val metadataFileName = "metadata.${version}.json"
-    private val metadataSignFileName = "metadata.${version}.json.${version}.sig"
+    private val metadataFileName = "metadata.${METADATA_VERSION}.json"
+    private val metadataSignFileName = "metadata.${METADATA_VERSION}.json.${KEY_VERSION}.sig"
 
     private val baseDir = context.metadataVerifiedDir()
     private val tmpDir = context.metadataTmpDir()
