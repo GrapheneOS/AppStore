@@ -35,6 +35,8 @@
                 android:hint="@string/searchForApps"
                 android:imeOptions="actionSearch"
                 android:maxLines="1"
+                android:singleLine="true"
+                android:inputType="text"
                 android:padding="12dp"
                 android:textColor="?attr/colorControlNormal" />
 
