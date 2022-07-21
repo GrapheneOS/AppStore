@@ -61,6 +61,7 @@ import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
 import org.grapheneos.apps.client.utils.isUninstallBlockedByAdmin
+import org.grapheneos.apps.client.utils.getPackageInfoCompat
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
@@ -356,7 +357,7 @@ class App : Application() {
         val currentInfo = packagesInfo[pkgName]
         val installedVersion = currentInfo?.installStatus?.installedVersion
         try {
-            val pmInfo = pm.getPackageInfo(pkgName, 0)
+            val pmInfo = pm.getPackageInfoCompat(pkgName, 0)
             val installerInfo = pm.getInstallSourceInfo(pkgName)
             val currentVersion = pmInfo.longVersionCode
 
