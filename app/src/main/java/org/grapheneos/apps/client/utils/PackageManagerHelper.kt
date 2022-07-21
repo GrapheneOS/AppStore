@@ -130,7 +130,7 @@ class PackageManagerHelper(private val context: Context) {
 
     fun isSystemApp(pkgName: String, fallback: String? = null): Boolean {
         return try {
-            val pmInfo = context.packageManager.getPackageInfo(pkgName, 0)
+            val pmInfo = context.packageManager.getPackageInfoCompat(pkgName, 0)
             (pmInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
         } catch (e: PackageManager.NameNotFoundException) {
             if (fallback != null) isSystemApp(fallback) else false
