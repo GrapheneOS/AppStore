@@ -15,7 +15,7 @@ class APKUninstallReceiver : BroadcastReceiver() {
         /*handle STATUS_PENDING_USER_ACTION for uninstall event */
         when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, unknownCode)) {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                val confirmationIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+                val confirmationIntent = intent.getParcelableIntentExtra(Intent.EXTRA_INTENT)
                 confirmationIntent?.let {
                     it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     (context).startActivity(it)
