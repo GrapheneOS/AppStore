@@ -62,6 +62,7 @@ import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
 import org.grapheneos.apps.client.utils.isUninstallBlockedByAdmin
 import org.grapheneos.apps.client.utils.getPackageInfoCompat
+import org.grapheneos.apps.client.utils.registerReceiverNotExportedCompat
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
@@ -917,7 +918,7 @@ class App : Application() {
         appsChangesFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
         appsChangesFilter.addDataScheme("package")
 
-        registerReceiver(appsChangesReceiver, appsChangesFilter)
+        registerReceiverNotExportedCompat(appsChangesReceiver, appsChangesFilter)
 
         registerActivityLifecycleCallbacks(ActivityLifeCycleHelper { activity ->
             isActivityRunning = activity
