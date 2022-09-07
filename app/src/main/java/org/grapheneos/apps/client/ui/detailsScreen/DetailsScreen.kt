@@ -152,6 +152,7 @@ class DetailsScreen : Fragment() {
             pkgInfo = appData
             if (appData == null) {
                 findNavController().popBackStack()
+                findNavController().navigate(R.id.appNotFound)
             } else {
                 bindViews(appData)
                 val packages = appData.selectedVariant.dependencies

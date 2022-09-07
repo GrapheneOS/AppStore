@@ -161,4 +161,8 @@
     <string name="searchForApps">Search for apps</string>
     <string name="noMatchFound">No apps found</string>
 
+    <!--AppNotFound.kt-->
+    <string name="app_not_found_title">App not found</string>
+    <string name="app_not_found_message">Sorry, we cannot find this app</string>
+
 </resources>

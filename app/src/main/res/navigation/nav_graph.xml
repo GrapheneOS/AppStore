@@ -90,4 +90,8 @@
             android:name="shouldSync"
             app:argType="boolean" />
     </fragment>
+    <dialog
+        android:id="@+id/appNotFound"
+        android:name="org.grapheneos.apps.client.ui.appNotFound.AppNotFound"
+        android:label="AppNotFound" />
 </navigation>
