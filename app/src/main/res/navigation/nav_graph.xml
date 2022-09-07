@@ -78,4 +78,13 @@
             android:id="@+id/action_to_detailsScreen"
             app:destination="@id/detailsScreen" />
     </fragment>
+    <fragment
+        android:id="@+id/syncScreen"
+        android:name="org.grapheneos.apps.client.ui.syncScreen.SyncScreen"
+        android:label="Sync Screen"
+        tools:layout="@layout/sync_screen" >
+        <argument
+            android:name="shouldSync"
+            app:argType="boolean" />
+    </fragment>
 </navigation>

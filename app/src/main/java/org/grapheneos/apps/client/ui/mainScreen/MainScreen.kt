@@ -25,6 +25,7 @@ import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.MainScreenBinding
 import org.grapheneos.apps.client.item.MetadataCallBack
+import org.grapheneos.apps.client.ui.syncScreen.SyncScreenArgs
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo.Companion.applyFilter
 import org.grapheneos.apps.client.utils.runOnUiThread
@@ -110,13 +111,16 @@ class MainScreen : Fragment() {
                 val packagesInfoMap = newValue ?: return@runOnUiThread
                 val sent = InstallablePackageInfo.fromMap(newValue)
                 lastItems = sent
-                updateUi(isSyncing = false, packagesInfoMap.isEmpty())
+                if (packagesInfoMap.isEmpty()) {
+                    navigateToSyncScreen(false)
+                }
                 appsListAdapter.submitList(sent.applyFilter(state.getLastFilter()))
             }
         }
 
-        binding.retrySync.setOnClickListener { refresh() }
-        refresh()
+        if (!appsViewModel.isSyncingSuccessful()) {
+            navigateToSyncScreen()
+        }
     }
 
     override fun onResume() {
@@ -153,29 +157,8 @@ class MainScreen : Fragment() {
         )
     }
 
-    private fun refresh() {
-        updateUi(isSyncing = true, canRetry = false)
-        appsViewModel.refreshMetadata {
-            updateUi(isSyncing = false, canRetry = !it.isSuccessFull)
-            if (it !is MetadataCallBack.Success) {
-                showSnackbar(
-                    it.genericMsg + if (it.error != null) "\n${it.error.localizedMessage}" else "",
-                    !it.isSuccessFull
-                )
-            }
-        }
+    private fun navigateToSyncScreen(shouldSync: Boolean = true) {
+        val args = SyncScreenArgs.Builder(shouldSync).build().toBundle()
+        findNavController().navigate(R.id.syncScreen, args)
     }
-
-    private fun updateUi(isSyncing: Boolean = true, canRetry: Boolean = false) {
-        runOnUiThread {
-            binding.apply {
-                syncing.isVisible = isSyncing
-                syncingProgressbar.isVisible = isSyncing
-                appsRecyclerView.isGone = isSyncing || canRetry
-                retrySync.isVisible = !isSyncing && canRetry
-                filter.isVisible = !isSyncing && !canRetry
-            }
-        }
-    }
-
 }

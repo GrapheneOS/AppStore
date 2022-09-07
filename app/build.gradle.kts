@@ -69,7 +69,8 @@ android {
                     "src/main/java/org/grapheneos/apps/client/ui/container/res",
                     "src/main/java/org/grapheneos/apps/client/ui/mainScreen/res",
                     "src/main/java/org/grapheneos/apps/client/ui/detailsScreen/res",
-                    "src/main/java/org/grapheneos/apps/client/ui/search/res"
+                    "src/main/java/org/grapheneos/apps/client/ui/search/res",
+                    "src/main/java/org/grapheneos/apps/client/ui/syncScreen/res"
                 )
             }
         }

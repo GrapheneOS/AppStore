@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
     var isMainScreen = false
     var isSearchScreen = false
+    var isSyncScreen = false
     var currentDestinations = -1
     private val packagesObserver = Observer<Map<String, PackageInfo>> { updateUi(it.isNotEmpty()) }
 
@@ -66,9 +67,9 @@ class MainActivity : AppCompatActivity() {
         views.searchBar.isVisible = (isMainScreen || isSearchScreen) && isSyncFinished
         views.searchTitle.isVisible = isMainScreen && isSyncFinished
         views.searchInput.isVisible = isSearchScreen && isSyncFinished
-        views.toolbar.isVisible = isSyncFinished
+        views.toolbar.isVisible = isSyncFinished && !isSyncScreen
         views.bottomNavView.isGone =
-            !appBarConfiguration.topLevelDestinations.contains(currentDestinations) || !isSyncFinished
+            !appBarConfiguration.topLevelDestinations.contains(currentDestinations) || !isSyncFinished || isSyncScreen
         if (isSearchScreen) {
             views.searchInput.showKeyboard()
         } else {
@@ -124,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         navCtrl.addOnDestinationChangedListener { _, destination, _ ->
             isMainScreen = destination.id == R.id.mainScreen
             isSearchScreen = destination.id == R.id.searchScreen
+            isSyncScreen = destination.id == R.id.syncScreen
             currentDestinations = destination.id
             updateUi()
         }
