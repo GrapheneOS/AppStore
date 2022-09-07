@@ -77,6 +77,7 @@
     <!--details_screen.xml-->
     <string name="installed">Installed</string>
     <string name="latest">Latest</string>
+    <string name="app_details_label">App Details</string>
 
     <!--main_menu.xml-->
     <string name="settings">Settings</string>

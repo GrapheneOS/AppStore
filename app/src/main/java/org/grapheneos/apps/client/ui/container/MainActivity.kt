@@ -2,9 +2,11 @@ package org.grapheneos.apps.client.ui.container
 
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -25,6 +27,7 @@ import org.grapheneos.apps.client.databinding.ActivityMainBinding
 import org.grapheneos.apps.client.item.InstallCallBack
 import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
+import org.grapheneos.apps.client.ui.detailsScreen.DetailsScreenArgs
 import org.grapheneos.apps.client.ui.search.SearchScreenState
 import org.grapheneos.apps.client.utils.hideKeyboard
 import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         AppBarConfiguration.Builder(setOf(R.id.mainScreen, R.id.updatesScreen))
             .build()
     }
+    private val state: MainActivityState by viewModels()
 
     private val obs = Observer<Int> { updatableCount ->
         if (updatableCount == 0) {
@@ -60,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     var isMainScreen = false
     var isSearchScreen = false
     var isSyncScreen = false
+    var isDetailsScreen = false
     var currentDestinations = -1
     private val packagesObserver = Observer<Map<String, PackageInfo>> { updateUi(it.isNotEmpty()) }
 
@@ -126,6 +131,7 @@ class MainActivity : AppCompatActivity() {
             isMainScreen = destination.id == R.id.mainScreen
             isSearchScreen = destination.id == R.id.searchScreen
             isSyncScreen = destination.id == R.id.syncScreen
+            isDetailsScreen = destination.id == R.id.detailsScreen
             currentDestinations = destination.id
             updateUi()
         }
@@ -136,6 +142,27 @@ class MainActivity : AppCompatActivity() {
 
         views.searchInput.addTextChangedListener { editable ->
             searchState.updateQuery(editable?.trim()?.toString() ?: "")
+        }
+
+        when (intent?.action) {
+            Intent.ACTION_SHOW_APP_INFO -> {
+                // We should only show app info one time in onCreate.
+                if (state.shouldShowAppInfo) {
+                    state.shouldShowAppInfo = false
+                    intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME)
+                        ?.let { onActionShowAppInfo(it) }
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        when (intent?.action) {
+            Intent.ACTION_SHOW_APP_INFO -> {
+                intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME)?.let { onActionShowAppInfo(it) }
+            }
         }
     }
 
@@ -168,4 +195,29 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun navigateToDetailsScreen(
+        pkgName: String,
+        label: String,
+        installationRequested: Boolean = false,
+        actionShowAppInfo: Boolean = false
+    ) {
+        val args = DetailsScreenArgs.Builder(
+            pkgName,
+            label,
+            installationRequested,
+            actionShowAppInfo
+        ).build().toBundle()
+        navCtrl.navigate(R.id.detailsScreen, args)
+    }
+
+    private fun onActionShowAppInfo(pkgName: String) {
+        if (isDetailsScreen) {
+            navCtrl.popBackStack()
+        }
+        navigateToDetailsScreen(
+            pkgName,
+            label = getString(R.string.app_details_label),
+            actionShowAppInfo = true
+        )
+    }
 }

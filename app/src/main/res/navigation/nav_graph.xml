@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_detailsScreen_to_switchChannel"
             app:destination="@id/switchChannel" />
+        <argument
+            android:name="actionShowAppInfo"
+            app:argType="boolean" />
     </fragment>
     <dialog
         android:id="@+id/switchChannel"

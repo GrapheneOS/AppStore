@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.forEach
@@ -31,6 +32,7 @@ import org.grapheneos.apps.client.ui.detailsScreen.DependencyAdapter.Companion.t
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import org.grapheneos.apps.client.utils.AppSourceHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
+import org.grapheneos.apps.client.utils.navigateToSyncScreen
 import org.grapheneos.apps.client.utils.showSnackbar
 import kotlin.collections.set
 import kotlin.math.roundToInt
@@ -177,6 +179,23 @@ class DetailsScreen : Fragment() {
             }
         }
 
+        if (info.actionShowAppInfo) {
+            // As per the principles of navigation, the back button should take the user back to the
+            // other app in this case. Since, it is kind of like deep link.
+            val onBackPressedCallback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    activity?.finish()
+                }
+            }
+            activity?.onBackPressedDispatcher?.addCallback(
+                viewLifecycleOwner,
+                onBackPressedCallback
+            )
+        }
+
+        if (!app.isSyncingSuccessful()) {
+            findNavController().navigateToSyncScreen()
+        }
     }
 
     private fun bindViews(packageInfo: PackageInfo) {
@@ -225,5 +244,4 @@ class DetailsScreen : Fragment() {
         }
         return installStatus.status
     }
-
 }

@@ -150,7 +150,8 @@ class SearchScreen : Fragment() {
         root: View,
         appName: String,
         pkgName: String,
-        installationRequested: Boolean = false
+        installationRequested: Boolean = false,
+        actionShowAppInfo: Boolean = false
     ) {
         exitTransition = MaterialElevationScale(false)
         reenterTransition = MaterialElevationScale(true)
@@ -159,7 +160,8 @@ class SearchScreen : Fragment() {
             MainScreenDirections.actionToDetailsScreen(
                 pkgName,
                 appName,
-                installationRequested
+                installationRequested,
+                actionShowAppInfo
             ), extra
         )
     }

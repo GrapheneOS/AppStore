@@ -8,8 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -24,10 +22,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.MainScreenBinding
-import org.grapheneos.apps.client.item.MetadataCallBack
-import org.grapheneos.apps.client.ui.syncScreen.SyncScreenArgs
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo.Companion.applyFilter
+import org.grapheneos.apps.client.utils.navigateToSyncScreen
 import org.grapheneos.apps.client.utils.runOnUiThread
 import org.grapheneos.apps.client.utils.showSnackbar
 
@@ -112,14 +109,14 @@ class MainScreen : Fragment() {
                 val sent = InstallablePackageInfo.fromMap(newValue)
                 lastItems = sent
                 if (packagesInfoMap.isEmpty()) {
-                    navigateToSyncScreen(false)
+                    findNavController().navigateToSyncScreen(false)
                 }
                 appsListAdapter.submitList(sent.applyFilter(state.getLastFilter()))
             }
         }
 
         if (!appsViewModel.isSyncingSuccessful()) {
-            navigateToSyncScreen()
+            findNavController().navigateToSyncScreen()
         }
     }
 
@@ -143,7 +140,8 @@ class MainScreen : Fragment() {
         root: View,
         appName: String,
         pkgName: String,
-        installationRequested: Boolean = false
+        installationRequested: Boolean = false,
+        actionShowAppInfo: Boolean = false
     ) {
         exitTransition = MaterialElevationScale(false)
         reenterTransition = MaterialElevationScale(true)
@@ -152,13 +150,9 @@ class MainScreen : Fragment() {
             MainScreenDirections.actionToDetailsScreen(
                 pkgName,
                 appName,
-                installationRequested
+                installationRequested,
+                actionShowAppInfo
             ), extra
         )
-    }
-
-    private fun navigateToSyncScreen(shouldSync: Boolean = true) {
-        val args = SyncScreenArgs.Builder(shouldSync).build().toBundle()
-        findNavController().navigate(R.id.syncScreen, args)
     }
 }
