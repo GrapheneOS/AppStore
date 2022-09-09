@@ -146,13 +146,15 @@ class App : Application() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
             val action = intent?.action ?: return
-            val oldPkgName = intent.data?.schemeSpecificPart ?: return
-            val newPkgName = samePackagesMap[oldPkgName] ?: oldPkgName
+            val receivedPkgName = intent.data?.schemeSpecificPart ?: return
+            val otherPkgName = samePackagesMap[receivedPkgName] ?: receivedPkgName
             val pkgName =
                 when {
-                    oldPkgName == newPkgName -> oldPkgName
-                    pmHelper().isSystemApp(newPkgName, oldPkgName) -> newPkgName
-                    else -> oldPkgName
+                    receivedPkgName == otherPkgName -> receivedPkgName
+                    packagesInfo.containsKey(receivedPkgName)
+                        && packagesInfo[receivedPkgName] != null -> receivedPkgName
+                    pmHelper().isSystemApp(receivedPkgName, otherPkgName) -> otherPkgName
+                    else -> receivedPkgName
                 }
 
             val info = packagesInfo[pkgName]
