@@ -106,11 +106,11 @@ class DetailsScreen : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.uninstall -> {
-                app.uninstallPackage(info.pkgName)
+                app.uninstallPackage(pkgInfo?.id ?: info.pkgName)
                 true
             }
             R.id.appInfo -> {
-                app.openAppDetails(info.pkgName)
+                app.openAppDetails(pkgInfo?.id ?: info.pkgName)
                 true
             }
             R.id.switchChannel -> {
@@ -174,7 +174,7 @@ class DetailsScreen : Fragment() {
                 itemAnimator = DefaultItemAnimator()
             }
             install.setOnClickListener {
-                app.handleOnClick(info.pkgName) {
+                app.handleOnClick(pkgInfo?.id ?: info.pkgName) {
                     showSnackbar(it)
                 }
             }
