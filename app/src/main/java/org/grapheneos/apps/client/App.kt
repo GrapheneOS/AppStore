@@ -776,6 +776,10 @@ class App : Application() {
         }
     }
 
+    fun getOtherPackageName(packageName: String): String? {
+        return samePackagesMap[packageName]
+    }
+
     fun updateAllUpdatableApps(callback: (result: String) -> Unit) {
         if (!isPrivilegeMode && !canRequestPackageInstalls()) {
             callback.invoke(getString(R.string.allowUnknownSources))

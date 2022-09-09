@@ -148,7 +148,7 @@ class DetailsScreen : Fragment() {
         }
 
         app.packageLiveData.observe(viewLifecycleOwner) { data ->
-            val appData = data[info.pkgName]
+            val appData = data[info.pkgName] ?: data[app.getOtherPackageName(info.pkgName)]
             pkgInfo = appData
             if (appData == null) {
                 findNavController().popBackStack()
