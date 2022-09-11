@@ -22,6 +22,14 @@
             app:summaryOn="@string/auto_install_summary_on"
             app:title="@string/auto_install_title" />
 
+        <ListPreference
+            app:defaultValue="@string/channel_default"
+            app:entries="@array/channelValues"
+            app:entryValues="@array/channelValues"
+            app:key="@string/defaultChannelPreference"
+            app:summary="@string/default_channel_summary"
+            app:title="@string/default_channel_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -3,6 +3,7 @@
     <string name="autoUpdatePreferenceKey" translatable="false">seamlessUpdate</string>
     <string name="backgroundUpdatedEnabled" translatable="false">seamlessUpdateEnabled</string>
     <string name="seamlessInstallEnabled" translatable="false">seamlessInstallEnabled</string>
+    <string name="defaultChannelPreference" translatable="false">defaultChannelPreference</string>
     <string name="rescheduleTiming" translatable="false">rescheduleTiming</string>
     <string name="networkType" translatable="false">seamlessUpdateNetworkType</string>
 </resources>

@@ -20,14 +20,16 @@ class SwitchChannel : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-        val channels = mutableListOf<String>()
+        // 'default' is not an actual channel but an indicator to use the global default channel.
+        val channels = mutableListOf(getString(R.string.default_channel_indicator))
+        val initialChannelSize = channels.size
         var preSelectedIndex = 0
         var selectedIndex = preSelectedIndex
         for (i in 0 until args.channels.size) {
             val name = args.channels[i]
             channels.add(name)
             if (args.selectedChannel == name) {
-                preSelectedIndex = i
+                preSelectedIndex = initialChannelSize + i
             }
         }
 
@@ -38,7 +40,12 @@ class SwitchChannel : DialogFragment() {
             }
             .setCancelable(true)
             .setPositiveButton(resources.getString(R.string.select)) { _, _ ->
-                app.handleOnVariantChange(args.pkgName, channels[selectedIndex])
+                val channel = channels[selectedIndex]
+                if (channel == getString(R.string.default_channel_indicator)) {
+                    app.resetPackageChannel(args.pkgName)
+                } else {
+                    app.handleOnVariantChange(args.pkgName, channel)
+                }
                 findNavController().popBackStack()
             }
             .setNegativeButton(resources.getString(R.string.cancel)) { _, _ ->

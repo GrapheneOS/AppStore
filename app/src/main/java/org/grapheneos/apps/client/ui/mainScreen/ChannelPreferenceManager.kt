@@ -2,26 +2,63 @@ package org.grapheneos.apps.client.ui.mainScreen
 
 import android.content.Context
 import android.content.SharedPreferences
-import org.grapheneos.apps.client.App
-
 import org.grapheneos.apps.client.R
+import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 
-class ChannelPreferenceManager {
-    companion object {
-        private fun getAppChannelPreferences(context: Context): SharedPreferences {
-            return context.applicationContext
-                .getSharedPreferences(App.getString(R.string.appChannel), Context.MODE_PRIVATE)
+class ChannelPreferenceManager(
+    private val context: Context,
+    onDefaultChannelChange: (channel: String) -> Unit
+) {
+
+    private val appChannelPrefs: SharedPreferences
+        get() {
+            return context.applicationContext.getSharedPreferences(
+                context.getString(R.string.appChannel),
+                Context.MODE_PRIVATE
+            )
         }
-
-        fun savePackageChannel(context: Context, pkgName: String, variant: String = "stable") {
-            getAppChannelPreferences(context).edit().putString(pkgName, variant).apply()
+    private val globalPreferences: SharedPreferences
+        get() {
+            return context.applicationContext.getSharedPreferences(
+                JobPsfsMgr.AUTO_UPDATE_PREFERENCE,
+                Context.MODE_PRIVATE
+            )
         }
-
-        fun getPackageChannel(context: Context, pkgName: String): String {
+    val defaultChannel: String
+        get() {
             val defaultChannel = context.getString(R.string.channel_default)
-            return getAppChannelPreferences(context)
-                .getString(pkgName, defaultChannel) ?: defaultChannel
+            return globalPreferences.getString(
+                context.getString(R.string.defaultChannelPreference),
+                defaultChannel
+            ) ?: defaultChannel
+        }
+    private val onGlobalPreferencesChange =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == context.getString(R.string.defaultChannelPreference)) {
+                onDefaultChannelChange(defaultChannel)
+            }
         }
 
+    init {
+        globalPreferences.registerOnSharedPreferenceChangeListener(onGlobalPreferencesChange)
+    }
+
+    fun savePackageChannel(
+        pkgName: String,
+        channel: String = context.getString(R.string.channel_default)
+    ) {
+        appChannelPrefs.edit().putString(pkgName, channel).apply()
+    }
+
+    fun getPackageChannelOrDefault(pkgName: String): String {
+        return getPackageChannelOrNull(pkgName) ?: defaultChannel
+    }
+
+    fun getPackageChannelOrNull(pkgName: String): String? {
+        return appChannelPrefs.getString(pkgName, null)
+    }
+
+    fun resetPackageChannel(pkgName: String) {
+        appChannelPrefs.edit().remove(pkgName).apply()
     }
 }

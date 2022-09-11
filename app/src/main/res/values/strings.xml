@@ -115,6 +115,10 @@
     <string name="background_update_duration_title">Auto download app updates interval</string>
     <string name="background_update_duration_summary">Check for available updates after selected number of hours</string>
 
+    <!-- Default channel preference -->
+    <string name="default_channel_title">Default release channel</string>
+    <string name="default_channel_summary">Set default release channel for all apps</string>
+
     <!--Notifications-->
     <string name="suGroupName">Seamless updates</string>
     <string name="suGroupDescription">Notification regarding seamless updates</string>
@@ -139,6 +143,7 @@
     <string name="release_channel">Release Channel</string>
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
+    <string name="default_channel_indicator">default</string>
 
 
     <string name="ok">OK</string>

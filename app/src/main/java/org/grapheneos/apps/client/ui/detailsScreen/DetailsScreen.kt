@@ -115,13 +115,15 @@ class DetailsScreen : Fragment() {
             }
             R.id.switchChannel -> {
                 val packageInfo = pkgInfo ?: return false
+                val savedPkgChannel = app.channelPreferenceManager
+                    .getPackageChannelOrNull(packageInfo.pkgName)
                 findNavController().navigate(
                     DetailsScreenDirections.actionDetailsScreenToSwitchChannel(
                         packageInfo.pkgName,
                         packageInfo.allVariant.map {
                             it.type
                         }.toTypedArray(),
-                        packageInfo.selectedVariant.type
+                        savedPkgChannel ?: getString(R.string.default_channel_indicator)
                     )
                 )
 

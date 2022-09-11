@@ -141,6 +141,10 @@ class App : Application() {
         NotificationManagerCompat.from(this)
     }
 
+    val channelPreferenceManager by lazy {
+        ChannelPreferenceManager(this) { handleOnDefaultVariantChange(it) }
+    }
+
     /*Coroutine scope and jobs var*/
     private val apkJobsMap = mutableMapOf<String, CompletableJob>()
     private val scopeApkDownload by lazy { Dispatchers.IO }
@@ -285,8 +289,7 @@ class App : Application() {
                 response.packages.forEach {
                     val value = it.value
                     val pkgName = it.key
-                    val channelPref = ChannelPreferenceManager
-                        .getPackageChannel(this@App, pkgName)
+                    val channelPref = channelPreferenceManager.getPackageChannelOrDefault(pkgName)
                     val packageVariant = value.variants[channelPref]
                         ?: value.variants[App.getString(R.string.channel_default)]!!
                     val oldPkgName = packageVariant.originalPkgName
@@ -707,14 +710,14 @@ class App : Application() {
 
     fun handleOnVariantChange(
         packageName: String,
-        channel: String
+        channel: String,
+        savePackageChannel: Boolean = true,
+        shouldUpdateLiveData: Boolean = true
     ) {
         val infoToCheck = packagesInfo[packageName] ?: return
-        ChannelPreferenceManager.savePackageChannel(
-            this,
-            packageName,
-            channel
-        )
+        if (savePackageChannel) {
+            channelPreferenceManager.savePackageChannel(packageName, channel)
+        }
         var packageVariant = infoToCheck.selectedVariant
         infoToCheck.allVariant.forEach {
             if (it.type == channel) {
@@ -724,7 +727,33 @@ class App : Application() {
         val installStatus = infoToCheck.getInstallStatusCompat()
         packagesInfo[packageName] = infoToCheck.withUpdatedVariant(packageVariant)
             .withUpdatedInstallStatus(installStatus)
+        if (shouldUpdateLiveData) {
+            updateLiveData()
+        }
+    }
+
+    private fun handleOnDefaultVariantChange(channel: String) {
+        packagesInfo.keys.forEach { packageName ->
+            val savedPkgChannel = channelPreferenceManager.getPackageChannelOrNull(packageName)
+            if (savedPkgChannel == null) {
+                handleOnVariantChange(
+                    packageName,
+                    channel,
+                    savePackageChannel = false,
+                    shouldUpdateLiveData = false
+                )
+            }
+        }
         updateLiveData()
+    }
+
+    fun resetPackageChannel(packageName: String) {
+        channelPreferenceManager.resetPackageChannel(packageName)
+        handleOnVariantChange(
+            packageName,
+            channelPreferenceManager.defaultChannel,
+            savePackageChannel = false
+        )
     }
 
     fun areDependenciesInstalled(pkgName: String): Boolean {
