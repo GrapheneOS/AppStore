@@ -38,6 +38,7 @@ android {
         targetSdk = 32
         versionCode = 7
         versionName = versionCode.toString()
+        resourceConfigurations.add("en")
     }
 
     buildTypes {
