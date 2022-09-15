@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.grapheneos.apps.client"
     tools:ignore="QueryAllPackagesPermission,ProtectedPermissions">
 
     <uses-permission android:name="android.permission.INTERNET" />

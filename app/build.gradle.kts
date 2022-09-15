@@ -32,6 +32,8 @@ android {
     compileSdk = 32
     buildToolsVersion = "33.0.0"
 
+    namespace = "org.grapheneos.apps.client"
+
     defaultConfig {
         applicationId = "app.grapheneos.apps"
         minSdk = 31
