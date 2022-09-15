@@ -1,12 +1,19 @@
 package org.grapheneos.apps.client.ui.container
 
+import android.Manifest
+import android.app.Dialog
 import android.app.NotificationManager
-import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -18,6 +25,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
@@ -79,6 +87,11 @@ class MainActivity : AppCompatActivity() {
         applicationContext as App
     }
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { _: Map<String, Boolean> -> Unit }
+    private var notificationPermissionDialog: Dialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         views = ActivityMainBinding.inflate(layoutInflater)
@@ -133,6 +146,33 @@ class MainActivity : AppCompatActivity() {
 
         views.searchInput.addTextChangedListener { editable ->
             searchState.updateQuery(editable?.trim()?.toString() ?: "")
+        }
+        when {
+            ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                if (notificationPermissionDialog != null && notificationPermissionDialog!!.isShowing) {
+                    notificationPermissionDialog!!.cancel()
+                }
+            }
+            notificationPermissionDialog != null && notificationPermissionDialog!!.isShowing -> Unit
+            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                notificationPermissionDialog = MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.notification_permission_dialog_title)
+                    .setMessage(R.string.notification_permission_dialog_message)
+                    .setPositiveButton(R.string.settings) { _, _ ->
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        val uri = Uri.fromParts(
+                            "package",
+                            packageName, null
+                        )
+                        intent.data = uri
+                        startActivity(intent)
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }
+            else -> requestPermissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
         }
     }
 
