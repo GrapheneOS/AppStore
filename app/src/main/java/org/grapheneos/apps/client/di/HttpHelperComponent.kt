@@ -1,6 +1,5 @@
 package org.grapheneos.apps.client.di
 
-import androidx.annotation.Nullable
 import dagger.BindsInstance
 import dagger.Component
 import org.grapheneos.apps.client.item.Progress
@@ -26,14 +25,14 @@ interface HttpHelperComponent {
         fun setTimeout(@Named("timeout") timeout: Int?): Builder
 
         @BindsInstance
-        fun addETag(@Nullable @Named("eTag") eTag: String? = null): Builder
+        fun addETag(@Named("eTag") eTag: String? = null): Builder
 
         @BindsInstance
-        fun addOnResponse(@Nullable @Named("responseListener") listener: (response: Response) -> Unit?): Builder
+        fun addOnResponse(@Named("responseListener") listener: (response: Response) -> Unit?): Builder
 
         @BindsInstance
         fun addProgressListener(
-            @Nullable @Named("progressListener") progressListener: (progress: Progress) -> Unit?
+            @Named("progressListener") progressListener: (progress: Progress) -> Unit?
         ): Builder
 
         fun build(): HttpHelperComponent

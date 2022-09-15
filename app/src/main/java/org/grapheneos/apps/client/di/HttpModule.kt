@@ -1,6 +1,5 @@
 package org.grapheneos.apps.client.di
 
-import androidx.annotation.Nullable
 import kotlinx.coroutines.delay
 import org.grapheneos.apps.client.item.Progress
 import org.grapheneos.apps.client.item.network.Response
@@ -23,7 +22,7 @@ class HttpModule @Inject constructor
     @Named("uri") private val uri: String,
     @Named("timeout") private val timeout: Int?,
     @Named("eTag") private val eTag: String?,
-    @Named("progressListener") @Nullable private val progressListener:
+    @Named("progressListener") private val progressListener:
         (progress: Progress) -> Unit?
 ) {
     private var connection: HttpURLConnection = URL(uri).openConnection() as HttpURLConnection
