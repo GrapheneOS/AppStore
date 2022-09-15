@@ -127,8 +127,8 @@ class MainActivity : AppCompatActivity() {
             currentDestinations = destination.id
             updateUi()
         }
-        views.searchInput.setOnClickListener { navCtrl.navigate(R.id.searchScreen) }
-        views.searchBar.setOnClickListener { navCtrl.navigate(R.id.searchScreen) }
+        views.searchInput.setOnClickListener { if (!isSearchScreen) navCtrl.navigate(R.id.searchScreen) }
+        views.searchBar.setOnClickListener { if (!isSearchScreen) navCtrl.navigate(R.id.searchScreen) }
         app.updateCount.observe(this, obs)
         app.packageLiveData.observe(this, packagesObserver)
 
