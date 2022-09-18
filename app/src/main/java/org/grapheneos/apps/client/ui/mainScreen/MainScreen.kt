@@ -68,6 +68,11 @@ class MainScreen : Fragment() {
         }
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.refresh).isVisible = !binding.swipeRefresh.isRefreshing
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -179,6 +184,7 @@ class MainScreen : Fragment() {
     }
 
     private fun updateUi(isSyncingResultSuccess: Boolean? = null) {
+        requireActivity().invalidateOptionsMenu()
         val isFirstScreen = lastItems.isNullOrEmpty()
         val isSyncing = isSyncingResultSuccess == null
         val isSuccess = isSyncingResultSuccess ?: false
