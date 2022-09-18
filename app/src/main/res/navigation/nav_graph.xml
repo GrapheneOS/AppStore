@@ -78,4 +78,11 @@
             android:id="@+id/action_to_detailsScreen"
             app:destination="@id/detailsScreen" />
     </fragment>
+    <dialog
+        android:id="@+id/notificationPermissionDialog"
+        android:name="org.grapheneos.apps.client.ui.notificationPermission.NotificationPermission"
+        android:label="RuntimePermissionExplanationDialog" />
+    <action
+        android:id="@+id/navigateToNotificationPermission"
+        app:destination="@id/notificationPermissionDialog" />
 </navigation>
