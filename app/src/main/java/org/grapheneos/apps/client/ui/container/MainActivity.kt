@@ -68,12 +68,17 @@ class MainActivity : AppCompatActivity() {
     var isMainScreen = false
     var isSearchScreen = false
     var currentDestinations = -1
-    private val packagesObserver = Observer<Map<String, PackageInfo>> { updateUi(it.isNotEmpty()) }
+    var hasSyncedSuccessfully = false
+    private val packagesObserver = Observer<Map<String, PackageInfo>> {
+        hasSyncedSuccessfully = it.isNotEmpty()
+        updateUi(it.isNotEmpty())
+    }
 
     private fun updateUi(isSyncFinished: Boolean = app.isSyncingSuccessful()) {
-        views.searchBar.isVisible = (isMainScreen || isSearchScreen) && isSyncFinished
-        views.searchTitle.isVisible = isMainScreen && isSyncFinished
-        views.searchInput.isVisible = isSearchScreen && isSyncFinished
+        views.searchBar.isVisible = (isMainScreen || isSearchScreen)
+            && (isSyncFinished || hasSyncedSuccessfully)
+        views.searchTitle.isVisible = isMainScreen && (isSyncFinished || hasSyncedSuccessfully)
+        views.searchInput.isVisible = isSearchScreen && (isSyncFinished || hasSyncedSuccessfully)
         views.bottomNavView.isGone =
             !appBarConfiguration.topLevelDestinations.contains(currentDestinations) || !isSyncFinished
         if (isSearchScreen) {
