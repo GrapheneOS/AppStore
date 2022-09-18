@@ -11,7 +11,7 @@ import org.grapheneos.apps.client.utils.AppSourceHelper
 
 class AppsListAdapter(private val mainScreen: MainScreen) :
     ListAdapter<InstallablePackageInfo, AppsListAdapter.AppsListViewHolder>(
-        InstallablePackageInfo.UiItemDiff()
+        InstallablePackageInfo.UiItemDiff(isDownloadUi = true)
     ) {
 
     inner class AppsListViewHolder(private val binding: ItemAppsBinding) :
