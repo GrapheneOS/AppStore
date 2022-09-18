@@ -3,9 +3,7 @@
     <string name="app_name">Apps</string>
 
     <string name="notification_permission_dialog_title">Notification permission required</string>
-    <string name="notification_permission_dialog_message">
-        The app needs permission to access the notification to provide full functionality. Please provide the required permission via Settings in order to be notified on app updates, download and installation status.
-    </string>
+    <string name="notification_permission_dialog_message">The app needs permission to send notifications to provide <![CDATA[<b>core functionality</b>]]>. Please grant the notification permission via Settings to get notified of <![CDATA[<b>app updates</b>]]>, <![CDATA[<b>download</b>]]> and <![CDATA[<b>installation status</b>]]>.</string>
     <!--Status-->
     <string name="install">Install</string>
     <string name="install_all">Install All</string>
