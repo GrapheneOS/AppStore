@@ -56,6 +56,8 @@ class PackageManagerHelper(private val context: Context) {
         sessionParams.setSize(totalSize)
         if (App.jobPsfsMgr.autoInstallEnabled()) {
             sessionParams.setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
+        } else {
+            sessionParams.setRequireUserAction(SessionParams.USER_ACTION_REQUIRED)
         }
         try {
             val sessionId = packageInstaller.createSession(sessionParams)
