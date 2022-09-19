@@ -32,8 +32,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -144,7 +146,7 @@ class App : Application() {
     private val scopeApkDownload by lazy { Dispatchers.IO }
     private val scopeMetadataRefresh by lazy { Dispatchers.IO }
     private lateinit var seamlessUpdaterJob: CompletableJob
-    private lateinit var refreshJob: CompletableJob
+    private lateinit var refreshScope: CoroutineScope
     private var taskIdSeed = Random(SystemClock.currentThreadTimeMillis().toInt()).nextInt(1, 1000)
     private val appsChangesReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -328,20 +330,22 @@ class App : Application() {
 
     @RequiresPermission(Manifest.permission.INTERNET)
     fun refreshMetadata(force: Boolean = false, callback: (error: MetadataCallBack) -> Unit) {
-        if ((packagesInfo.isNotEmpty() && !force) || isMetadataSyncing()) {
-            return
-        }
-
-        if (isDownloading) {
-            callback.invoke(MetadataCallBack.SecurityError(Exception(
-                App.getString(R.string.pendingAppDownload))))
-            return
-        }
-        refreshJob = Job()
-        CoroutineScope(scopeMetadataRefresh + refreshJob).launch(Dispatchers.IO) {
-            delay(500)
-            callback.invoke(refreshMetadata())
-            refreshJob.complete()
+        when {
+            isMetadataSyncing() -> refreshScope.cancel()
+            packagesInfo.isNotEmpty() && !force -> return
+            isDownloading -> {
+                callback.invoke(MetadataCallBack.SecurityError(Exception(
+                    App.getString(R.string.pendingAppDownload))))
+                return
+            }
+            else -> {
+                refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
+                refreshScope.launch(Dispatchers.IO) {
+                    delay(500)
+                    callback.invoke(refreshMetadata())
+                    refreshScope.cancel()
+                }
+            }
         }
     }
 
@@ -845,7 +849,7 @@ class App : Application() {
 
         if (isMetadataSyncing()) return
 
-        refreshJob = Job()
+        refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
 
         CoroutineScope(seamlessUpdaterJob + Dispatchers.IO).launch {
 
@@ -904,13 +908,12 @@ class App : Application() {
                 )
             )
 
-            refreshJob.complete()
+            refreshScope.cancel()
             seamlessUpdaterJob.complete()
         }
     }
 
-    private fun isMetadataSyncing(): Boolean = this::refreshJob.isInitialized && refreshJob.isActive
-            && !refreshJob.isCompleted && !refreshJob.isCancelled
+    private fun isMetadataSyncing(): Boolean = this::refreshScope.isInitialized && refreshScope.isActive
 
     override fun onCreate() {
         super.onCreate()
