@@ -61,6 +61,13 @@
             </intent-filter>
         </receiver>
 
+        <provider
+            android:name=".RpcProvider"
+            android:exported="true"
+            android:authorities="${applicationId}.RpcProvider"
+            tools:ignore="ExportedContentProvider"
+        />
+
     </application>
 
 </manifest>

@@ -98,7 +98,7 @@ class App : Application() {
 
         @SuppressLint("StaticFieldLeak")
         // not a memory leak: this is an application Context
-        lateinit var context: Context
+        lateinit var context: App
 
         fun getString(@StringRes id: Int): String {
             return context.getString(id)
@@ -827,7 +827,9 @@ class App : Application() {
                 && seamlessUpdaterJob.isActive
                 && !seamlessUpdaterJob.isCompleted && !seamlessUpdaterJob.isCancelled
 
-    fun seamlesslyUpdateApps(onFinished: (result: SeamlessUpdateResponse) -> Unit) {
+    // If emergencyPackage is non-null, update check affects only that package and updates to it
+    // are installed automatically regardless of auto update settings
+    fun seamlesslyUpdateApps(emergencyPackage: String?, onFinished: (result: SeamlessUpdateResponse) -> Unit) {
         if (isInstallBlockedByAdmin()) {
             onFinished.invoke(SeamlessUpdateResponse())
             return
@@ -864,9 +866,13 @@ class App : Application() {
             val updateFailedPackages = mutableListOf<String>()
             val requireConfirmationPackages = mutableListOf<String>()
 
-            val isAutoInstallEnabled = jobPsfsMgr.autoInstallEnabled()
+            val isAutoInstallEnabled = jobPsfsMgr.autoInstallEnabled() || emergencyPackage != null
 
             packagesInfo.values.forEach { info ->
+                if (emergencyPackage != null && info.pkgName != emergencyPackage) {
+                    return@forEach
+                }
+
                 val installStatus = info.installStatus
 
                 if (installStatus is InstallStatus.Disabled) {
