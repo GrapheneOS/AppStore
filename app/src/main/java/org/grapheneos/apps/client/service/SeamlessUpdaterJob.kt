@@ -58,7 +58,7 @@ class SeamlessUpdaterJob : JobService() {
             .setOnlyAlertOnce(true)
             .setShowWhen(true)
 
-        app.seamlesslyUpdateApps { result ->
+        app.seamlesslyUpdateApps(null) { result ->
 
             if (result.executedSuccessfully) {
                 val updated = result.updatedSuccessfully.valuesAsString()
