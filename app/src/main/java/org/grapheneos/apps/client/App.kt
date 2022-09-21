@@ -614,7 +614,7 @@ class App : Application() {
         backgroundMode: Boolean = false
     ): Boolean {
         var installed = false
-        if (isPrivilegeMode || backgroundMode || ((isActivityRunning != null && sessionIdsMap.isEmpty() && !installationCreateRequestInProgress))) {
+        if ((isPrivilegeMode && jobPsfsMgr.autoInstallEnabled()) || backgroundMode || ((isActivityRunning != null && sessionIdsMap.isEmpty() && !installationCreateRequestInProgress))) {
             installationCreateRequestInProgress = true
             installed = installApps(apks, pkgName)
             confirmationAwaitedPackages.remove(pkgName)
@@ -744,7 +744,7 @@ class App : Application() {
             return
         }
 
-        if (!isPrivilegeMode && !canRequestPackageInstalls()) {
+        if ((!isPrivilegeMode || !jobPsfsMgr.autoInstallEnabled()) && !canRequestPackageInstalls()) {
             callback.invoke(getString(R.string.allowUnknownSources))
             return
         }
@@ -785,7 +785,7 @@ class App : Application() {
     }
 
     fun updateAllUpdatableApps(callback: (result: String) -> Unit) {
-        if (!isPrivilegeMode && !canRequestPackageInstalls()) {
+        if ((!isPrivilegeMode || !jobPsfsMgr.autoInstallEnabled()) && !canRequestPackageInstalls()) {
             callback.invoke(getString(R.string.allowUnknownSources))
             return
         }
@@ -939,7 +939,7 @@ class App : Application() {
 
         registerActivityLifecycleCallbacks(ActivityLifeCycleHelper { activity ->
             isActivityRunning = activity
-            if (!isPrivilegeMode && isActivityRunning != null) {
+            if ((!isPrivilegeMode || !jobPsfsMgr.autoInstallEnabled()) && isActivityRunning != null) {
                 confirmationAwaitedPackages.forEach { (packageName, apks) ->
                     CoroutineScope(scopeApkDownload).launch {
                         requestInstall(apks, packageName)
