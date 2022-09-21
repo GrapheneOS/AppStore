@@ -331,7 +331,12 @@ class App : Application() {
     @RequiresPermission(Manifest.permission.INTERNET)
     fun refreshMetadata(force: Boolean = false, callback: (error: MetadataCallBack) -> Unit) {
         when {
-            isMetadataSyncing() -> refreshScope.cancel()
+            isMetadataSyncing() -> {
+                refreshScope.cancel()
+                callback.invoke(MetadataCallBack.SecurityError(Exception(
+                    App.getString(R.string.refreshInProgress))))
+                return
+            }
             packagesInfo.isNotEmpty() && !force -> return
             isDownloading -> {
                 callback.invoke(MetadataCallBack.SecurityError(Exception(

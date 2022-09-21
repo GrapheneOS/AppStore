@@ -77,6 +77,7 @@
     <string name="allowUnknownSources">You must allow installation from this source first</string>
     <string name="newerVersionIsInstalled">Newer version is already installed</string>
     <string name="pendingAppDownload">Please wait for package to get downloaded</string>
+    <string name="refreshInProgress">Refresh is currently in progress</string>
 
     <!--details_screen.xml-->
     <string name="installed">Installed</string>
