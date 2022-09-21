@@ -341,7 +341,7 @@ class App : Application() {
             else -> {
                 refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
                 refreshScope.launch(Dispatchers.IO) {
-                    delay(500)
+                    if (packagesInfo.isNotEmpty()) packagesInfo.clear()
                     callback.invoke(refreshMetadata())
                     refreshScope.cancel()
                 }
