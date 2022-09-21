@@ -23,6 +23,8 @@ class AppSourceHelper {
 
         /*package name, category name, */
         private val listOfKnownApps = mutableMapOf<String, BuildType>().apply {
+            put("app.grapheneos.gmscompat.config", gos)
+
             put("app.attestation.auditor", gos)
             put("app.grapheneos.apps", gos)
             put("app.grapheneos.camera", gos)
