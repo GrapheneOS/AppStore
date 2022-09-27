@@ -40,7 +40,6 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.item.DownloadCallBack
 import org.grapheneos.apps.client.item.DownloadCallBack.Companion.toUiMsg
 import org.grapheneos.apps.client.item.DownloadStatus
@@ -68,13 +67,8 @@ import org.grapheneos.apps.client.utils.registerReceiverNotExportedCompat
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
 import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
-import org.json.JSONException
 import java.io.File
-import java.net.ConnectException
-import java.net.UnknownHostException
-import java.security.GeneralSecurityException
 import javax.inject.Inject
-import javax.net.ssl.SSLHandshakeException
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
@@ -313,18 +307,8 @@ class App : Application() {
             }
             updateLiveData()
             return MetadataCallBack.Success(res.timestamp)
-        } catch (e: GeneralSecurityException) {
-            return MetadataCallBack.SecurityError(e)
-        } catch (e: JSONException) {
-            return MetadataCallBack.JSONError(e)
-        } catch (e: DecoderException) {
-            return MetadataCallBack.DecoderError(e)
-        } catch (e: UnknownHostException) {
-            return MetadataCallBack.UnknownHostError(e)
-        } catch (e: SSLHandshakeException) {
-            return MetadataCallBack.SecurityError(e)
-        } catch (e: ConnectException) {
-            return MetadataCallBack.UnknownHostError(e)
+        } catch (e: Exception) {
+            return MetadataCallBack.fromException(e)
         }
     }
 
