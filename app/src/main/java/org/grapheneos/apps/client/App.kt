@@ -5,8 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.Notification
-import android.app.NotificationChannelGroup
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,7 +15,6 @@ import android.os.SystemClock
 import android.provider.Settings
 import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
-import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -60,6 +57,7 @@ import org.grapheneos.apps.client.ui.container.MainActivity
 import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
+import org.grapheneos.apps.client.utils.createAppsRelatedChannel
 import org.grapheneos.apps.client.utils.isInstallBlockedByAdmin
 import org.grapheneos.apps.client.utils.isUninstallBlockedByAdmin
 import org.grapheneos.apps.client.utils.getPackageInfoCompat
@@ -914,7 +912,7 @@ class App : Application() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)
 
-        createNotificationChannel()
+        notificationMgr.createAppsRelatedChannel(this)
 
         val appsChangesFilter = IntentFilter()
         appsChangesFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
@@ -943,99 +941,6 @@ class App : Application() {
         jobPsfsMgr.initialize()
     }
 
-    private fun createNotificationChannel() {
-
-        val seamlessUpdateGroup = NotificationChannelGroup(
-            SEAMLESS_UPDATE_GROUP,
-            getString(R.string.suGroupName)
-        )
-        seamlessUpdateGroup.description = getString(R.string.suGroupDescription)
-        val installationFailedGroup = NotificationChannelGroup(
-            INSTALLATION_FAILED_GROUP,
-            getString(R.string.installationFailed)
-        )
-        listOf(
-            seamlessUpdateGroup,
-            installationFailedGroup
-        ).forEach {
-            notificationMgr.createNotificationChannelGroup(it)
-        }
-
-        val installationFailed = NotificationChannelCompat.Builder(
-            INSTALLATION_FAILED_CHANNEL,
-            NotificationManager.IMPORTANCE_HIGH
-        ).setName(getString(R.string.installationFailed))
-            .setVibrationEnabled(false)
-            .setGroup(INSTALLATION_FAILED_GROUP)
-            .setShowBadge(false)
-            .setLightsEnabled(false)
-            .build()
-
-        val channelSeamlesslyUpdated = NotificationChannelCompat.Builder(
-            SEAMLESSLY_UPDATED_CHANNEL,
-            NotificationManager.IMPORTANCE_LOW
-        ).setName(getString(R.string.nUpdatedTitle))
-            .setDescription(getString(R.string.nUpdatedDescription))
-            .setVibrationEnabled(false)
-            .setGroup(SEAMLESS_UPDATE_GROUP)
-            .setShowBadge(false)
-            .setLightsEnabled(false)
-            .build()
-
-        val channelConformationNeeded = NotificationChannelCompat.Builder(
-            SEAMLESS_UPDATE_INPUT_REQUIRED_CHANNEL,
-            NotificationManager.IMPORTANCE_HIGH
-        ).setName(getString(R.string.nUpdateAvailableTitle))
-            .setDescription(getString(R.string.nUpdateAvailableDescription))
-            .setVibrationEnabled(false)
-            .setGroup(SEAMLESS_UPDATE_GROUP)
-            .setShowBadge(false)
-            .setLightsEnabled(false)
-            .build()
-
-        val channelAlreadyUpToDate = NotificationChannelCompat.Builder(
-            ALREADY_UP_TO_DATE_CHANNEL,
-            NotificationManager.IMPORTANCE_MIN
-        ).setName(getString(R.string.nUpToDateTitle))
-            .setDescription(getString(R.string.nUpToDateDescription))
-            .setVibrationEnabled(false)
-            .setGroup(SEAMLESS_UPDATE_GROUP)
-            .setShowBadge(false)
-            .setLightsEnabled(false)
-            .build()
-
-        val channelSeamlessUpdateFailed = NotificationChannelCompat.Builder(
-            SEAMLESS_UPDATE_FAILED_CHANNEL,
-            NotificationManager.IMPORTANCE_DEFAULT
-        ).setName(getString(R.string.nUpdatesFailedTitle))
-            .setDescription(getString(R.string.nUpdatesFailedDescription))
-            .setVibrationEnabled(false)
-            .setShowBadge(false)
-            .setGroup(SEAMLESS_UPDATE_GROUP)
-            .setLightsEnabled(false)
-            .build()
-
-        val channelBackgroundTask = NotificationChannelCompat.Builder(
-            BACKGROUND_SERVICE_CHANNEL,
-            NotificationManager.IMPORTANCE_LOW
-        ).setName(getString(R.string.nBackgroundTaskTitle))
-            .setDescription(getString(R.string.nBackgroundTaskDescription))
-            .setVibrationEnabled(false)
-            .setShowBadge(false)
-            .setLightsEnabled(false)
-            .build()
-
-        listOf(
-            installationFailed,
-            channelBackgroundTask,
-            channelSeamlesslyUpdated,
-            channelConformationNeeded,
-            channelAlreadyUpToDate,
-            channelSeamlessUpdateFailed
-        ).forEach {
-            notificationMgr.createNotificationChannel(it)
-        }
-    }
 
     fun isActivityRunning() = isActivityRunning != null
     fun isDownloadRunning(): LiveData<Boolean> = isDownloadRunning
