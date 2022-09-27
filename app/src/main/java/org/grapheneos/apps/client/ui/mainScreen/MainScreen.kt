@@ -70,7 +70,7 @@ class MainScreen : Fragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.refresh).isVisible = !binding.swipeRefresh.isRefreshing
+        menu.findItem(R.id.refresh).isEnabled = !binding.swipeRefresh.isRefreshing
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
