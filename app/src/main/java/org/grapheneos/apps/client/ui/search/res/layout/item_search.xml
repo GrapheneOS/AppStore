@@ -19,7 +19,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/appName"
             style="@style/TextAppearance.Material3.LabelLarge"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toStartOf="@+id/releaseTag"
