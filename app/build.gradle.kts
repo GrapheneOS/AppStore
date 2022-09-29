@@ -95,7 +95,7 @@ dependencies {
 
     implementation("com.google.android.material:material:1.6.1")
 
-    implementation("org.bouncycastle:bcpkix-jdk15to18:1.71")
+    implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
