@@ -77,6 +77,12 @@ android {
             }
         }
     }
+    packagingOptions {
+        resources.excludes.addAll(listOf(
+            "org/bouncycastle/pqc/**.properties",
+            "org/bouncycastle/x509/**.properties",
+        ))
+    }
 }
 
 dependencies {
