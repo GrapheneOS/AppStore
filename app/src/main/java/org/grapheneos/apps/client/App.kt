@@ -145,6 +145,7 @@ class App : Application() {
     private val apkJobsMap = mutableMapOf<String, CompletableJob>()
     private val scopeApkDownload by lazy { Dispatchers.IO }
     private val scopeMetadataRefresh by lazy { Dispatchers.IO }
+    private val refreshLock = Any()
     private lateinit var seamlessUpdaterJob: CompletableJob
     private lateinit var refreshScope: CoroutineScope
     private var taskIdSeed = Random(SystemClock.currentThreadTimeMillis().toInt()).nextInt(1, 1000)
@@ -344,7 +345,9 @@ class App : Application() {
                 return
             }
             else -> {
-                refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
+                synchronized(refreshLock) {
+                    refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
+                }
                 refreshScope.launch(Dispatchers.IO) {
                     if (packagesInfo.isNotEmpty()) packagesInfo.clear()
                     callback.invoke(refreshMetadata())
@@ -856,8 +859,9 @@ class App : Application() {
 
         if (isMetadataSyncing()) return
 
-        refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
-
+        synchronized(refreshLock) {
+            refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
+        }
         CoroutineScope(seamlessUpdaterJob + Dispatchers.IO).launch {
 
             val metaData = refreshMetadata()
@@ -924,7 +928,10 @@ class App : Application() {
         }
     }
 
-    private fun isMetadataSyncing(): Boolean = this::refreshScope.isInitialized && refreshScope.isActive
+    private fun isMetadataSyncing(): Boolean =
+        synchronized(refreshLock) {
+            this::refreshScope.isInitialized && refreshScope.isActive
+        }
 
     override fun onCreate() {
         super.onCreate()
