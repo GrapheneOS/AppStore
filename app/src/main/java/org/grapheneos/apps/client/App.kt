@@ -76,6 +76,7 @@ import java.security.GeneralSecurityException
 import javax.inject.Inject
 import javax.net.ssl.SSLHandshakeException
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
 
 @HiltAndroidApp
@@ -312,7 +313,6 @@ class App : Application() {
                     info.cleanCachedFiles(this)
                 }
             }
-            updateLiveData()
             return MetadataCallBack.Success(res.timestamp)
         } catch (e: GeneralSecurityException) {
             return MetadataCallBack.SecurityError(e)
@@ -350,7 +350,19 @@ class App : Application() {
                 }
                 refreshScope.launch(Dispatchers.IO) {
                     if (packagesInfo.isNotEmpty()) packagesInfo.clear()
-                    callback.invoke(refreshMetadata())
+                    callback.invoke(
+                        try {
+                            withContext(coroutineContext) {
+                                refreshMetadata()
+                            }
+                        } catch (e: CancellationException) {
+                            MetadataCallBack.SecurityError(e)
+                        }.let { res ->
+                            if (res is MetadataCallBack.Success) {
+                                updateLiveData()
+                            } else packagesInfo.clear()
+                            res
+                        })
                     refreshScope.cancel()
                 }
             }
