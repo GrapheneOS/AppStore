@@ -887,7 +887,7 @@ class App : Application() {
             val updateFailedPackages = mutableListOf<String>()
             val requireConfirmationPackages = mutableListOf<String>()
 
-            val isAutoInstallEnabled = jobPsfsMgr.autoInstallEnabled() || emergencyPackage != null
+            val isAutoInstallEnabled = jobPsfsMgr.autoInstallEnabled()
 
             packagesInfo.values.forEach { info ->
                 if (emergencyPackage != null && info.pkgName != emergencyPackage) {
