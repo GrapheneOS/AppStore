@@ -656,7 +656,7 @@ class App : Application() {
         return try {
             return withTimeout(maxInstallTime) {
                 sessionId = this@App.pmHelper().install(apks)
-                pkgInfo = packagesInfo[pkgName]!!
+                pkgInfo = packagesInfo[pkgName] ?: return@withTimeout false
 
                 sessionIdsMap[sessionId] = pkgName
                 packagesInfo[pkgName] = pkgInfo
@@ -673,7 +673,7 @@ class App : Application() {
                 while (sessionIdsMap.containsKey(sessionId)) {
                     delay(1000)
                 }
-                pkgInfo = packagesInfo[pkgName]!!
+                pkgInfo = packagesInfo[pkgName] ?: return@withTimeout false
                 val result =
                     pkgInfo.installStatus is InstallStatus.Updated || pkgInfo.installStatus is InstallStatus.Installed
                 if (result) {
@@ -682,7 +682,7 @@ class App : Application() {
                 result
             }
         } catch (e: TimeoutCancellationException) {
-            pkgInfo = packagesInfo[pkgName]!!
+            pkgInfo = packagesInfo[pkgName] ?: return false // refresh is likely in progress, return early
             packagesInfo[pkgName] = packagesInfo[pkgName]!!.withUpdatedInstallStatus(
                 pkgInfo.installStatus.createFailed(e.localizedMessage ?: "")
             ).withUpdatedSession(SessionInfo(sessionId, false))
