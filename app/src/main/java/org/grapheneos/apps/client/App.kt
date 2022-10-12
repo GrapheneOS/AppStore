@@ -653,6 +653,10 @@ class App : Application() {
         var pkgInfo: PackageInfo
         var sessionId = 0
 
+        if (isMetadataSyncing() || packagesInfo.isNullOrEmpty()) {
+            return false
+        }
+
         return try {
             return withTimeout(maxInstallTime) {
                 sessionId = this@App.pmHelper().install(apks)
