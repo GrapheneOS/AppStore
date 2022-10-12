@@ -121,7 +121,7 @@ class App : Application() {
     private var isServiceRunning = false
     private var installationCreateRequestInProgress = false
     private val isDownloadRunning = MutableLiveData<Boolean>()
-    var isDownloading = false
+    private var isDownloading = false
         private set
 
     /*Application info object*/

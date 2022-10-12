@@ -113,12 +113,6 @@ class MainScreen : Fragment() {
                 state.modifyFilter(state.buildByGrapheneOs, isChecked)
             }
             swipeRefresh.setOnRefreshListener {
-                if (appsViewModel.isDownloading) {
-                    binding.swipeRefresh.isRefreshing = false
-                    showSnackbar("${App.getString(R.string.sfSecurityError)}"
-                        + "\n${App.getString(R.string.refreshInProgress)}", true)
-                    return@setOnRefreshListener
-                }
                 refresh(true)
             }
         }
