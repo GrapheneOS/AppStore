@@ -14,11 +14,11 @@ sealed class InstallStatus(
             status = status ?: App.getString(R.string.failed)
         )
 
-        fun InstallStatus.createPending() = Pending(this.installedVersion ?: 0L)
+        fun InstallStatus.createPending() = Pending(this.installedVersion)
 
         fun InstallStatus.createInstalling(isInstalling: Boolean, canCancelTask: Boolean) =
             Installing(
-                installedVersion = this.installedVersion ?: 0L,
+                installedVersion = this.installedVersion,
                 canCancelTask = canCancelTask,
                 isInstalling = isInstalling
             )
@@ -35,10 +35,10 @@ sealed class InstallStatus(
     class Updatable(installedVersion: Long)
         : InstallStatus(App.getString(R.string.update), installedVersion)
 
-    class Pending(installedVersion: Long)
+    class Pending(installedVersion: Long?)
         : InstallStatus(App.getString(R.string.pending_install), installedVersion)
 
-    class Installing(val isInstalling: Boolean, installedVersion: Long, val canCancelTask: Boolean)
+    class Installing(val isInstalling: Boolean, installedVersion: Long?, val canCancelTask: Boolean)
         : InstallStatus(App.getString(R.string.installing), installedVersion)
 
     class Updated(installedVersion: Long,)

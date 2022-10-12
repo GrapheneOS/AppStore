@@ -94,7 +94,7 @@ class DetailsScreen : Fragment() {
                     }
                 }
                 R.id.appInfo -> {
-                    it.isEnabled = isInstalled
+                    it.isEnabled = isInstalled || pkgInfo?.installStatus is InstallStatus.Installing
                 }
                 R.id.switchChannel -> {
                     it.isVisible = mutableItems.size > 1
