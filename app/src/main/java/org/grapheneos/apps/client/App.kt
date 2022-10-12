@@ -334,13 +334,13 @@ class App : Application() {
         when {
             isMetadataSyncing() -> {
                 refreshScope.cancel()
-                callback.invoke(MetadataCallback.SecurityError(Exception(
+                callback.invoke(MetadataCallback.PendingError(Exception(
                     App.getString(R.string.refreshInProgress))))
                 return
             }
             packagesInfo.isNotEmpty() && !force -> return
             isDownloading -> {
-                callback.invoke(MetadataCallback.SecurityError(Exception(
+                callback.invoke(MetadataCallback.PendingError(Exception(
                     App.getString(R.string.pendingAppDownload))))
                 return
             }
