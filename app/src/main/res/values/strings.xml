@@ -69,6 +69,7 @@
     <string name="sfJSONError">Sync failed due to a JSON formatting error</string>
     <string name="sfDecoderError">Sync failed due a content decoding error</string>
     <string name="sfUnknownHostError">Sync failed due to being unable to locate host</string>
+    <string name="sfPendingError">Sync failed due to pending process</string>
 
     <!--App.kt-->
     <string name="installationInProgress">"An installation is in progress"</string>

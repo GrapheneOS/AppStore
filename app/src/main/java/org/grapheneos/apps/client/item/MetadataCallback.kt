@@ -37,4 +37,10 @@ sealed class MetadataCallback(
         App.getString(R.string.sfUnknownHostError),
         e
     )
+
+    data class PendingError(val e: Exception) : MetadataCallback(
+        false,
+        App.getString(R.string.sfPendingError),
+        e
+    )
 }
