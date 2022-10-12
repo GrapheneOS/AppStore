@@ -124,7 +124,7 @@ class MainScreen : Fragment() {
                 val packagesInfoMap = newValue ?: return@runOnUiThread
                 val sent = InstallablePackageInfo.fromMap(newValue)
                 lastItems = sent
-                updateUi(isSyncingResultSuccess = !packagesInfoMap.isEmpty())
+                updateUi(isSyncingResultSuccess = packagesInfoMap.isNotEmpty())
                 appsListAdapter.submitList(sent.applyFilter(state.getLastFilter()))
             }
         }
