@@ -24,7 +24,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.MainScreenBinding
-import org.grapheneos.apps.client.item.MetadataCallBack
+import org.grapheneos.apps.client.item.MetadataCallback
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo.Companion.applyFilter
 import org.grapheneos.apps.client.utils.runOnUiThread
@@ -176,7 +176,7 @@ class MainScreen : Fragment() {
         updateUi()
         appsViewModel.refreshMetadata(isForcedUpdate) {
             updateUi(isSyncingResultSuccess = it.isSuccessFull)
-            if (it !is MetadataCallBack.Success) {
+            if (it !is MetadataCallback.Success) {
                 showSnackbar(
                     it.genericMsg + if (it.error != null) "\n${it.error.localizedMessage}" else "",
                     !it.isSuccessFull

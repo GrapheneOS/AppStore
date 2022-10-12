@@ -49,7 +49,7 @@ import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createFailed
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createInstalling
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createPending
-import org.grapheneos.apps.client.item.MetadataCallBack
+import org.grapheneos.apps.client.item.MetadataCallback
 import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.item.PackageInfo.Companion.cleanCachedFiles
 import org.grapheneos.apps.client.item.PackageVariant
@@ -281,7 +281,7 @@ class App : Application() {
         }
     }
 
-    private fun refreshMetadata(): MetadataCallBack {
+    private fun refreshMetadata(): MetadataCallback {
         try {
             val res = metaDataHelper.downloadAndVerifyMetadata { response ->
                 response.packages.forEach {
@@ -313,34 +313,34 @@ class App : Application() {
                     info.cleanCachedFiles(this)
                 }
             }
-            return MetadataCallBack.Success(res.timestamp)
+            return MetadataCallback.Success(res.timestamp)
         } catch (e: GeneralSecurityException) {
-            return MetadataCallBack.SecurityError(e)
+            return MetadataCallback.SecurityError(e)
         } catch (e: JSONException) {
-            return MetadataCallBack.JSONError(e)
+            return MetadataCallback.JSONError(e)
         } catch (e: DecoderException) {
-            return MetadataCallBack.DecoderError(e)
+            return MetadataCallback.DecoderError(e)
         } catch (e: UnknownHostException) {
-            return MetadataCallBack.UnknownHostError(e)
+            return MetadataCallback.UnknownHostError(e)
         } catch (e: SSLHandshakeException) {
-            return MetadataCallBack.SecurityError(e)
+            return MetadataCallback.SecurityError(e)
         } catch (e: ConnectException) {
-            return MetadataCallBack.UnknownHostError(e)
+            return MetadataCallback.UnknownHostError(e)
         }
     }
 
     @RequiresPermission(Manifest.permission.INTERNET)
-    fun refreshMetadata(force: Boolean = false, callback: (error: MetadataCallBack) -> Unit) {
+    fun refreshMetadata(force: Boolean = false, callback: (error: MetadataCallback) -> Unit) {
         when {
             isMetadataSyncing() -> {
                 refreshScope.cancel()
-                callback.invoke(MetadataCallBack.SecurityError(Exception(
+                callback.invoke(MetadataCallback.SecurityError(Exception(
                     App.getString(R.string.refreshInProgress))))
                 return
             }
             packagesInfo.isNotEmpty() && !force -> return
             isDownloading -> {
-                callback.invoke(MetadataCallBack.SecurityError(Exception(
+                callback.invoke(MetadataCallback.SecurityError(Exception(
                     App.getString(R.string.pendingAppDownload))))
                 return
             }
@@ -356,9 +356,9 @@ class App : Application() {
                                 refreshMetadata()
                             }
                         } catch (e: CancellationException) {
-                            MetadataCallBack.SecurityError(e)
+                            MetadataCallback.SecurityError(e)
                         }.let { res ->
-                            if (res is MetadataCallBack.Success) {
+                            if (res is MetadataCallback.Success) {
                                 updateLiveData()
                             } else packagesInfo.clear()
                             res
