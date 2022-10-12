@@ -344,6 +344,11 @@ class App : Application() {
                     App.getString(R.string.pendingAppDownload))))
                 return
             }
+            installationCreateRequestInProgress -> {
+                callback.invoke(MetadataCallback.PendingError(Exception(
+                    App.getString(R.string.installationInProgress))))
+                return
+            }
             else -> {
                 synchronized(refreshLock) {
                     refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
