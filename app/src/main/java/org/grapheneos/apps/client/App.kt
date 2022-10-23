@@ -146,8 +146,8 @@ class App : Application() {
     private val apkJobsMap = mutableMapOf<String, CompletableJob>()
     private val scopeApkDownload by lazy { Dispatchers.IO }
     private val scopeMetadataRefresh by lazy { Dispatchers.IO }
-    private val refreshLock = Any()
-    private lateinit var seamlessUpdaterJob: CompletableJob
+    private val scopeLock = Any()
+    private lateinit var seamlessUpdaterScope: CoroutineScope
     private lateinit var refreshScope: CoroutineScope
     private var taskIdSeed = Random(SystemClock.currentThreadTimeMillis().toInt()).nextInt(1, 1000)
     private val appsChangesReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -350,7 +350,7 @@ class App : Application() {
                 return
             }
             else -> {
-                synchronized(refreshLock) {
+                synchronized(scopeLock) {
                     refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
                 }
                 refreshScope.launch(Dispatchers.IO) {
@@ -368,11 +368,13 @@ class App : Application() {
                             } else packagesInfo.clear()
                             res
                         })
-                    refreshScope.cancel()
+                    refreshScope.cancelSync()
                 }
             }
         }
     }
+
+    private fun CoroutineScope.cancelSync() = synchronized(scopeLock) { cancel() }
 
     private fun PackageInfo.getInstallStatusCompat(isBroadcast: Boolean = false): InstallStatus {
         val fallback = selectedVariant.originalPkgName
@@ -852,9 +854,10 @@ class App : Application() {
     }
 
     private fun isSeamlessUpdateRunning() =
-        this::seamlessUpdaterJob.isInitialized
-                && seamlessUpdaterJob.isActive
-                && !seamlessUpdaterJob.isCompleted && !seamlessUpdaterJob.isCancelled
+        synchronized(scopeLock) {
+            this::seamlessUpdaterScope.isInitialized && seamlessUpdaterScope.isActive
+        }
+
 
     // If emergencyPackage is non-null, update check affects only that package and updates to it
     // are installed automatically regardless of auto update settings
@@ -872,18 +875,19 @@ class App : Application() {
         if (isSeamlessUpdateRunning()) {
             return
         }
-        seamlessUpdaterJob = Job()
-
+        synchronized(scopeLock) {
+            seamlessUpdaterScope = CoroutineScope(Job() + Dispatchers.IO)
+        }
         if (packagesInfo.isNotEmpty()) {
             packagesInfo.clear()
         }
 
         if (isMetadataSyncing()) return
 
-        synchronized(refreshLock) {
+        synchronized(scopeLock) {
             refreshScope = CoroutineScope(scopeMetadataRefresh + Job())
         }
-        CoroutineScope(seamlessUpdaterJob + Dispatchers.IO).launch {
+        seamlessUpdaterScope.launch {
 
             val metaData = refreshMetadata()
             if (!metaData.isSuccessFull) {
@@ -944,13 +948,13 @@ class App : Application() {
                 )
             )
 
-            refreshScope.cancel()
-            seamlessUpdaterJob.complete()
+            refreshScope.cancelSync()
+            seamlessUpdaterScope.cancelSync()
         }
     }
 
     private fun isMetadataSyncing(): Boolean =
-        synchronized(refreshLock) {
+        synchronized(scopeLock) {
             this::refreshScope.isInitialized && refreshScope.isActive
         }
 
