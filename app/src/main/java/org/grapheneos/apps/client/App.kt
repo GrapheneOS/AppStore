@@ -842,7 +842,7 @@ class App : Application() {
     }
 
     private fun canRequestPackageInstalls(): Boolean {
-        if (!packageManager.canRequestPackageInstalls()) {
+        if (!packageManager.canRequestPackageInstalls() && !isPrivilegeMode) {
             isActivityRunning?.startActivity(
                 Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
                     Uri.parse(String.format("package:%s", packageName))
