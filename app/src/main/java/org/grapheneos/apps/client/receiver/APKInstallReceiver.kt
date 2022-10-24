@@ -21,6 +21,7 @@ class APKInstallReceiver : BroadcastReceiver() {
                 val confirmationIntent = intent.getParcelableIntentExtra(Intent.EXTRA_INTENT)
                 confirmationIntent?.let {
                     it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    it.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
                     (context).startActivity(it)
                 }
             }
