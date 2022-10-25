@@ -52,6 +52,10 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
+
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+        }
     }
     buildFeatures {
         viewBinding = true
