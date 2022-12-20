@@ -1,49 +1,49 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:key="@string/autoUpdatePreferenceKey"
-    app:key="@string/autoUpdatePreferenceKey">
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         app:allowDividerAbove="false"
         app:allowDividerBelow="true"
-        app:title="@string/settings_header">
+        app:title="@string/updates_screen_title">
 
         <SwitchPreferenceCompat
-            app:defaultValue="@bool/background_update_default"
-            app:key="@string/backgroundUpdatedEnabled"
-            app:summaryOff="@string/background_update_summary_off"
-            app:summaryOn="@string/background_update_summary_on"
-            app:title="@string/background_update_title" />
+            app:title="@string/pref_background_update_check"
+            app:summaryOn="@string/pref_background_update_check_summary_on"
+            app:summaryOff="@string/pref_background_update_check_summary_off"
+            app:key="@string/pref_key_background_update_check"
+            app:defaultValue="@bool/pref_def_background_update_check" />
+
+        <ListPreference
+            app:title="@string/pref_background_update_check_interval"
+            app:useSimpleSummaryProvider="true"
+            app:dependency="@string/pref_key_background_update_check"
+            app:entries="@array/pref_labels_entries_background_update_check_interval"
+            app:entryValues="@array/pref_values_background_update_check_interval"
+            app:key="@string/pref_key_background_update_check_interval"
+            app:defaultValue="@string/pref_def_background_update_check_interval" />
 
         <SwitchPreferenceCompat
-            android:key="@string/seamlessInstallEnabled"
-            app:defaultValue="@bool/auto_install_default"
-            app:summaryOff="@string/auto_install_summary_off"
-            app:summaryOn="@string/auto_install_summary_on"
-            app:title="@string/auto_install_title" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:allowDividerAbove="false"
-        app:allowDividerBelow="true"
-        app:title="@string/background_update_configuration_title">
+            app:title="@string/pref_auto_update_packages"
+            app:dependency="@string/pref_key_background_update_check"
+            app:key="@string/pref_key_auto_update_packages"
+            app:defaultValue="@bool/pref_def_auto_update_packages" />
 
         <ListPreference
-            app:defaultValue="@string/reschedule_timing_default"
-            app:entries="@array/rescheduleTimingEntries"
-            app:entryValues="@array/rescheduleTimingEntryValues"
-            app:key="@string/rescheduleTiming"
-            app:summary="@string/background_update_duration_summary"
-            app:title="@string/background_update_duration_title" />
+            app:title="@string/pref_network_type_for_auto_updates"
+            app:singleLineTitle="false"
+            app:useSimpleSummaryProvider="true"
+            app:dependency="@string/pref_key_background_update_check"
+            app:entries="@array/pref_labels_network_type_for_auto_updates"
+            app:entryValues="@array/pref_values_network_type_for_auto_update_job"
+            app:key="@string/pref_key_network_type_for_auto_update_job"
+            app:defaultValue="@string/pref_def_network_type_for_bg_update_job" />
 
-        <ListPreference
-            app:defaultValue="@string/network_type_default"
-            app:entries="@array/networkTypeEntries"
-            app:entryValues="@array/networkTypeValues"
-            app:key="@string/networkType"
-            app:summary="@string/network_type_summary"
-            app:title="@string/network_type_title" />
+        <SwitchPreferenceCompat
+            app:title="@string/pref_always_allow_noCode_updates"
+            app:summaryOn="@string/pref_always_allow_noCode_updates_summary_on"
+            app:summaryOff="@string/pref_always_allow_noCode_updates_summary_off"
+            app:defaultValue="@bool/pref_def_always_allow_noCode_updates"
+            app:singleLineTitle="false" />
 
     </PreferenceCategory>
 

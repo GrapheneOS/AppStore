@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".App"
+        android:name=".ApplicationImpl"
         android:dataExtractionRules="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -22,37 +22,33 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Apps.DayNight"
         android:usesCleartextTraffic="false">
+
         <activity
-            android:name=".ui.container.MainActivity"
-            android:launchMode="singleInstance"
+            android:name=".ui.MainActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SHOW_APP_INFO" />
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".receiver.APKInstallReceiver"
-            android:exported="false" />
-        <receiver
-            android:name=".receiver.APKUninstallReceiver"
-            android:exported="false" />
+        <activity-alias
+            android:name="org.grapheneos.apps.client.ui.container.MainActivity"
+            android:targetActivity=".ui.MainActivity" />
 
         <service
             android:exported="false"
-            android:name=".service.SeamlessUpdaterJob"
+            android:name=".autoupdate.AutoUpdateJob"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <service
-            android:exported="false"
-            android:name=".service.KeepAppActive"
-            android:foregroundServiceType="dataSync" />
-
         <receiver
+            android:name=".BootCompletedReceiver"
             android:exported="false"
-            android:name=".receiver.BootCompletedReceiver"
         >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -65,6 +61,14 @@
             android:authorities="${applicationId}.RpcProvider"
             tools:ignore="ExportedContentProvider"
         />
+
+        <service
+            android:name=".PackageDownloadFgService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".core.PkgInstallerStatusReceiver"
+            android:exported="false" />
 
     </application>
 

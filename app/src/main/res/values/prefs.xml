@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!-- camelcase key and file names are leftovers from the initial version-->
+    <string name="pref_file_settings" translatable="false">seamlessUpdate</string>
+
+    <string name="pref_key_background_update_check" translatable="false">seamlessUpdateEnabled</string>
+    <bool name="pref_def_background_update_check" translatable="false">true</bool>
+
+    <string name="pref_key_auto_update_packages" translatable="false">seamlessInstallEnabled</string>
+    <bool name="pref_def_auto_update_packages" translatable="false">true</bool>
+
+    <string name="pref_key_background_update_check_interval" translatable="false">rescheduleTiming</string>
+<!--    in milliseconds, leftover from the jnitial version-->
+    <string name="pref_def_background_update_check_interval">21600000</string>
+
+    <string-array name="pref_values_background_update_check_interval">
+        <item>3600000</item>
+        <item>7200000</item>
+        <item>21600000</item>
+        <item>32400000</item>
+        <item>43200000</item>
+        <item>86400000</item>
+    </string-array>
+
+    <string-array name="pref_labels_entries_background_update_check_interval">
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>6 hours</item>
+        <item>9 hours</item>
+        <item>12 hours</item>
+        <item>24 hours</item>
+    </string-array>
+
+    <string name="pref_key_network_type_for_auto_update_job" translatable="false">seamlessUpdateNetworkType</string>
+    <string name="pref_def_network_type_for_bg_update_job">1</string>
+
+    <string-array name="pref_values_network_type_for_auto_update_job">
+<!-- JobInfo.NETWORK_TYPE_ANY-->
+        <item>1</item>
+<!-- JobInfo.NETWORK_TYPE_NOT_ROAMING-->
+        <item>3</item>
+<!-- JobInfo.NETWORK_TYPE_UNMETERED-->
+        <item>2</item>
+    </string-array>
+
+    <string-array name="pref_labels_network_type_for_auto_updates">
+        <item>Any</item>
+        <item>Not roaming</item>
+        <item>Unmetered</item>
+    </string-array>
+
+    <string name="pref_key_default_release_channel">default_release_channel</string>
+
+    <string name="pref_key_always_allow_nocode_updates">always_allow_nocode_updates</string>
+    <bool name="pref_def_always_allow_noCode_updates">true</bool>
+
+    <string name="pref_background_update_check">Check for updates</string>
+    <string name="pref_background_update_check_summary_on">Periodically check for updates in the background</string>
+    <string name="pref_background_update_check_summary_off">Periodic background update check is disabled</string>
+
+    <string name="pref_background_update_check_interval">Update check interval</string>
+    <string name="pref_auto_update_packages">Auto-update apps</string>
+    <string name="pref_network_type_for_auto_updates">Allowed network type for auto-updates</string>
+
+    <string name="pref_always_allow_noCode_updates">Always allow auto-updates of config files and resources</string>
+    <string name="pref_always_allow_noCode_updates_summary_on">Allow these updates even if regular auto-updates are disabled</string>
+    <string name="pref_always_allow_noCode_updates_summary_off">Apply the same policy that is applied to regular auto-updates</string>
+
+</resources>

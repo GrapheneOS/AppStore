@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/details_screen_inner_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true">
+
+        <FrameLayout
+            android:id="@+id/pkg_item_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_height="64dp" />
+
+        <LinearLayout
+            android:id="@+id/action_btns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal"
+            android:animateLayoutChanges="true"
+            app:layout_constraintTop_toBottomOf="@id/pkg_item_holder">
+
+         <com.google.android.material.button.MaterialButton
+                android:id="@+id/secondary_action_btn"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                tools:text="@string/menu_item_uninstall" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/primary_action_btn"
+                style="?attr/materialButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                tools:text="@string/btn_update" />
+
+        </LinearLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/available_version_label"
+            style="?attr/textAppearanceLabelMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/pkg_available_version"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/action_btns" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/available_version"
+            style="?attr/textAppearanceBodySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@id/available_version_label"
+            app:layout_constraintTop_toBottomOf="@+id/available_version_label"
+            tools:text="2.0" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/installed_version_label"
+            style="?attr/textAppearanceLabelMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/pkg_installed_version"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/available_version" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/installed_version"
+            style="?attr/textAppearanceBodySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@+id/installed_version_label"
+            app:layout_constraintTop_toBottomOf="@+id/installed_version_label"
+            tools:text="7.0.1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/release_notes_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/pkg_release_notes"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/release_notes"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/installed_version" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/release_notes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintBottom_toTopOf="@+id/pkg_description_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/release_notes_label" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/pkg_description_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/pkg_description"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/pkg_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/release_notes" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/pkg_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintBottom_toTopOf="@+id/dependencies_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pkg_description_label" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/dependencies_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/pkg_dependencies"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/dependencies_list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pkg_description" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/dependencies_list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="24dp"
+            style="@style/PackageList"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/pkg_item_holder"
+            app:layout_constraintStart_toStartOf="@id/pkg_item_holder"
+            app:layout_constraintTop_toBottomOf="@+id/dependencies_label"
+            tools:itemCount="2"
+            tools:listitem="@layout/package_list_item" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

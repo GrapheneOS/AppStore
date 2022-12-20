@@ -2,87 +2,75 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph.xml"
-    app:startDestination="@id/mainScreen">
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/main_screen">
 
     <fragment
-        android:id="@+id/mainScreen"
-        android:name="org.grapheneos.apps.client.ui.mainScreen.MainScreen"
+        android:id="@+id/main_screen"
+        android:name="app.grapheneos.apps.ui.MainScreen"
+        android:label="@string/app_name"
+        tools:layout="@layout/main_screen" />
+
+    <fragment
+        android:id="@+id/details_screen"
+        android:name="app.grapheneos.apps.ui.DetailsScreen"
         android:label=""
-        tools:layout="@layout/main_screen">
-        <action
-            android:id="@+id/action_to_detailsScreen"
-            app:destination="@id/detailsScreen" />
-    </fragment>
-    <fragment
-        android:id="@+id/settingsScreen"
-        android:name="org.grapheneos.apps.client.ui.settings.MainSettings"
-        android:label="Settings" />
-    <fragment
-        android:id="@+id/updatesScreen"
-        android:name="org.grapheneos.apps.client.ui.updateScreen.UpdatesScreen"
-        android:label="Updates"
-        tools:layout="@layout/updates_screen" />
-    <fragment
-        android:id="@+id/detailsScreen"
-        android:name="org.grapheneos.apps.client.ui.detailsScreen.DetailsScreen"
-        android:label="{appName}"
         tools:layout="@layout/details_screen">
         <argument
             android:name="pkgName"
             app:argType="string" />
-        <argument
-            android:name="appName"
-            app:argType="string" />
-        <argument
-            android:name="installationRequested"
-            app:argType="boolean"/>
         <action
-            android:id="@+id/action_detailsScreen_to_switchChannel"
-            app:destination="@id/switchChannel" />
+            android:id="@+id/action_detailsScreen_to_releaseChannelDialog"
+            app:destination="@id/release_channel_dialog" />
     </fragment>
+
+    <action
+        android:id="@+id/action_to_details_screen"
+        app:destination="@id/details_screen" />
+
+    <fragment
+        android:id="@+id/all_pkgs_screen"
+        android:name="app.grapheneos.apps.ui.PackagesScreen"
+        android:label="@string/menu_item_all_packages"
+        tools:layout="@layout/main_screen" />
+
+    <fragment
+        android:id="@+id/settings_screen"
+        android:name="app.grapheneos.apps.ui.SettingsScreen"
+        android:label="@string/settings" />
+
+    <fragment
+        android:id="@+id/updates_screen"
+        android:name="app.grapheneos.apps.ui.UpdatesScreen"
+        android:label="@string/updates_screen_title"
+        tools:layout="@layout/updates_screen" />
+
     <dialog
-        android:id="@+id/switchChannel"
-        android:name="org.grapheneos.apps.client.ui.switchChannel.SwitchChannel"
-        android:label="SwitchChannel" >
+        android:id="@+id/release_channel_dialog"
+        android:name="app.grapheneos.apps.ui.ReleaseChannelDialog"
+        android:label="SwitchChannel">
         <argument
             android:name="pkgName"
             app:argType="string" />
-        <argument
-            android:name="channels"
-            app:argType="string[]" />
-        <argument
-            android:name="selectedChannel"
-            app:argType="string" />
     </dialog>
+
     <dialog
-        android:id="@+id/installErrorScreen"
-        android:name="org.grapheneos.apps.client.ui.installError.InstallError"
-        android:label="Install Error" >
+        android:id="@+id/error_dialog"
+        android:name="app.grapheneos.apps.ui.ErrorDialog">
         <argument
-            android:name="error"
-            app:argType="org.grapheneos.apps.client.item.InstallCallBack" />
+            android:name="template"
+            app:argType="app.grapheneos.apps.core.ErrorTemplate" />
     </dialog>
-    <action android:id="@+id/action_global_installError" app:destination="@id/installErrorScreen" />
-    <dialog
-        android:id="@+id/installRestriction"
-        android:name="org.grapheneos.apps.client.ui.installRestriction.InstallRestriction"
-        android:label="InstallRestriction" />
-    <action android:id="@+id/installRestrictionScreen" app:destination="@id/installRestriction" />
+
     <fragment
-        android:id="@+id/searchScreen"
-        android:name="org.grapheneos.apps.client.ui.search.SearchScreen"
-        android:label="Search Screen"
-        tools:layout="@layout/search_screen" >
-        <action
-            android:id="@+id/action_to_detailsScreen"
-            app:destination="@id/detailsScreen" />
-    </fragment>
+        android:id="@+id/search_screen"
+        android:name="app.grapheneos.apps.ui.SearchScreen"
+        android:label=""
+        tools:label="Search"
+        tools:layout="@layout/search_screen" />
+
     <dialog
-        android:id="@+id/notificationPermissionDialog"
-        android:name="org.grapheneos.apps.client.ui.notificationPermission.NotificationPermission"
-        android:label="RuntimePermissionExplanationDialog" />
-    <action
-        android:id="@+id/navigateToNotificationPermission"
-        app:destination="@id/notificationPermissionDialog" />
+        android:id="@+id/notification_permission_dialog"
+        android:name="app.grapheneos.apps.ui.NotificationPermissionDialog" />
+
 </navigation>

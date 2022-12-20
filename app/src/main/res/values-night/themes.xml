@@ -1,9 +1,7 @@
 <resources>
 
-    <!--Final, top-level theme-->
     <style name="Theme.Apps.DayNight" parent="Theme.Apps.Dark" />
 
-    <!--Only override the attribute that actually need to be changed -->
     <style name="Theme.Apps.Dark" parent="Theme.Apps">
         <item name="android:windowLightStatusBar">false</item>
     </style>

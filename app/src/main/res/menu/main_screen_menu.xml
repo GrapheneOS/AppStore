@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/search_screen"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/updates_screen"
+        android:icon="@drawable/ic_update"
+        android:title="@string/updates_screen_title"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/all_pkgs_screen"
+        android:title="@string/menu_item_all_packages"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/settings_screen"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/settings"
+        app:showAsAction="never" />
+
+</menu>

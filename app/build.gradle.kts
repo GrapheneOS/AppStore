@@ -40,6 +40,13 @@ android {
         versionCode = 8
         versionName = versionCode.toString()
         resourceConfigurations.add("en")
+
+        buildConfigField(String::class.java.name, "REPO_BASE_URL",
+            "\"${System.getenv("REPO_BASE_URL") ?: "https://apps.grapheneos.org"}\"")
+
+        buildConfigField(String::class.java.name, "REPO_PUBLIC_KEY", "\"${
+            System.getenv("REPO_PUBLIC_KEY") ?: "RWQtZwEu1br1lMh911L3yPOs97cQb9LOks/ALBbqGl21ul695ocWR/ir"
+        }\"")
     }
 
     buildTypes {

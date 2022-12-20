@@ -2,10 +2,15 @@
 <data-extraction-rules>
     <cloud-backup disableIfNoEncryptionCapabilities="true">
 
-        <!--R.string.autoUpdatePreferenceKey job Preferences/configuration-->
+<!--    user-facing settigns, R.string.pref_file_settings -->
         <include
             domain="sharedpref"
             path="seamlessUpdate" />
+
+<!--    release channel overrides -->
+        <include
+            domain="sharedpref"
+            path="app_channel" />
 
     </cloud-backup>
 </data-extraction-rules>
