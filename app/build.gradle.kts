@@ -113,6 +113,10 @@ dependencies {
     val lifecycleVersion = "2.5.1"
     implementation("androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+
+    val glideVersion = "4.14.2"
+    implementation("com.github.bumptech.glide:glide:$glideVersion")
+    kapt("com.github.bumptech.glide:compiler:$glideVersion")
 }
 
 kapt {
