@@ -4,4 +4,5 @@
     <color name="bottomBarColor">@android:color/system_accent1_50</color>
     <color name="statusBarColor">@android:color/system_accent1_50</color>
     <color name="colorControlNormal">@android:color/black</color>
+    <color name="ic_launcher_background">#fff</color>
 </resources>

@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/uninstall"
-        android:title="@string/uninstall" />
+        android:title="@string/menu_item_uninstall" />
     <item
-        android:id="@+id/appInfo"
-        android:title="@string/appInfo" />
+        android:id="@+id/app_info"
+        android:title="@string/menu_item_app_info" />
     <item
-        android:id="@+id/switchChannel"
-        android:title="@string/switchChannel" />
+        android:id="@+id/release_channel_dialog"
+        android:title="@string/release_channel" />
 </menu>

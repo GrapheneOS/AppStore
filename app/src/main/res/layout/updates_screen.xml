@@ -1,60 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.updateScreen.UpdatesScreen">
+    tools:context="app.grapheneos.apps.ui.UpdatesScreen">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/nothingToUpdateUI"
-        style="@style/TextAppearance.Material3.HeadlineSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/allAppUpToDate"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/updateCounter"
-        style="?attr/textAppearanceLabelLarge"
+        android:id="@+id/update_count"
+        style="@style/TextAppearance.Material3.BodyLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/updateAll"
-        app:layout_constraintEnd_toStartOf="@+id/updateAll"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:paddingVertical="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/updateAll"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="2 updates" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/updateAll"
+        android:id="@+id/update_or_cancel_all"
         style="?attr/materialButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/update_all"
+        app:layout_constraintTop_toTopOf="@id/update_count"
+        app:layout_constraintBottom_toBottomOf="@id/update_count"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/update_count" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/updatesRecyclerView"
+        android:id="@+id/updates_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="8dp"
-        android:transitionGroup="true"
+        style="@style/PackageList"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/updateAll"
+        app:layout_constraintTop_toBottomOf="@+id/update_or_cancel_all"
         tools:itemCount="10"
-        tools:listitem="@layout/item_apps"
+        tools:listitem="@layout/package_list_item"
         tools:visibility="visible" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/placeholder_text"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_available_updates"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

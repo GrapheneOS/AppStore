@@ -1,6 +1,5 @@
 <resources>
 
-    <!--Final, top-level theme-->
     <style name="Theme.Apps.DayNight" parent="Theme.Apps" />
 
     <style name="Theme.Apps" parent="Theme.Material3.DayNight.NoActionBar">

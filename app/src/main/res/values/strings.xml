@@ -2,168 +2,138 @@
 <resources>
     <string name="app_name">Apps</string>
 
-    <string name="notification_permission_dialog_title">Notification permission required</string>
-    <string name="notification_permission_dialog_message">The app needs permission to send notifications to provide <![CDATA[<b>core functionality</b>]]>. Please grant the notification permission via Settings to get notified of <![CDATA[<b>app updates</b>]]>, <![CDATA[<b>download</b>]]> and <![CDATA[<b>installation status</b>]]>.</string>
-    <!--Status-->
-    <string name="install">Install</string>
-    <string name="install_all">Install All</string>
-    <string name="installing">Installing</string>
-    <string name="reinstalling">Reinstalling…</string>
-    <string name="denied">Install aborted, retry?</string>
-    <string name="downgradeNotAllowed">Downgrading is not allowed</string>
-    <string name="reinstall">Reinstall</string>
-    <string name="update">Update</string>
-    <string name="updating">Updating…</string>
-    <string name="updated">Updated</string>
-    <string name="alreadyUpToDate">Apps are already fully up-to-date</string>
+    <string name="pkg_status_disabled">Disabled</string>
+    <string name="pkg_status_update_available">Update available (%1$s)</string>
+    <string name="pkg_status_installed">Installed</string>
+    <string name="pkg_status_downloading">Downloading: %1$d%% of %2$s</string>
+    <string name="pkg_status_downloading_update">Downloading update: %1$d%% of %2$s</string>
+    <string name="pkg_status_pending_download">Pending download</string>
+    <string name="pkg_status_pending_install">Pending</string>
+    <string name="pkg_status_installing">Installing</string>
+    <string name="pkg_status_unpacking">Unpacking</string>
+    <string name="pkg_status_waiting_for_confirmation">Waiting for confirmation</string>
+    <string name="pkg_status_shared_library">Shared library, %1$s</string>
 
-    <string name="uninstall">Uninstall</string>
-    <string name="uninstall_updates">Uninstall updates</string>
-    <string name="uninstalling">Uninstalling</string>
-    <string name="unOpenable">This app can\'t be opened</string>
-    <string name="appInfo">App Info</string>
-    <string name="switchChannel">Release channel</string>
-    <string name="appIsNotInstalled">App is not installed</string>
-
+    <string name="btn_install">Install</string>
+    <string name="btn_open">Open</string>
+    <string name="btn_update">Update</string>
     <string name="btn_enable_package">Enable</string>
 
-    <string name="processing">Processing…</string>
-    <string name="startingDownload">Starting download</string>
-    <string name="downloading">Downloading…</string>
-    <string name="is_being_downloaded">is being downloaded</string>
-    <string name="downloaded">Downloaded</string>
-    <string name="failed">Failed</string>
-    <string name="retry">Retry</string>
-    <string name="seamlessUpdatesCheckFailed">Checking for seamless updates failed</string>
-    <string name="serverUnexpectedResponse">Server responded with unexpected HTTP code</string>
-    <string name="pending_install">Pending</string>
+    <string name="menu_item_all_packages">All packages</string>
+    <string name="menu_item_uninstall">Uninstall</string>
+    <string name="menu_item_uninstall_updates">Uninstall updates</string>
+    <string name="menu_item_app_info">App info</string>
 
-    <string name="syncingHasFailed">Sync failed, swipe down to resync and retry</string>
-    <string name="syncingMetadata">Syncing metadata</string>
-    <string name="syncUnfinished">Sync has not yet finished</string>
+    <string name="pkg_installed_version">Installed version</string>
+    <string name="pkg_available_version">Available version</string>
 
-    <string name="hashMismatch">Hashes do not match</string>
-    <string name="hashSizeMismatch">Package hash size mismatch</string>
-    <string name="sha256Unsupported">SHA-256 not supported by device</string>
+    <string name="pkg_description">Description</string>
+    <string name="pkg_release_notes">Release notes</string>
+    <string name="pkg_dependencies">Dependencies</string>
 
-    <string name="openApp">Open app</string>
-    <string name="open">Open</string>
+    <string name="pkg_source_grapheneos">GrapheneOS</string>
+    <string name="pkg_source_google">Google (mirror)</string>
+    <string name="pkg_source_grapheneos_build">GrapheneOS build</string>
 
-    <string name="packagesDownloading">Packages are downloading</string>
-
-    <string name="appChannel">app_channel</string>
-
-    <string name="fileDoesNotExist">File does not exist</string>
-    <string name="fileTimestampMissing">Current file timestamp not found</string>
-
-    <!--DownloadCallBack.kt-->
-    <string name="DownloadedSuccessfully">Downloaded successfully</string>
-    <string name="dfSecurityError">Download failed due to a security error</string>
-    <string name="dfUnknownHostError">Download failed due to being unable to locate host</string>
-    <string name="dfIoError">Download failed due to an IO error</string>
-    <string name="dfCanceled">Download has been canceled</string>
-
-    <!--MetadataCallBack.kt-->
-    <string name="syncedSuccessfully">Synced successfully</string>
-    <string name="sfSecurityError">Sync failed due to a security error</string>
-    <string name="sfJSONError">Sync failed due to a JSON formatting error</string>
-    <string name="sfDecoderError">Sync failed due a content decoding error</string>
-    <string name="sfUnknownHostError">Sync failed due to being unable to locate host</string>
-
-    <!--App.kt-->
-    <string name="installationInProgress">"An installation is in progress"</string>
-    <string name="uninstallationInProgress">An uninstallation is in progress</string>
-    <string name="otherAppsDownloadInProgress">Dependencies or other apps are in progress of being downloaded and/or installed</string>
-    <string name="allowUnknownSources">You must allow installation from this source first</string>
-    <string name="newerVersionIsInstalled">Newer version is already installed</string>
-    <string name="pendingAppDownload">Please wait for package to get downloaded</string>
-    <string name="refreshInProgress">Refresh is currently in progress</string>
-
-    <!--details_screen.xml-->
-    <string name="installed">Installed</string>
-    <string name="latest">Latest</string>
-
-    <!--main_menu.xml-->
-    <string name="refresh">Refresh</string>
     <string name="settings">Settings</string>
-    <string name="update_all">Update all</string>
-    <string name="xUpdates">%d updates</string>
+    <string name="open_settings">Open settings</string>
 
-    <!--update_screen.xml-->
-    <string name="allAppUpToDate">All apps are up to date</string>
+    <string name="updates_screen_title">Updates</string>
 
-    <!--mainscreen_bottom_nav.xml-->
-    <string name="updates">Updates</string>
+    <plurals name="number_of_updates">
+        <item quantity="one">%d update</item>
+        <item quantity="other">%d updates</item>
+    </plurals>
 
-    <!-- Preference Titles -->
-    <string name="settings_header">Settings</string>
+    <string name="no_available_updates">No available updates</string>
 
-    <!-- Auto download Preferences -->
-    <string name="background_update_title">Check for updates periodically</string>
-    <string name="background_update_summary_on">Check for available updates for installed apps in background</string>
-    <string name="background_update_summary_off">Don\'t check for update in background</string>
-
-    <!-- Auto update Preferences -->
-    <string name="auto_install_title">Auto update installed apps</string>
-    <string name="auto_install_summary_on">Install/update apps seamlessly without confirmation</string>
-    <string name="auto_install_summary_off">Only install/update apps when manually requested</string>
-
-    <string name="network_type_title">Permitted network</string>
-    <string name="network_type_summary">Permitted network type for downloading seamless updates</string>
-
-    <string name="background_update_configuration_title">Auto download configuration</string>
-    <string name="background_update_duration_title">Auto download app updates interval</string>
-    <string name="background_update_duration_summary">Check for available updates after selected number of hours</string>
-
-    <!--Notifications-->
-    <string name="suGroupName">Seamless updates</string>
-    <string name="suGroupDescription">Notification regarding seamless updates</string>
-    <string name="nUpdatedTitle">Apps has been updated</string>
-    <string name="nUpdatedDescription">Notification regarding updated apps</string>
-    <string name="nUpdateAvailableTitle">Updates available</string>
-    <string name="nUpdateAvailableDescription">Notification regarding available app updates</string>
-    <string name="nUpToDateTitle">All your apps are up to date</string>
-    <string name="nUpToDateDescription">Notification regarding no update available</string>
-    <string name="nUpdatesFailedTitle">Seamless updates failed</string>
-    <string name="nUpdatesFailedDescription">Notification regarding failed seamless updates</string>
-    <string name="nBackgroundTaskTitle">Background tasks</string>
-    <string name="nBackgroundTaskDescription">Silent notification for background tasks</string>
-
-    <string name="no_release_note_provided">Release notes not provided.</string>
-    <string name="no_description_provided">App description not provided.</string>
-    <string name="app_description">App Description</string>
-    <string name="release_notes">Release Notes</string>
-    <string name="dependency">Dependencies</string>
-
-    <!-- SwitchChannel.kt -->
-    <string name="release_channel">Release Channel</string>
-    <string name="select">Select</string>
     <string name="cancel">Cancel</string>
+    <string name="cancelling_download">Cancelling download</string>
 
+    <string name="dismiss">Dismiss</string>
 
-    <string name="ok">OK</string>
-    <string name="installationFailed">Installation Failed</string>
-    <string name="installationBlocked">Installation Blocked</string>
+    <plurals name="cancel_plural">
+        <item quantity="one">Cancel</item>
+        <item quantity="other">Cancel all</item>
+    </plurals>
 
-    <!--InstallCallback.kt-->
-    <string name="icAborted">Installation Aborted</string>
-    <string name="icPending">User Action Pending</string>
-    <string name="icSuccess">Installed Successful</string>
-    <string name="icUnknownError">An unknown error occurred</string>
-    <string name="icStorage">Your device does not have enough free storage space</string>
-    <string name="icInvalid">The app is corrupt</string>
-    <string name="icConflict">Your device has an app installed with the same package name, but a different signature</string>
-    <string name="icBlocked">The policy on this device prevents app installation</string>
-    <string name="icIncompatible">A newer version of the app is already installed</string>
+    <plurals name="start_update_button">
+        <item quantity="one">Update</item>
+        <item quantity="other">Update all</item>
+    </plurals>
 
-    <!--AppSourceHelper.kt && main_screen -->
-    <string name="grapheneOS">GrapheneOS</string>
-    <string name="googleMirror">Google (Mirror)</string>
-    <string name="grapheneOSBuild">GrapheneOS build</string>
+    <string name="installation_failed">Installation failed</string>
 
-    <!--search_screen_menu-->
-    <string name="clear">Clear</string>
-    <string name="searchForApps">Search for apps</string>
-    <string name="noMatchFound">No apps found</string>
+    <string name="search">Search</string>
 
+    <string name="release_channel">Release channel</string>
+    <string name="release_channel_alpha">alpha</string>
+    <string name="release_channel_beta">beta</string>
+    <string name="release_channel_stable">stable</string>
+
+    <string name="notif_download_in_progress">Downloading files, %1$s left</string>
+
+    <string name="app_icon">App icon</string>
+
+    <string name="notif_title_pending_user_action">Action required</string>
+    <string name="notif_text_pending_user_action_install">Confirm installation of %1$s, version %2$s</string>
+    <string name="notif_text_pending_user_action_update">Confirm update of %1$s to version %2$s</string>
+
+    <string name="notif_group_auto_update">Auto-update</string>
+    <string name="notif_auto_update_all_up_to_date">Apps are up-to-date</string>
+    <string name="notif_ch_auto_update_updated_packages">Updated apps</string>
+    <string name="notif_auto_update_updated_package_title">Updated app</string>
+    <string name="notif_auto_update_updated_package_text">Updated %1$s to version %2$s</string>
+    <string name="notif_ch_auto_update_confirmation_required">Confirmation required</string>
+    <string name="notif_ch_auto_update_failed">Auto-update failed</string>
+    <string name="notif_ch_updates_available">Updates available</string>
+
+    <string name="notif_pkg_update_available">%1$s update available</string>
+    <string name="notif_pkg_updates_available_title">Updates available, %1$s</string>
+
+    <string name="notif_ch_downloading_app">App download</string>
+    <string name="notif_missing_dependency">Missing dependency</string>
+    <string name="notif_installation_failed">Installation failed</string>
+    <string name="notif_download_failed">Download failed</string>
+
+    <string name="unable_to_fetch_app_list">Unable to fetch the list of apps</string>
+    <string name="main_screen_unable_to_fetch_app_list_initial">Unable to fetch the list of apps, swipe down to try again.</string>
+
+    <string name="uninstall_failed">Uninstall failed</string>
+
+    <string name="msg_unable_to_download_pkg">Unable to download %1$s</string>
+    <string name="msg_unable_to_install_pkg">Unable to install %1$s</string>
+    <string name="msg_unable_to_uninstall_pkg">Unable to uninstall %1$s</string>
+
+    <string name="error_details_prefix">Details: \n</string>
+    <string name="snackbar_action_details">Details</string>
+
+    <string name="err_title_missing_dependency">Missing dependency</string>
+    <string name="err_msg_dependency_resolution_dep_missing_in_repo">%1$s depends on %2$s, which is missing from the list of available packages.</string>
+    <string name="err_msg_dependency_resolution_dep_disabled">%1$s depends on %2$s, which is disabled.</string>
+    <string name="err_msg_dependency_resolution_dep_not_installed">%1$s depends on %2$s, which is not installed.</string>
+
+    <string name="download_error_user_restriction">the policy on this device prevents app installation</string>
+
+    <string name="network_error_unable_to_connect_to_server">Unable to connect to the server</string>
+    <string name="network_error_connection_timed_out">Connection to the server has timed out</string>
+    <string name="network_error_unknown_host_name">Unable to resolve the server name</string>
+
+    <string name="installer_error_conflict">package conflicts with another package that is already installed on this device</string>
+    <string name="installer_error_version_downgrade">newer version of the package is already installed on this device</string>
+    <string name="installer_error_insufficient_storage">not enough storage space</string>
+
+    <string name="err_msg_uninstall_restricted">not allowed to uninstall this package</string>
+
+    <string name="err_title_pkg_is_installing">Package is currently installing</string>
+    <string name="err_title_dep_is_installing">Dependency is currently installing</string>
+    <string name="err_msg_pkg_is_installing">%1$s is currently installing. Try again after installation completes.</string>
+
+    <string name="btn_copy">Copy</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+
+    <string name="notification_permission_dialog_title">Missing notification permission</string>
+    <string name="notification_permission_dialog_message">Allow the notification permission to get notified of app updates, download and installation status.</string>
+
+    <string name="dont_show_again">Don\'t show again</string>
 </resources>
