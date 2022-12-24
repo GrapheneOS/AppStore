@@ -47,6 +47,9 @@ android {
         buildConfigField(String::class.java.name, "REPO_PUBLIC_KEY", "\"${
             System.getenv("REPO_PUBLIC_KEY") ?: "RWQtZwEu1br1lMh911L3yPOs97cQb9LOks/ALBbqGl21ul695ocWR/ir"
         }\"")
+
+        buildConfigField(String::class.java.name, "REPO_KEY_VERSION",
+            "\"${System.getenv("REPO_KEY_VERSION") ?: "0"}\"")
     }
 
     buildTypes {
@@ -63,9 +66,11 @@ android {
             applicationIdSuffix = ".debug"
         }
     }
+
     buildFeatures {
         viewBinding = true
     }
+
     compileOptions {
         sourceCompatibility(JavaVersion.VERSION_11)
         targetCompatibility(JavaVersion.VERSION_11)
@@ -74,19 +79,7 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
-    sourceSets {
-        getByName("main") {
-            res {
-                srcDirs(
-                    "src/main/res",
-                    "src/main/java/org/grapheneos/apps/client/ui/container/res",
-                    "src/main/java/org/grapheneos/apps/client/ui/mainScreen/res",
-                    "src/main/java/org/grapheneos/apps/client/ui/detailsScreen/res",
-                    "src/main/java/org/grapheneos/apps/client/ui/search/res"
-                )
-            }
-        }
-    }
+
     packagingOptions {
         resources.excludes.addAll(listOf(
             "org/bouncycastle/pqc/**.properties",
