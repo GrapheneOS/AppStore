@@ -24,11 +24,12 @@ private const val CACHE_FILE_VERSION = 1
 
 private const val MIN_TIMESTAMP = 1_671_556_700L
 private const val PUBLIC_KEY = BuildConfig.REPO_PUBLIC_KEY
+private const val KEY_VERSION = BuildConfig.REPO_KEY_VERSION
 
 private val cacheFile = AtomicFile2("repo")
 
 fun fetchRepo(currentRepo: Repo): Repo {
-    val url = "$REPO_BASE_URL/metadata.$METADATA_VERSION.sjson"
+    val url = "$REPO_BASE_URL/metadata.$METADATA_VERSION.$KEY_VERSION.sjson"
 
     return if (!currentRepo.isDummy) {
         openConnection(url) {
