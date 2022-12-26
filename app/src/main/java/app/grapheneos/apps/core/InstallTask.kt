@@ -168,7 +168,8 @@ class InstallTask(
         val appInfo = pkgInfo.applicationInfo
 
         coroutineScope {
-            (appInfo.splitSourceDirs + appInfo.sourceDir).map { apkPath ->
+            val splitSourceDirs = appInfo.splitSourceDirs ?: emptyArray<String>()
+            (splitSourceDirs + appInfo.sourceDir).map { apkPath ->
                 val apkFile = File(apkPath)
                 async {
                     apkFile.inputStream().use { input ->
@@ -377,10 +378,8 @@ class InstallTask(
             throwIfAppInstallationNotAllowed()
 
             val multiInstallAvailable = Build.VERSION.SDK_INT >= 33
-                // confirmation UI for multi install sessions is broken on Android 12
-                || isPrivilegedInstaller
-
-            val overrideUserActionRequirement = Build.VERSION.SDK_INT < 33
+                // confirmation UI for multi package sessions is broken before Android 13, fixed on GrapheneOS 12.1
+                || (isPrivilegedInstaller && Build.VERSION.SDK_INT == 32)
 
             if (!multiInstallAvailable) {
                 throw UnsupportedOperationException("Multi-package sessions aren't supported properly by Android 12 for unprivileged installers")
@@ -396,11 +395,6 @@ class InstallTask(
                     coroutineScope {
                         tasks.map { childTask ->
                             val childSessionParams = childTask.makeSessionParams()
-                            if (overrideUserActionRequirement) {
-                                if (Build.VERSION.SDK_INT >= 31) {
-                                    childSessionParams.setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
-                                }
-                            }
                             val childSessionId = InstallerSessions.createSession(childSessionParams, childTask.packageState)
                             childTask.job = job
                             parentSession.addChildSessionId(childSessionId)
