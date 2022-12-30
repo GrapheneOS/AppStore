@@ -88,8 +88,11 @@
     <string name="notif_ch_auto_update_failed">Auto-update failed</string>
     <string name="notif_ch_updates_available">Updates available</string>
 
-    <string name="notif_pkg_update_available">%1$s update available</string>
-    <string name="notif_pkg_updates_available_title">Updates available, %1$s</string>
+    <string name="notif_pkg_update_available_text">%1$s, version %2$s</string>
+    <plurals name="notif_pkg_updates_available_title">
+        <item quantity="one">Update available, %1$s</item>
+        <item quantity="other">Updates available, %1$s</item>
+    </plurals>
 
     <string name="notif_ch_downloading_app">App download</string>
     <string name="notif_missing_dependency">Missing dependency</string>

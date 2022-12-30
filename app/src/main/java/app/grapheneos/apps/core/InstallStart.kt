@@ -256,18 +256,22 @@ fun updateAllPackages(isUserInitiated: Boolean): List<Deferred<Deferred<PackageI
                 setSmallIcon(R.drawable.ic_updates_available)
 
                 check(allRPackages.size >= 1)
+
+                val config = appResources.configuration
+                val sumSize = allRPackages.sumOf {
+                    it.collectNeededApks(config).sumOf { it.compressedSize }
+                }.let {
+                    Formatter.formatShortFileSize(appContext, it)
+                }
+                setContentTitle(appResources.getQuantityString(R.plurals.notif_pkg_updates_available_title,
+                    allRPackages.size, sumSize))
                 if (allRPackages.size == 1) {
-                    setContentTitle(appResources.getString(R.string.notif_pkg_update_available, allRPackages[0].label))
+                    val rpkg = allRPackages[0]
+                    setContentText(appResources.getString(R.string.notif_pkg_update_available_text,
+                        rpkg.label, rpkg.versionName))
+                    setContentIntent(DetailsScreen.createPendingIntent(rpkg.packageName))
                 } else {
-                    val config = appResources.configuration
-                    val sumSize = allRPackages.sumOf {
-                        it.collectNeededApks(config).sumOf { it.compressedSize }
-                    }.let {
-                        Formatter.formatShortFileSize(appContext, it)
-                    }
-                    setContentTitle(appResources.getString(R.string.notif_pkg_updates_available_title, sumSize))
                     setContentText(allRPackages.map { it.label }.joinToString())
-                    setStyle(Notification.BigTextStyle())
                     NavDeepLinkBuilder(appContext).run {
                         setGraph(R.navigation.nav_graph)
                         setDestination(R.id.updates_screen)
@@ -277,6 +281,7 @@ fun updateAllPackages(isUserInitiated: Boolean): List<Deferred<Deferred<PackageI
                         setContentIntent(it)
                     }
                 }
+                setStyle(Notification.BigTextStyle())
                 show(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
             }
             return emptyList()
