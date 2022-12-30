@@ -254,7 +254,11 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
             val name = names.getString(i)
             val sha256 = hexStringToByteArray(hashes.getString(i))
             require(sha256.size == (256 / 8))
-            list.add(Apk(this, name, sha256, sizes.getLong(i), gzSizes.getLong(i)))
+            val apk = Apk(this, name, sha256, sizes.getLong(i), gzSizes.getLong(i))
+            if (apk.type == Apk.Type.ABI && apk.qualifier != deviceAbi.apkSplitQualifier) {
+                continue
+            }
+            list.add(apk)
         }
         list
     }
@@ -272,13 +276,11 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
             val qualifier = apk.qualifier
 
             when (apk.type) {
-                Apk.Type.UNCONDITIONAL -> res.add(apk)
-                Apk.Type.ABI -> run {
-                    val abi = Apk.Abi.values().first { it.downloadName == qualifier }.osName
-                    if (abi == Build.SUPPORTED_ABIS.first()) {
-                        res.add(apk)
-                    }
-                }
+                Apk.Type.UNCONDITIONAL,
+                // unneeded ABI splits are filtered out during repo parsing
+                Apk.Type.ABI ->
+                    res.add(apk)
+
                 Apk.Type.LANGUAGE -> {
                     if (neededLocales.contains(Locale(qualifier))) {
                         res.add(apk)
@@ -395,7 +397,7 @@ class Apk(
 
             if (qualifier.endsWith("dpi")) {
                 Type.DENSITY
-            } else if (Abi.values().any { it.downloadName == qualifier }) {
+            } else if (Abi.values().any { it.apkSplitQualifier == qualifier }) {
                 Type.ABI
             } else {
                 Type.LANGUAGE
@@ -412,12 +414,18 @@ class Apk(
         DENSITY,
     }
 
-    enum class Abi(val osName: String, val downloadName: String) {
+    enum class Abi(val osName: String, val apkSplitQualifier: String) {
         ARM_V7("armeabi-v7a", "armeabi_v7a"),
         X86("x86", "x86"),
         ARM_V8("arm64-v8a", "arm64_v8a"),
         X86_64("x86_64", "x86_64")
     }
+}
+
+private val deviceAbi: Apk.Abi = run {
+    // Intentionally don't support secondary ABIs. They are expected to work worse than the primary ABI.
+    val osName: String = Build.SUPPORTED_ABIS.first()
+    Apk.Abi.values().first { it.osName == osName }
 }
 
 // Used only for static deps. If it was used for dynamic deps, dependency resolution would become
