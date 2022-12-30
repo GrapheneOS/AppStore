@@ -72,43 +72,52 @@ class UpdatesScreen : PackageListFragment<UpdatesScreenBinding>(), MenuProvider 
 
     override fun onPackageStateChanged(state: PackageState) {
         super.onPackageStateChanged(state)
-        if (state.status() != PackageState.Status.OUT_OF_DATE) {
+        val status = state.status()
+        if (status != PackageState.Status.OUT_OF_DATE && status != PackageState.Status.INSTALLING) {
             updateList()
+        } else {
+            updateAllViewsExceptList()
         }
     }
 
     override fun updateList() {
-        val views = views()
         packages.values.filter {
             it.isOutdated()
         }.sortedBy {
             it.rPackage.label
         }.let { list ->
-            val isListNotEmpty = list.isNotEmpty()
-            views.apply {
-                placeholderText.isGone = isListNotEmpty
-                updatesList.isVisible = isListNotEmpty
+            listAdapter.updateList(list)
+        }
+        updateAllViewsExceptList()
+    }
 
-                updateCount.apply {
-                    isVisible = isListNotEmpty
-                    text = resources.getQuantityString(R.plurals.number_of_updates, list.size, list.size)
-                }
+    private fun updateAllViewsExceptList() {
+        val list = listAdapter.list
+        val isListNotEmpty = list.isNotEmpty()
 
-                updateOrCancelAll.apply {
-                    val visible = list.isNotEmpty()
-                    isVisible = visible
-                    if (visible) {
-                        isEnabled = !model.updateAllInProgress || model.cancelableJobs != null
-                        val btnText = if (model.updateAllInProgress)
-                            R.plurals.cancel_plural else R.plurals.start_update_button
+        views().apply {
+            placeholderText.isGone = isListNotEmpty
+            updatesList.isVisible = isListNotEmpty
 
-                        setText(resources.getQuantityText(btnText, list.size))
-                    }
-                }
-
+            updateCount.apply {
+                isVisible = isListNotEmpty
+                text = resources.getQuantityString(R.plurals.number_of_updates, list.size, list.size)
             }
 
-            listAdapter.updateList(list)
+            updateOrCancelAll.apply {
+                val visible = list.isNotEmpty()
+                isVisible = visible
+                if (visible) {
+                    isEnabled = (!model.updateAllInProgress && list.any { !it.isInstalling() }) ||
+                            model.cancelableJobs != null
+
+                    val btnText = if (model.updateAllInProgress)
+                        R.plurals.cancel_plural else R.plurals.start_update_button
+
+                    setText(resources.getQuantityText(btnText, list.size))
+                }
+            }
+
         }
     }
 }
