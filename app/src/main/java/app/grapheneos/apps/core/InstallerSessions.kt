@@ -115,6 +115,13 @@ object InstallerSessions {
                 continue
             }
 
+            if (sessionInfo.appPackageName == null) {
+                // this session was created by pre-v8 version of the app, which didn't
+                // set the appPackageName property
+                abandonSession(sessionInfo)
+                continue
+            }
+
             val pkgName = getSessionPackageName(sessionInfo)
 
             if (isSessionWaitingForUserAction(sessionInfo)) {
