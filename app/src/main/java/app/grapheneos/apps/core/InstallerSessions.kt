@@ -63,12 +63,13 @@ object InstallerSessions {
 
         for (sessionInfo in pkgInstaller.getMySessions()) {
             Log.d(TAG, "pkg " + sessionInfo.appPackageName + " $sessionInfo" + " isChild " + sessionInfo.hasParentSessionId() + " isMulti  " + sessionInfo.isMultiPackage)
-            if (!sessionInfo.isCommitted) {
+
+            if (!sessionInfo.isCommitted || sessionInfo.isMultiPackage) {
+                // multi-package sessions sometimes get stuck and never complete, likely due to an
+                // OS bug
                 abandonSession(sessionInfo)
                 continue
             }
-
-            fun getSessionPackageState(sessionInfo: PackageInstaller.SessionInfo) = PackageStates.map[getSessionPackageName(sessionInfo)]
 
             fun isSessionWaitingForUserAction(sessionInfo: PackageInstaller.SessionInfo): Boolean {
                 return if (isPrivilegedInstaller) {
@@ -92,27 +93,6 @@ object InstallerSessions {
                     addMultiInstallSession(id)
                     Log.d(TAG, "picked up previous multi-package session $id")
                 }
-            }
-
-            if (sessionInfo.isMultiPackage) {
-                val childSessionInfos = sessionInfo.childSessionIds.map {
-                    pkgInstaller.getSessionInfo(it)
-                }.filterNotNull()
-
-                if (childSessionInfos.any { isSessionWaitingForUserAction(it) }) {
-                    abandonSession(sessionInfo)
-                    continue
-                }
-
-                for (childSessionInfo in childSessionInfos) {
-                    val state = getSessionPackageState(childSessionInfo)
-                    if (state != null) {
-                        addPreviousSession(childSessionInfo, state)
-                    } // child sessions can't be abandoned
-                }
-
-                addPreviousSession(sessionInfo, null)
-                continue
             }
 
             if (sessionInfo.appPackageName == null) {
