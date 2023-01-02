@@ -42,6 +42,7 @@
             app:title="@string/pref_always_allow_noCode_updates"
             app:summaryOn="@string/pref_always_allow_noCode_updates_summary_on"
             app:summaryOff="@string/pref_always_allow_noCode_updates_summary_off"
+            app:key="@string/pref_key_always_allow_nocode_updates"
             app:defaultValue="@bool/pref_def_always_allow_noCode_updates"
             app:singleLineTitle="false" />
 
