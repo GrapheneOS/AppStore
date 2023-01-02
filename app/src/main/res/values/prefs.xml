@@ -64,6 +64,6 @@
 
     <string name="pref_always_allow_noCode_updates">Always allow auto-updates of config files and resources</string>
     <string name="pref_always_allow_noCode_updates_summary_on">Allow these updates even if regular auto-updates are disabled</string>
-    <string name="pref_always_allow_noCode_updates_summary_off">Apply the same policy that is applied to regular auto-updates</string>
+    <string name="pref_always_allow_noCode_updates_summary_off">Allow these updates only if regular auto-updates are enabled</string>
 
 </resources>
