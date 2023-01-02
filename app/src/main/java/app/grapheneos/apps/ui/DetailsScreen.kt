@@ -285,10 +285,6 @@ class DetailsScreen : ViewBindingFragment<DetailsScreenBinding>(), MenuProvider 
                 uninstall()
                 true
             }
-            R.id.app_info -> {
-                startActivity(appDetailsIntent(pkgState.pkgName))
-                true
-            }
             R.id.release_channel_dialog -> {
                 findNavController().navigate(
                     DetailsScreenDirections.actionDetailsScreenToReleaseChannelDialog(pkgState.pkgName))
@@ -312,9 +308,6 @@ class DetailsScreen : ViewBindingFragment<DetailsScreenBinding>(), MenuProvider 
                         }
                     }
                     menuItem.setAvailable(available)
-                }
-                R.id.app_info -> {
-                    menuItem.setAvailable(pkgInfo != null)
                 }
             }
         }

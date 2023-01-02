@@ -4,9 +4,6 @@
         android:id="@+id/uninstall"
         android:title="@string/menu_item_uninstall" />
     <item
-        android:id="@+id/app_info"
-        android:title="@string/menu_item_app_info" />
-    <item
         android:id="@+id/release_channel_dialog"
         android:title="@string/release_channel" />
 </menu>

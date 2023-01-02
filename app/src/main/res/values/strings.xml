@@ -22,7 +22,6 @@
     <string name="menu_item_all_packages">All packages</string>
     <string name="menu_item_uninstall">Uninstall</string>
     <string name="menu_item_uninstall_updates">Uninstall updates</string>
-    <string name="menu_item_app_info">App info</string>
 
     <string name="pkg_installed_version">Installed version</string>
     <string name="pkg_available_version">Available version</string>
