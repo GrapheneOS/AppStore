@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import app.grapheneos.apps.ApplicationImpl
 
 inline fun <reified T : Number> Bundle.maybeGetNumber(key: String): T? {
     // getInt(), getLong() etc return 0 when entry is missing, which is ambiguous when 0 is a valid value
@@ -87,6 +88,9 @@ fun unmarshallParcelableInner(bytes: ByteArray, type: Class<out Parcelable>): Pa
             parcel.readParcelable(classLoader)
         }
         check(obj!!.javaClass === type)
+        if (obj is Bundle) {
+            obj.classLoader = ApplicationImpl::class.java.classLoader
+        }
         return obj as Parcelable
     } finally {
         parcel.recycle()
