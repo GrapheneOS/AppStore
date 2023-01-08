@@ -132,7 +132,6 @@
     <string name="err_msg_pkg_is_installing">%1$s is currently installing. Try again after installation completes.</string>
 
     <string name="btn_copy">Copy</string>
-    <string name="copied_to_clipboard">Copied to clipboard</string>
 
     <string name="notification_permission_dialog_title">Missing notification permission</string>
     <string name="notification_permission_dialog_message">Allow the notification permission to get notified of app updates, download and installation status.</string>

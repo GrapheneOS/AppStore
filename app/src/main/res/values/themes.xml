@@ -8,7 +8,5 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.Apps.AppBarOverlay" parent="ThemeOverlay.Material3.Dark" />
-
     <style name="Theme.Apps.PopUpOverlay" parent="ThemeOverlay.Material3.Light" />
 </resources>

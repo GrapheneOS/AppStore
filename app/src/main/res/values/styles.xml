@@ -1,26 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Widget.Material3.Button.IconOnly" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="iconPadding">0dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
-        <item name="android:minWidth">48dp</item>
-        <item name="android:minHeight">48dp</item>
-    </style>
-
-    <style name="ShapeAppearance.MaterialComponents.SmallComponent.RoundedCorner">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">10dp</item>
-    </style>
-
     <style name="PackageList">
         <item name="android:layout_width">match_parent</item>
         <item name="android:paddingHorizontal">8dp</item>
         <item name="android:clipToPadding">false</item>
         <item name="android:transitionGroup">true</item>
     </style>
-
 </resources>
