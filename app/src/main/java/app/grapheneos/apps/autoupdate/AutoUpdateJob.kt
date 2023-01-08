@@ -88,7 +88,7 @@ class AutoUpdateJob : JobService() {
         // There are many reasons the job might be stopped, important one is that network type
         // might have changed from what is specified in job parameters
 
-        Log.d(TAG, "onStopJob, reason ${if (Build.VERSION.SDK_INT >= 31) params.stopReason else 0}")
+        Log.d(TAG, "onStopJob, reason ${params.stopReason}")
 
         val jobs = activeJobs
         activeJobs = null

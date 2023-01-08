@@ -342,14 +342,12 @@ class InstallTask(
             setAppPackageName(rPackage.manifestPackageName)
             setAppLabel(rPackage.label)
 
-            if (Build.VERSION.SDK_INT >= 31) {
-                if (isUpdate) {
-                    setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
-                    setInstallScenario(PackageManager.INSTALL_SCENARIO_BULK)
-                } else {
-                    setRequireUserAction(SessionParams.USER_ACTION_REQUIRED)
-                    setInstallScenario(PackageManager.INSTALL_SCENARIO_FAST)
-                }
+            if (isUpdate) {
+                setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
+                setInstallScenario(PackageManager.INSTALL_SCENARIO_BULK)
+            } else {
+                setRequireUserAction(SessionParams.USER_ACTION_REQUIRED)
+                setInstallScenario(PackageManager.INSTALL_SCENARIO_FAST)
             }
 
             if (Build.VERSION.SDK_INT >= 33) {

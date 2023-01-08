@@ -64,8 +64,7 @@ class PkgInstallerStatusReceiver: BroadcastReceiver() {
                 identifier = UUID.randomUUID().toString()
                 replaceExtras(Bundle().apply { putParcelable2(EXTRA_REQUEST_INFO, requestInfo) })
             }
-            val flags = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
-            return PendingIntent.getBroadcast(appContext, 0, intent, flags).intentSender
+            return PendingIntent.getBroadcast(appContext, 0, intent, PendingIntent.FLAG_MUTABLE).intentSender
         }
     }
 
