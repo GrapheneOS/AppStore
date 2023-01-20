@@ -7,6 +7,7 @@ import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.core.os.postDelayed
 import app.grapheneos.apps.autoupdate.AutoUpdatePrefs
 import app.grapheneos.apps.core.mainHandler
@@ -17,9 +18,21 @@ import com.google.android.material.color.DynamicColors
 class ApplicationImpl : Application(), ActivityLifecycleCallbacks {
     companion object {
         @SuppressLint("StaticFieldLeak") // app context is a singleton
-        lateinit var baseAppContext: Context
+        // nullable type is used instead of lateinit because initialization checks for lateinit vars
+        // in companion object are broken as of Kotlin 1.7
+        var baseAppContext: Context? = null
 
+        const val TAG = "ApplicationImpl"
         const val JOB_SCHEDULER_JOB_ID_AUTO_UPDATE = 1000
+
+        fun exitIfNotInitialized() {
+            if (baseAppContext == null) {
+                // see https://issuetracker.google.com/issues/160946170
+                Log.e(TAG, "custom Application subclass wasn't initialized, " +
+                        "likely due to an Android bug, calling System.exit(1)")
+                System.exit(1)
+            }
+        }
     }
 
     // called before ContentProviders are initialized, onCreate() is called after
