@@ -4,6 +4,7 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import android.os.Build
 import android.util.Log
+import app.grapheneos.apps.ApplicationImpl
 import app.grapheneos.apps.Notifications
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
@@ -27,6 +28,7 @@ class AutoUpdateJob : JobService() {
     private var activeJobs: List<Job>? = null
 
     override fun onStartJob(params: JobParameters): Boolean {
+        ApplicationImpl.exitIfNotInitialized()
         Log.d(TAG, "onStartJob")
 
         checkMainThread()

@@ -19,7 +19,7 @@ import java.io.File
 import java.util.concurrent.Executor
 
 @SuppressLint("StaticFieldLeak") // application context is a singleton
-val appContext: Context = ApplicationImpl.baseAppContext
+val appContext: Context = ApplicationImpl.baseAppContext!!
 
 val mainLooper: Looper = appContext.mainLooper
 val mainThread: Thread = mainLooper.thread
