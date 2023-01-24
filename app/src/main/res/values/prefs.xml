@@ -20,6 +20,7 @@
         <item>32400000</item>
         <item>43200000</item>
         <item>86400000</item>
+        <item>604800000</item>
     </string-array>
 
     <string-array name="pref_labels_entries_background_update_check_interval">
@@ -29,6 +30,7 @@
         <item>9 hours</item>
         <item>12 hours</item>
         <item>24 hours</item>
+        <item>1 week</item>
     </string-array>
 
     <string name="pref_key_network_type_for_auto_update_job" translatable="false">seamlessUpdateNetworkType</string>
