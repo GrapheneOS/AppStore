@@ -143,6 +143,20 @@ class InstallTask(
                         obtainAndWriteApk(apk, session)
                     }
                 }
+
+                if (rPackage.common.hasFsVeritySignatures) {
+                    val certId = rPackage.common.repo.fsVerityCertificateId
+                    if (certId != null) {
+                        apks.forEach { apk ->
+                            launch {
+                                val downloadName = "${apk.name}.${certId}.fsv_sig"
+                                // OS requires this format for file name that is written into session
+                                val name = "${apk.name}.fsv_sig"
+                                obtainAndWriteFsVeritySig(downloadName, name, session)
+                            }
+                        }
+                    }
+                }
             }
         }
         state = STATE_PENDING_INSTALL
@@ -267,6 +281,69 @@ class InstallTask(
                 fsyncAndRename(tmpFd.v, tmpPath, path)
             }
             uncompressAndWriteApk(tmpFd.v, apk, session)
+        }
+    }
+
+    private suspend fun obtainAndWriteFsVeritySig(downloadName: String, name: String, session: Session) {
+        val file = File(apksDir, downloadName)
+        val path = file.path
+
+        // fs-verity signatures are small (typically under 1K) and don't compress well, so don't
+        // support download resume and compression
+
+        // fs-verity signatures don't have SHA-256 checksums:
+        // kernel enforces that signatures are valid and come from a trusted certificate that is
+        // stored in the immutable system image
+
+        // Check whether this signature is already downloaded
+        try {
+            Os.open(path, O_RDONLY, 0)
+        } catch (e: ErrnoException) {
+            null
+        }?.let {
+            ScopedFileDescriptor(it).use { fd ->
+                val fileSize = Os.fstat(fd.v).st_size
+
+                FileInputStream(fd.v).use { inputStream ->
+                session.openWrite(name, 0, fileSize).use { outputStream ->
+                    inputStream.copyTo2(outputStream, job)
+                }}
+            }
+            return
+        }
+
+        val tmpPath = "$path.tmp"
+        openTempFileFd(tmpPath).use { tmpFd ->
+            val downloadProgress = AtomicLong()
+
+            httpDownloadSemaphore.withPermit {
+                val url = "$REPO_BASE_URL/packages/${rPackage.manifestPackageName}/${rPackage.versionCode}/$downloadName"
+
+                openConnection(url) {
+                    setRequestProperty("Accept-Encoding", "identity")
+                }.use { conn ->
+                    job.ensureActive()
+
+                    if (conn.v.responseCode != HTTP_OK) {
+                        throwResponseCodeException(conn.v)
+                    }
+
+                    conn.v.inputStream.use { inputStream ->
+                    FileOutputStream(tmpFd.v).use { outputStream ->
+                        inputStream.copyTo2(outputStream, job, downloadProgress)
+                    }}
+                }
+            }
+
+            fsyncAndRename(tmpFd.v, tmpPath, path)
+
+            val fileSize = downloadProgress.get()
+            lseekToStart(tmpFd.v)
+
+            FileInputStream(tmpFd.v).use { inputStream ->
+            session.openWrite(name, 0, fileSize).use { outputStream ->
+                inputStream.copyTo2(outputStream, job)
+            }}
         }
     }
 
