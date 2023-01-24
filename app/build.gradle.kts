@@ -37,7 +37,7 @@ android {
         applicationId = "app.grapheneos.apps"
         minSdk = 31
         targetSdk = 33
-        versionCode = 13
+        versionCode = 14
         versionName = versionCode.toString()
         resourceConfigurations.add("en")
 
