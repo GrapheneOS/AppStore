@@ -4,12 +4,15 @@ import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
+import android.security.FileIntegrityManager
 import android.util.ArrayMap
 import android.util.ArraySet
+import android.util.Base64
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.SparseArray
 import androidx.annotation.StringRes
+import androidx.core.content.getSystemService
 import androidx.core.util.keyIterator
 import androidx.core.util.size
 import app.grapheneos.apps.BuildConfig
@@ -23,9 +26,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import java.util.HashMap
+import java.io.ByteArrayInputStream
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 import java.util.Locale
-import kotlin.collections.ArrayList
 
 const val REPO_BASE_URL = BuildConfig.REPO_BASE_URL
 
@@ -77,6 +81,32 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
         }
 
         map
+    }
+
+    val fsVerityCertificateId: Int? = run {
+        if (!isPrivilegedInstaller) {
+            if (!pkgManager.canRequestPackageInstalls()) {
+                // isAppSourceCertificateTrusted() below requires {REQUEST_,}INSTALL_PACKAGES
+                return@run null
+            }
+        }
+
+        val certs = json.optJSONObject("fsVerityCerts") ?: return@run null
+        val fim: FileIntegrityManager = appContext.getSystemService() ?: return@run null
+
+        val certFactory = CertificateFactory.getInstance("X.509")
+
+        for (id in certs.keys()) {
+            val certBase64 = certs.getString(id)
+            val certBytes = Base64.decode(certBase64, Base64.DEFAULT)
+
+            val cert = certFactory.generateCertificate(ByteArrayInputStream(certBytes)) as X509Certificate
+
+            if (fim.isAppSourceCertificateTrusted(cert)) {
+                return@run id.toInt()
+            }
+        }
+        return@run null
     }
 }
 
@@ -202,6 +232,8 @@ class RPackageContainer(val repo: Repo, val packageName: String,
 
         return@let pkgs.filterNotNull().toTypedArray()
     }
+
+    val hasFsVeritySignatures = json.optBoolean("hasFsVeritySignatures", false)
 
     fun getPackage(channel: ReleaseChannel): RPackage {
         // variants list is sorted by releaseChannel property, most stable variant comes last
