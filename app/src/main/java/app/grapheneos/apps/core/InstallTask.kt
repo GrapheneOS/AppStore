@@ -10,8 +10,8 @@ import android.os.Build
 import android.os.Bundle
 import android.system.ErrnoException
 import android.system.Os
-import android.system.OsConstants
 import android.system.OsConstants.O_CREAT
+import android.system.OsConstants.O_RDONLY
 import android.system.OsConstants.O_RDWR
 import android.system.OsConstants.O_TRUNC
 import android.system.OsConstants.SEEK_CUR
@@ -185,45 +185,46 @@ class InstallTask(
 
     private val apksDir = File(packageCacheDir, "${rPackage.common.packageName}/${rPackage.versionCode}")
 
+    // Note that files in cache dir may be removed by the OS at any time when it is running low
+    // on storage space or if another app asks to allocate storage space.
+    // App process will not be restarted when cache is cleared. Cache may get cleared fully or
+    // partially.
+    // To handle this behavior:
+    // - always call mkdirs() before creating files to handle the case when directory
+    // is removed racily. There's still a small race window between return of mkdirs() and creation of file.
+    // This won't help when renaming files, and link(2)/linkat(2) can't help too, because they
+    // are blocked on Android.
+    // - don't reopen files unless it can't be avoided (file descriptor remains valid even if its
+    // file is removed)
+
+    private fun openTempFileFd(tmpPath: String): ScopedFileDescriptor { // todo use common
+        apksDir.mkdirs()
+        // O_TRUNC to handle stale tmp files that may remain after process kill, power loss etc
+        val flags = O_RDWR or O_CREAT or O_TRUNC
+        val mode = S_IRUSR or S_IWUSR
+        return ScopedFileDescriptor(Os.open(tmpPath, flags, mode))
+    }
+
+    // Make sure file contents are fully synced before renaming it. Non-tmp file
+    // should always have valid contents, even if it's incomplete
+    private fun fsyncAndRename(tmpFd: FileDescriptor, tmpPath: String, path: String) {
+        Os.fsync(tmpFd)
+        try {
+            Os.rename(tmpPath, path)
+        } catch (e: ErrnoException) {
+            // rename is used only for caching purposes, it's fine if it fails
+            Log.d("fsyncAndRename", "", e)
+        }
+    }
+
     private suspend fun obtainAndWriteApk(apk: Apk, session: Session) {
         val file = File(apksDir, "${apk.name}.gz")
         val path = file.path
         val tmpPath = "$path.tmp"
 
-        // Note that files in cache dir may be removed by the OS at any time when it is running low
-        // on storage space or if another app asks to allocate storage space.
-        // App process will not be restarted when cache is cleared. Cache may get cleared fully or
-        // partially.
-        // To handle this behavior:
-        // - always call mkdirs() before creating files to handle the case when directory
-        // is removed racily. There's still a small race window between return of mkdirs() and creation of file.
-        // This won't help when renaming files, and link(2)/linkat(2) can't help too, because they
-        // are blocked on Android.
-        // - don't reopen files unless it can't be avoided (file descriptor remains valid even if its
-        // file is removed)
-
-        fun openTempApkFd(): ScopedFileDescriptor {
-            apksDir.mkdirs()
-            // O_TRUNC to handle stale tmp files that may remain after process kill, power loss etc
-            val flags = O_RDWR or O_CREAT or O_TRUNC
-            val mode = S_IRUSR or S_IWUSR
-            return ScopedFileDescriptor(Os.open(tmpPath, flags, mode))
-        }
-
-        // Make sure file contents are fully synced before renaming it. Non-tmp file
-        // should always have valid contents, even if it's incomplete
-        fun fsyncAndRename(tmpFd: FileDescriptor) {
-            Os.fsync(tmpFd)
-            try {
-                Os.rename(tmpPath, path)
-            } catch (e: ErrnoException) {
-                Log.d("fsyncAndRename", "", e)
-            }
-        }
-
         // Check whether this apk is already partially or fully downloaded
         try {
-            Os.open(path, OsConstants.O_RDONLY, 0)
+            Os.open(path, O_RDONLY, 0)
         } catch (e: ErrnoException) {
             null
         }?.let {
@@ -243,14 +244,14 @@ class InstallTask(
                 // but this would make things more complicated and brittle, because rename and write
                 // to file may get reordered before they are actually written to storage, which
                 // could corrupt file's contents
-                openTempApkFd().use { tmpFd ->
+                openTempFileFd(tmpPath).use { tmpFd ->
                     sendfile(tmpFd.v, fd.v, curSize)
                     check(Os.lseek(tmpFd.v, 0L, SEEK_CUR) == curSize)
                     downloadProgress.getAndAdd(curSize)
                     try {
                         download(apk.downloadUrl(), tmpFd.v, curSize, fullSize)
                     } finally {
-                        fsyncAndRename(tmpFd.v)
+                        fsyncAndRename(tmpFd.v, tmpPath, path)
                     }
                     uncompressAndWriteApk(tmpFd.v, apk, session)
                 }
@@ -259,11 +260,11 @@ class InstallTask(
         }
 
         // cached apk not found
-        openTempApkFd().use { tmpFd ->
+        openTempFileFd(tmpPath).use { tmpFd ->
             try {
                 download(apk.downloadUrl(), tmpFd.v, curSize = 0L, apk.compressedSize)
             } finally {
-                fsyncAndRename(tmpFd.v)
+                fsyncAndRename(tmpFd.v, tmpPath, path)
             }
             uncompressAndWriteApk(tmpFd.v, apk, session)
         }
