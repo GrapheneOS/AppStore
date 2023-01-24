@@ -37,10 +37,10 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withPermit
 import java.io.File
 import java.io.FileDescriptor
@@ -138,11 +138,11 @@ class InstallTask(
 
             state = STATE_DOWNLOADING
             coroutineScope {
-                apks.map { apk ->
-                    async {
+                apks.forEach { apk ->
+                    launch {
                         obtainAndWriteApk(apk, session)
                     }
-                }.awaitAll()
+                }
             }
         }
         state = STATE_PENDING_INSTALL
@@ -169,15 +169,15 @@ class InstallTask(
 
         coroutineScope {
             val splitSourceDirs = appInfo.splitSourceDirs ?: emptyArray<String>()
-            (splitSourceDirs + appInfo.sourceDir).map { apkPath ->
+            (splitSourceDirs + appInfo.sourceDir).forEach { apkPath ->
                 val apkFile = File(apkPath)
-                async {
+                launch {
                     apkFile.inputStream().use { input ->
                     session.openWrite(apkFile.name, 0L, apkFile.length()).use { output ->
                         input.copyTo2(output, job)
                     }}
                 }
-            }.awaitAll()
+            }
         }
 
         return true
@@ -392,17 +392,17 @@ class InstallTask(
             try {
                 pkgInstaller.openSession(parentSessionId).use { parentSession ->
                     coroutineScope {
-                        tasks.map { childTask ->
+                        tasks.forEach { childTask ->
                             val childSessionParams = childTask.makeSessionParams()
                             val childSessionId = InstallerSessions.createSession(childSessionParams, childTask.packageState)
                             childTask.job = job
                             parentSession.addChildSessionId(childSessionId)
-                            async {
+                            launch {
                                 pkgInstaller.openSession(childSessionId).use { childSession ->
                                     childTask.obtainAndWriteApks(childSession)
                                 }
                             }
-                        }.awaitAll()
+                        }
                     }
 
                     tasks.forEach { it.callbackBeforeCommit?.invoke() }
