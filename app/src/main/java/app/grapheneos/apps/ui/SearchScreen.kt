@@ -3,6 +3,7 @@ package app.grapheneos.apps.ui
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.core.os.postDelayed
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
@@ -11,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import app.grapheneos.apps.core.PackageSource
 import app.grapheneos.apps.core.mainHandler
 import app.grapheneos.apps.databinding.SearchScreenBinding
+import app.grapheneos.apps.util.hideKeyboard
 import app.grapheneos.apps.util.requestKeyboard
 import java.util.EnumSet
 
@@ -48,6 +50,14 @@ class SearchScreen : PackageListFragment<SearchScreenBinding>() {
             }
             editText.doAfterTextChanged {
                 model.searchQuery.value = it?.toString()?.trimStart() ?: ""
+            }
+
+            editText.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    activity?.hideKeyboard()
+                    editText.clearFocus()
+                }
+                true
             }
         }
 

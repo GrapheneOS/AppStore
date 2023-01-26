@@ -1,5 +1,6 @@
 package app.grapheneos.apps.util
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.UserManager
@@ -114,4 +115,11 @@ fun getSharedPreferences(@StringRes name: Int) = getSharedPreferences(appResourc
 inline fun <reified T> className() = T::class.java.name
 inline fun <reified T> simpleName() = T::class.java.simpleName
 
+fun Activity.hideKeyboard() {
+    hideKeyboard(currentFocus ?: View(this))
+}
 
+private fun Context.hideKeyboard(view: View) {
+    val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+}
