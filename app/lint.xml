@@ -1,7 +1,7 @@
 <lint>
     <!-- ignore false positive lint for Bouncy Castle -->
     <issue id="TrustAllX509TrustManager">
-        <ignore regexp="bcpkix-jdk15to18-1.72.jar"/>
+        <ignore regexp="bcpkix-jdk18on-1.72.jar"/>
     </issue>
 
     <!-- overly aggressive check -->
