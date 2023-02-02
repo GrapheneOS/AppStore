@@ -16,6 +16,12 @@ plugins {
     id("kotlin-parcelize")
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
 android {
     if (useKeystoreProperties) {
         signingConfigs {
