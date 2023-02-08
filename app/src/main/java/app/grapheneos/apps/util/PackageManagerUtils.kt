@@ -82,9 +82,6 @@ fun PackageManager.getSharedLibraries(flags: Long = 0L): List<SharedLibraryInfo>
     }
 }
 
-fun PackageManager.getSharedLibraryInfoOrNull(pkgName: String, version: Long): SharedLibraryInfo? =
-    getSharedLibraries().find { it.name == pkgName && it.longVersion == version }
-
 fun PackageInfo.getVersionNameOrVersionCode() = versionName ?: versionCode.toString()
 
 fun PackageInfo.isSystemPackage() = applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
