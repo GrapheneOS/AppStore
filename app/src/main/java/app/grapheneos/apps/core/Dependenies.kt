@@ -89,11 +89,12 @@ private fun collectDependencies(dependant: String, dependencies: Array<Dependenc
         if (skipPresent) {
             if (depPackage.common.isSharedLibrary) {
                 // no public API to get info about a particular library
-                val present = pkgManager.getSharedLibraries(0L).any {
-                    it.name == depPackage.packageName && it.longVersion == depPackage.versionCode
+                val isPresent = pkgManager.getSharedLibraries().any {
+                    val pkg = it.declaringPackage
+                    pkg.packageName == depPackage.packageName && pkg.longVersionCode == depPackage.versionCode
                 }
 
-                if (present) {
+                if (isPresent) {
                     continue
                 }
             }
