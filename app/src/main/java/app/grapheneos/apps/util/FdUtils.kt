@@ -31,6 +31,8 @@ fun makeTemporaryFileDescriptor(): ScopedFileDescriptor {
     val file: File = fileForTemporaryFileDescriptor
     val path = file.path
 
+    // O_TMPFILE flag is not a part of Android SDK, though it is part of Android NDK. Its value is
+    // ABI-dependent. Approximate O_TMPFILE with open() + unlink()
     synchronized(file) {
         fd = Os.open(path, flags, mode)
         // there's no wrapper for unlink()
