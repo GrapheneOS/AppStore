@@ -8,6 +8,7 @@ import androidx.core.content.edit
 import app.grapheneos.apps.core.InstallTask.Companion.packageCacheDir
 import app.grapheneos.apps.util.InternalSettings
 import app.grapheneos.apps.util.getPackageInfoOrNull
+import app.grapheneos.apps.util.getSharedLibraries
 import app.grapheneos.apps.util.megabytes
 import java.io.File
 import kotlin.time.Duration.Companion.days
@@ -17,8 +18,23 @@ fun prunePackageCache() {
     maybeDeleteV1Files()
 
     val cacheDir = packageCacheDir
+
+    val sharedLibraries = pkgManager.getSharedLibraries()
+
     packageCacheDir.listFiles()?.forEach { pkgDir ->
-        val curVersion = pkgManager.getPackageInfoOrNull(pkgDir.name)?.longVersionCode ?: return@forEach
+        val pkgName = pkgDir.name
+        var curVersion = pkgManager.getPackageInfoOrNull(pkgName)?.longVersionCode
+        if (curVersion == null) {
+            curVersion = sharedLibraries.filter {
+                it.declaringPackage.packageName == pkgName
+            }.maxOfOrNull {
+                it.declaringPackage.longVersionCode
+            }
+        }
+
+        if (curVersion == null) {
+            return@forEach
+        }
 
         pkgDir.listFiles()?.forEach { pkgVersionDir ->
             if (pkgVersionDir.name.toLong() <= curVersion) {
