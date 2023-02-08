@@ -116,6 +116,11 @@ enum class ReleaseChannel(@StringRes val uiName: Int) {
     stable(R.string.release_channel_stable),
 }
 
+fun findRPackage(variants: List<RPackage>, channel: ReleaseChannel): RPackage {
+    // variants are sorted by stability in descending order
+    return variants.find { it.releaseChannel >= channel } ?: variants.last()
+}
+
 enum class PackageSource(@StringRes val uiName: Int) {
     GrapheneOS(R.string.pkg_source_grapheneos),
     GrapheneOS_build(R.string.pkg_source_grapheneos_build),
@@ -187,7 +192,7 @@ class RPackageContainer(val repo: Repo, val packageName: String,
 
     val dependencies: Array<Dependency>? = parseDependencies(json, repo)
 
-    val variants: Array<RPackage> = json.getJSONObject("variants").let {
+    val variants: List<RPackage> = json.getJSONObject("variants").let {
         val pkgs = arrayOfNulls<RPackage>(ReleaseChannel.values().size)
 
         for (versionString in it.keys()) {
@@ -230,14 +235,13 @@ class RPackageContainer(val repo: Repo, val packageName: String,
             pkgs[arrayIndex] = pkg
         }
 
-        return@let pkgs.filterNotNull().toTypedArray()
+        return@let pkgs.filterNotNull()
     }
 
     val hasFsVeritySignatures = json.optBoolean("hasFsVeritySignatures", false)
 
     fun getPackage(channel: ReleaseChannel): RPackage {
-        // variants list is sorted by releaseChannel property, most stable variant comes last
-        return variants.find { it.releaseChannel >= channel } ?: variants.last()
+        return findRPackage(variants, channel)
     }
 }
 

@@ -9,7 +9,6 @@ import app.grapheneos.apps.ui.DetailsScreen
 import app.grapheneos.apps.ui.ErrorDialog
 import app.grapheneos.apps.util.ActivityUtils
 import app.grapheneos.apps.util.checkMainThread
-import app.grapheneos.apps.util.getPackageInfoOrNull
 import app.grapheneos.apps.util.getSharedLibraries
 import kotlin.jvm.Throws
 
@@ -81,8 +80,7 @@ private fun collectDependencies(dependant: String, dependencies: Array<Dependenc
         }
 
         val preferredChannel = PackageStates.getPackageState(dep.packageName).preferredReleaseChannel()
-        val depPackage = matchingVariants.find { it.releaseChannel == preferredChannel }
-            ?: matchingVariants.last()
+        val depPackage = findRPackage(matchingVariants, preferredChannel)
 
         collectDependencies(dep.packageName, depPackage.dependencies, skipPresent, forUpdate, visited, result)
 
