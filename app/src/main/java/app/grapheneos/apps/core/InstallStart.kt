@@ -1,6 +1,7 @@
 package app.grapheneos.apps.core
 
 import android.app.Notification
+import android.content.Intent
 import android.text.format.Formatter
 import android.util.ArraySet
 import android.util.Log
@@ -16,21 +17,23 @@ import app.grapheneos.apps.show
 import app.grapheneos.apps.ui.DetailsScreen
 import app.grapheneos.apps.ui.ErrorDialog
 import app.grapheneos.apps.ui.MainActivity
-import app.grapheneos.apps.util.checkMainThread
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
 import app.grapheneos.apps.util.ActivityUtils
+import app.grapheneos.apps.util.checkMainThread
 import app.grapheneos.apps.util.componentName
+import app.grapheneos.apps.util.isSystemPackage
+import app.grapheneos.apps.util.packageUri
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 fun startPackageInstallFromUi(pkg: RPackage, isUpdate: Boolean, fragment: Fragment) {
     try {
         @Suppress("DeferredResultUnused")
-        startPackageInstall(pkg, true, isUpdate)
+        startPackageInstall(pkg, true, isUpdate, fragment)
     } catch (ibe: InstallerBusyException) {
         ErrorDialog.show(fragment, ibe.details)
     } catch (dre: DependencyResolutionException) {
@@ -39,7 +42,8 @@ fun startPackageInstallFromUi(pkg: RPackage, isUpdate: Boolean, fragment: Fragme
 }
 
 @Throws(InstallerBusyException::class, DependencyResolutionException::class)
-fun startPackageInstall(pkg: RPackage, isUserInitiated: Boolean, isUpdate: Boolean): Deferred<Deferred<PackageInstallerError?>> {
+fun startPackageInstall(pkg: RPackage, isUserInitiated: Boolean, isUpdate: Boolean,
+                        callerFragment: Fragment? = null): Deferred<Deferred<PackageInstallerError?>> {
     val dependencies = getMissingDependencies(pkg, forUpdate = isUpdate)
 
     val packagesToInstall: List<RPackage> = if (dependencies.isEmpty()) {
@@ -51,6 +55,42 @@ fun startPackageInstall(pkg: RPackage, isUserInitiated: Boolean, isUpdate: Boole
     packagesToInstall.forEach {
         if (PackageStates.getPackageState(it.packageName).isInstalling()) {
             throw InstallerBusyException(InstallerBusyError(it.packageName, pkg.packageName))
+        }
+    }
+
+    if (packagesToInstall.size == 1 && isPrivilegedInstaller && isUserInitiated && !isUpdate && callerFragment != null) {
+        val pkgInfo = InstallTask.findPackage(pkg.packageName, pkg.versionCode, pkg.common.signatures)
+        if (pkgInfo != null && pkgInfo.isSystemPackage()) {
+            // This is a system package that is not installed in the current user. Installing it
+            // using the regular method will fail on GrapheneOS because update of a system package to
+            // the same version is not allowed.
+            //
+            // Privileged installers can avoid this issue by using PackageInstaller#installExistingPackage()
+            // which simply marks the package as installed in the specified user, but it skips the
+            // installation confirmation UI.
+            // Using ACTION_INSTALL_PACKAGE with package:// Uri will show the standard PackageInstaller
+            // UI which will use installExistingPackage() itself.
+            //
+            // Note that using this approach for non-system packages is unsafe, despite the signature
+            // check above, because package may change by the time user confirms the installation.
+
+            val uri = packageUri(pkg.packageName)
+
+            @Suppress("DEPRECATION")
+            // there's no modern equivalent for this action when it's used with package:// Uri
+            val i = Intent(Intent.ACTION_INSTALL_PACKAGE, uri).apply {
+                putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+            }
+
+            // actual result is ignored, startActivityForResult() is needed only so that
+            // PackageInstaller UI can use getCallingPackage() to verify that EXTRA_NOT_UNKNOWN_SOURCE
+            // comes from a privileged installer
+            @Suppress("DEPRECATION")
+            callerFragment.startActivityForResult(i, -1)
+
+            // PackageInstaller has its own error UI, return null PackageInstallerError to
+            // the caller
+            return CoroutineScope(Dispatchers.IO).async { async { null } }
         }
     }
 
