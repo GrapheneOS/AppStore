@@ -511,7 +511,7 @@ class InstallTask(
 
         // Ask the PackageManager to return APKs for this package if it's already installed on this device
         // by another user, its version is >= the requested version, and its signature hashes match
-        private fun findPackage(packageName: String, minVersion: Long, signatures: Array<ByteArray>): PackageInfo? {
+        fun findPackage(packageName: String, minVersion: Long, signatures: Array<ByteArray>): PackageInfo? {
             if (!isPrivilegedInstaller) {
                 return null
             }
