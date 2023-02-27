@@ -64,6 +64,7 @@
 
         <service
             android:name=".PackageDownloadFgService"
+            android:foregroundServiceType="dataSync"
             android:exported="false" />
 
         <receiver
