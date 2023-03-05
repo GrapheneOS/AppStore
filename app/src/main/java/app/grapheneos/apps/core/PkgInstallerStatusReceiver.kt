@@ -93,7 +93,8 @@ class PkgInstallerStatusReceiver: BroadcastReceiver() {
                 InstallerSessions.installerSessionMap[sessionId!!]
             } ?: return
 
-            Log.d(TAG, "pending user action for session $sessionId")
+            Log.d(TAG, "pending user action for session $sessionId, packageName ${pkgState.pkgName}, " +
+                    "status ${pkgState.status()}")
 
             if (isPrivilegedInstaller) {
                 // bypass the DISALLOW_INSTALL_UNKNOWN_SOURCES user restriction
