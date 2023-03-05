@@ -29,6 +29,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import java.lang.reflect.Method
+import java.util.concurrent.atomic.AtomicBoolean
 
 fun startPackageInstallFromUi(pkg: RPackage, isUpdate: Boolean, fragment: Fragment) {
     try {
@@ -108,11 +110,28 @@ private fun startInstallTaskInner(pkgs: List<RPackage>, isUpdate: Boolean, isUse
         InstallTask(pkg, PackageStates.getPackageState(pkg.packageName), apks, isUserInitiated, isUpdate, callbackBeforeCommit)
     }
 
+    val isAddedToListOfBusyPackages = AtomicBoolean()
+    val packageNames = pkgs.map { it.packageName }
+
     val deferred: Deferred<Deferred<PackageInstallerError?>> = CoroutineScope(Dispatchers.IO).async {
+        updateListOfBusyPackages(true, packageNames)
+        isAddedToListOfBusyPackages.set(true)
+
         if (tasks.size == 1) {
             tasks[0].run()
         } else {
             InstallTask.multiInstall(tasks)
+        }
+    }
+
+    fun removeFromListOfBusyPackages(pkgInstallerResult: Deferred<PackageInstallerError?>?) {
+        if (isAddedToListOfBusyPackages.get()) {
+            CoroutineScope(Dispatchers.Default).launch {
+                // packageInstallerResult will be null if installation process failed before
+                // committing the PackageInstaller session
+                pkgInstallerResult?.await()
+                updateListOfBusyPackages(false, packageNames)
+            }
         }
     }
 
@@ -122,10 +141,13 @@ private fun startInstallTaskInner(pkgs: List<RPackage>, isUpdate: Boolean, isUse
 
     CoroutineScope(Dispatchers.Main).launch {
         val throwable = try {
-            @Suppress("DeferredResultUnused")
-            deferred.await()
+            val pkgInstallerResult = deferred.await()
+            removeFromListOfBusyPackages(pkgInstallerResult)
             null
-        } catch (e: Throwable) { e }
+        } catch (e: Throwable) {
+            removeFromListOfBusyPackages(null)
+            e
+        }
 
         tasks.forEach {
             PackageStates.completeInstallTask(it)
@@ -358,4 +380,39 @@ fun updateAllPackages(isUserInitiated: Boolean): List<Deferred<Deferred<PackageI
         Log.d("SelfUpdate", "finished waiting")
     })
     return jobs + selfUpdateJob
+}
+
+private val updateListOfBusyPackagesMethod: Method? by lazy {
+    if (!isPrivilegedInstaller) {
+        return@lazy null
+    }
+
+    try {
+        pkgManager.javaClass.getDeclaredMethod("updateListOfBusyPackages",
+            java.lang.Boolean.TYPE, java.util.List::class.java)
+    } catch (ignored: ReflectiveOperationException) {
+        null
+    }
+}
+
+class PackagesBusyException(val packageNames: List<String>) : Exception()
+
+// See https://github.com/GrapheneOS/platform_frameworks_base, file
+// services/core/java/com/android/server/pm/PrivilegedInstallerHelper.java
+private fun updateListOfBusyPackages(add: Boolean, packageNames: List<String>) {
+    val TAG = "updateListOfBusyPackages"
+
+    val method = updateListOfBusyPackagesMethod ?: return
+
+    val res = method.invoke(pkgManager, add, packageNames) as Boolean
+
+    if (add) {
+        if (!res) {
+            throw PackagesBusyException(packageNames)
+        }
+    } else {
+        if (!res) {
+            Log.d(TAG, "unable to remove " + packageNames.joinToString())
+        }
+    }
 }
