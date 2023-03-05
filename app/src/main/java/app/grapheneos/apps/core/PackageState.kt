@@ -145,12 +145,12 @@ class PackageState(val pkgName: String, val id: Long) {
     }
 
     fun status(): Status {
-        if (rPackage.common.isSharedLibrary) {
-            return Status.SHARED_LIBRARY
-        }
-
         if (isInstalling()) {
             return Status.INSTALLING
+        }
+
+        if (rPackage.common.isSharedLibrary) {
+            return Status.SHARED_LIBRARY
         }
 
         val pi = osPackageInfo
