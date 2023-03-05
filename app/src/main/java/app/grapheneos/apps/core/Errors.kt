@@ -135,8 +135,12 @@ class DownloadError(val pkgLabels: List<String>, val throwable: Throwable) : Err
     override fun titleResource() = R.string.notif_download_failed
 
     private fun localizedDetails(): String? {
-        if (throwable is UserRestrictionException) {
-            return appResources.getString(R.string.download_error_user_restriction)
+        when (throwable) {
+            is UserRestrictionException ->
+                return appResources.getString(R.string.download_error_user_restriction)
+            is PackagesBusyException ->
+                return appResources.getQuantityString(R.plurals.download_error_packages_busy,
+                    throwable.packageNames.size)
         }
         return null
     }
@@ -154,7 +158,7 @@ class DownloadError(val pkgLabels: List<String>, val throwable: Throwable) : Err
         }
         append('.')
 
-        if (throwable !is UserRestrictionException) {
+        if (throwable !is UserRestrictionException && throwable !is PackagesBusyException) {
             appendDetailsPrefix(ctx, this)
             append(throwable.toString())
         }

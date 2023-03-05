@@ -116,6 +116,10 @@
     <string name="err_msg_dependency_resolution_dep_not_installed">%1$s depends on %2$s, which is not installed.</string>
 
     <string name="download_error_user_restriction">the policy on this device prevents app installation</string>
+    <plurals name="download_error_packages_busy">
+        <item quantity="one">this package is being installed in another user</item>
+        <item quantity="other">one or more of these packages are being installed in another user</item>
+    </plurals>
 
     <string name="network_error_unable_to_connect_to_server">Unable to connect to the server</string>
     <string name="network_error_connection_timed_out">Connection to the server has timed out</string>
