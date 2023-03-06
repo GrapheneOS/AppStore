@@ -50,6 +50,7 @@ object AutoUpdatePrefs {
             appResources.getString(R.string.pref_key_always_allow_nocode_updates),
             appResources.getBoolean(R.bool.pref_def_always_allow_noCode_updates))
     }
+
     fun setupJob() {
         updateJob()
         // note that listener must be strongly referenced to work
@@ -89,9 +90,8 @@ object AutoUpdatePrefs {
         val jobInfo = JobInfo.Builder(JOB_SCHEDULER_JOB_ID_AUTO_UPDATE, componentName<AutoUpdateJob>()).run {
             setRequiredNetworkType(jobNetworkType())
             setPersisted(true)
-            setPeriodic(jobRepeatIntervalMillis())
-            // TODO consider using setRequiresDeviceIdle(), together with setOverrideDeadline()
-            //  (will require removing setPeriodic() and rescheduling manually)
+            setPeriodic(repeatInterval)
+            setRequiresDeviceIdle(true)
             build()
         }
 
