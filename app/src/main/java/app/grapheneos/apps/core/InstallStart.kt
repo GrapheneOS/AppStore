@@ -289,29 +289,35 @@ fun updateAllPackages(isUserInitiated: Boolean): List<Deferred<Deferred<PackageI
         } else {
             val allRPackages = ArrayList<RPackage>()
             rPackageGroups.forEach { it.forEach { allRPackages.add(it) } }
-
             selfUpdateGroup?.forEach { allRPackages.add(it) }
+
+            check(allRPackages.size >= 1)
+
+            val filteredRPackages = allRPackages.filter { it.common.showAutoUpdateNotifications }
+
+            if (filteredRPackages.isEmpty()) {
+                return emptyList()
+            }
+
+            val config = appResources.configuration
+            val sumSize = allRPackages.sumOf {
+                it.collectNeededApks(config).sumOf { it.compressedSize }
+            }.let {
+                Formatter.formatShortFileSize(appContext, it)
+            }
 
             Notifications.builder(Notifications.CH_AUTO_UPDATE_UPDATES_AVAILABLE).apply {
                 setSmallIcon(R.drawable.ic_updates_available)
 
-                check(allRPackages.size >= 1)
-
-                val config = appResources.configuration
-                val sumSize = allRPackages.sumOf {
-                    it.collectNeededApks(config).sumOf { it.compressedSize }
-                }.let {
-                    Formatter.formatShortFileSize(appContext, it)
-                }
                 setContentTitle(appResources.getQuantityString(R.plurals.notif_pkg_updates_available_title,
                     allRPackages.size, sumSize))
-                if (allRPackages.size == 1) {
-                    val rpkg = allRPackages[0]
+                if (filteredRPackages.size == 1) {
+                    val rpkg = filteredRPackages[0]
                     setContentText(appResources.getString(R.string.notif_pkg_update_available_text,
                         rpkg.label, rpkg.versionName))
                     setContentIntent(DetailsScreen.createPendingIntent(rpkg.packageName))
                 } else {
-                    setContentText(allRPackages.map { it.label }.joinToString())
+                    setContentText(filteredRPackages.map { it.label }.joinToString())
                     NavDeepLinkBuilder(appContext).run {
                         setGraph(R.navigation.nav_graph)
                         setDestination(R.id.updates_screen)
