@@ -2,6 +2,7 @@ package app.grapheneos.apps.core
 
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionParams
+import android.os.Build
 import android.util.Log
 import android.util.SparseArray
 import app.grapheneos.apps.BuildConfig
@@ -67,6 +68,21 @@ object InstallerSessions {
             if (!sessionInfo.isCommitted || sessionInfo.isMultiPackage) {
                 // multi-package sessions sometimes get stuck and never complete, likely due to an
                 // OS bug
+                abandonSession(sessionInfo)
+                continue
+            }
+
+
+            if (Build.VERSION.SDK_INT <= 33) {
+                // As of Android 13, committed PackageInstaller sessions sometimes get stuck and
+                // never complete. Sessions are persisted by the OS across reboots, which means that
+                // the package is stuck in "Installing..." state until the OS removes the session
+                // when it gets too old (see MAX_AGE_MILLIS in
+                // frameworks/base/services/core/java/com/android/server/pm/PackageInstallerService.java),
+                // which is currently set to 3 days.
+                //
+                // As a workaround, don't track PackageInstaller sessions across app launches and
+                // abandon existing PackageInstaller sessions on startup.
                 abandonSession(sessionInfo)
                 continue
             }
