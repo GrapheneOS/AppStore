@@ -23,8 +23,9 @@
         style="@style/TextAppearance.Material3.HeadlineSmall"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="16dp"
+        android:gravity="center"
         android:text="@string/main_screen_unable_to_fetch_app_list_initial"
-        android:visibility="gone"
-        android:gravity="center" />
+        android:visibility="gone" />
 
 </FrameLayout>
