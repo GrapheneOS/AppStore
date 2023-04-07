@@ -74,7 +74,7 @@ class AutoUpdateJob : JobService() {
                     activeJobs = null
                 }
             } else {
-                Notifications.builder(Notifications.CH_AUTO_UPDATE_FAILED).run {
+                Notifications.builder(Notifications.CH_BACKGROUND_UPDATE_CHECK_FAILED).run {
                     setSmallIcon(R.drawable.ic_error)
                     setContentTitle(R.string.unable_to_fetch_app_list)
                     setContentIntent(ErrorDialog.createPendingIntent(repoUpdateError))
