@@ -10,6 +10,7 @@ import android.os.Message
 import android.os.Messenger
 import android.util.Log
 import app.grapheneos.apps.autoupdate.AutoUpdatePrefs
+import app.grapheneos.apps.core.InstallParams
 import app.grapheneos.apps.core.PackageInstallerError
 import app.grapheneos.apps.core.PackageState
 import app.grapheneos.apps.core.startPackageInstall
@@ -93,9 +94,11 @@ class RpcProvider : ContentProvider() {
             return false
         }
 
+        val installParams = InstallParams(network = null, isUpdate = true, isUserInitiated = false)
+
         try {
             val installError: PackageInstallerError? =
-                startPackageInstall(pkg, isUserInitiated = false, isUpdate = true).await().await()
+                startPackageInstall(pkg, installParams).await().await()
             return installError == null
         } catch (e: Throwable) {
             Log.d(TAG, "", e)

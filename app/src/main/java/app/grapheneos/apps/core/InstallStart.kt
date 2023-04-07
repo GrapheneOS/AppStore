@@ -2,6 +2,7 @@ package app.grapheneos.apps.core
 
 import android.app.Notification
 import android.content.Intent
+import android.net.Network
 import android.text.format.Formatter
 import android.util.ArraySet
 import android.util.Log
@@ -32,10 +33,18 @@ import kotlinx.coroutines.launch
 import java.lang.reflect.Method
 import java.util.concurrent.atomic.AtomicBoolean
 
+class InstallParams(
+    // null means "use the default network"
+    val network: Network?,
+    val isUpdate: Boolean,
+    val isUserInitiated: Boolean,
+)
+
 fun startPackageInstallFromUi(pkg: RPackage, isUpdate: Boolean, fragment: Fragment) {
+    val params = InstallParams(network = null, isUpdate, isUserInitiated = true)
     try {
         @Suppress("DeferredResultUnused")
-        startPackageInstall(pkg, true, isUpdate, fragment)
+        startPackageInstall(pkg, params, fragment)
     } catch (ibe: InstallerBusyException) {
         ErrorDialog.show(fragment, ibe.details)
     } catch (dre: DependencyResolutionException) {
@@ -44,9 +53,9 @@ fun startPackageInstallFromUi(pkg: RPackage, isUpdate: Boolean, fragment: Fragme
 }
 
 @Throws(InstallerBusyException::class, DependencyResolutionException::class)
-fun startPackageInstall(pkg: RPackage, isUserInitiated: Boolean, isUpdate: Boolean,
+fun startPackageInstall(pkg: RPackage, params: InstallParams,
                         callerFragment: Fragment? = null): Deferred<Deferred<PackageInstallerError?>> {
-    val dependencies = getMissingDependencies(pkg, forUpdate = isUpdate)
+    val dependencies = getMissingDependencies(pkg, forUpdate = params.isUpdate)
 
     val packagesToInstall: List<RPackage> = if (dependencies.isEmpty()) {
         listOf(pkg)
@@ -60,7 +69,8 @@ fun startPackageInstall(pkg: RPackage, isUserInitiated: Boolean, isUpdate: Boole
         }
     }
 
-    if (packagesToInstall.size == 1 && isPrivilegedInstaller && isUserInitiated && !isUpdate && callerFragment != null) {
+    if (packagesToInstall.size == 1 && isPrivilegedInstaller && params.isUserInitiated
+            && !params.isUpdate && callerFragment != null) {
         val pkgInfo = InstallTask.findPackage(pkg.packageName, pkg.versionCode, pkg.common.signatures)
         if (pkgInfo != null && pkgInfo.isSystemPackage()) {
             // This is a system package that is not installed in the current user. Installing it
@@ -96,18 +106,19 @@ fun startPackageInstall(pkg: RPackage, isUserInitiated: Boolean, isUpdate: Boole
         }
     }
 
-    return startInstallTaskInner(packagesToInstall, isUpdate, isUserInitiated)
+    return startInstallTaskInner(packagesToInstall, params)
 }
 
 // Assumes that dependencies were already resolved
-private fun startInstallTaskInner(pkgs: List<RPackage>, isUpdate: Boolean, isUserInitiated: Boolean, callbackBeforeCommit: (suspend () -> Unit)? = null): Deferred<Deferred<PackageInstallerError?>> {
+private fun startInstallTaskInner(pkgs: List<RPackage>, params: InstallParams,
+        callbackBeforeCommit: (suspend () -> Unit)? = null): Deferred<Deferred<PackageInstallerError?>> {
     checkMainThread()
 
     val resConfig = appResources.configuration
 
     val tasks: List<InstallTask> = pkgs.map { pkg ->
         val apks = pkg.collectNeededApks(resConfig)
-        InstallTask(pkg, PackageStates.getPackageState(pkg.packageName), apks, isUserInitiated, isUpdate, callbackBeforeCommit)
+        InstallTask(pkg, PackageStates.getPackageState(pkg.packageName), apks, params, callbackBeforeCommit)
     }
 
     val isAddedToListOfBusyPackages = AtomicBoolean()
@@ -162,7 +173,7 @@ private fun startInstallTaskInner(pkgs: List<RPackage>, isUpdate: Boolean, isUse
 }
 
 private fun handleInstallTaskError(tasks: List<InstallTask>, throwable: Throwable) {
-    if (tasks.any { !it.isUserInitiated || it.isManuallyCancelled }) {
+    if (tasks.any { !it.params.isUserInitiated || it.isManuallyCancelled }) {
         return
     }
 
@@ -191,8 +202,9 @@ private fun handleInstallTaskError(tasks: List<InstallTask>, throwable: Throwabl
     }
 }
 
-fun updateAllPackages(isUserInitiated: Boolean): List<Deferred<Deferred<PackageInstallerError?>>> {
+fun updateAllPackages(params: InstallParams): List<Deferred<Deferred<PackageInstallerError?>>> {
     checkMainThread()
+    check(params.isUpdate)
 
     val rPackagesToInstall = HashMap<String, RPackage>()
     // package group is package plus its dependencies
@@ -299,13 +311,13 @@ fun updateAllPackages(isUserInitiated: Boolean): List<Deferred<Deferred<PackageI
     }
 
     if (rPackageGroups.isEmpty() && selfUpdateGroup == null) {
-        if (!isUserInitiated) {
+        if (!params.isUserInitiated) {
             AutoUpdateJob.showAllUpToDateNotification()
         }
         return emptyList()
     }
 
-    if (!isUserInitiated) {
+    if (!params.isUserInitiated) {
         if (AutoUpdatePrefs.isPackageAutoUpdateEnabled()) {
             Notifications.cancel(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
         } else {
@@ -356,25 +368,25 @@ fun updateAllPackages(isUserInitiated: Boolean): List<Deferred<Deferred<PackageI
         }
     }
 
-    if (selfUpdateGroup != null && !isUserInitiated) {
+    if (selfUpdateGroup != null && !params.isUserInitiated) {
         // installing self-update will kill our process and cancel all notifications about previous
         // background auto-updates (if they are present), so install it first
-        val job = startInstallTaskInner(selfUpdateGroup, isUpdate = true, isUserInitiated)
+        val job = startInstallTaskInner(selfUpdateGroup, params)
         return listOf(job)
     }
 
     val jobs = rPackageGroups.map { packages ->
-        startInstallTaskInner(packages, isUpdate = true, isUserInitiated)
+        startInstallTaskInner(packages, params)
     }
 
     if (selfUpdateGroup == null) {
         return jobs
     }
 
-    check(isUserInitiated) // handled above
+    check(params.isUserInitiated) // handled above
     // "update all" was trigerred from UpdatesScreen, install self-update after all other updates
     // (our process will be killed by the OS during self-update)
-    val selfUpdateJob = startInstallTaskInner(selfUpdateGroup, isUpdate = true, isUserInitiated, callbackBeforeCommit = {
+    val selfUpdateJob = startInstallTaskInner(selfUpdateGroup, params, callbackBeforeCommit = {
         Log.d("SelfUpdate", "waiting for all updates to complete before committing self-update session")
         jobs.awaitAll().awaitAll()
         Log.d("SelfUpdate", "finished waiting")

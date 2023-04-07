@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
+import app.grapheneos.apps.core.InstallParams
 import app.grapheneos.apps.core.PackageState
 import app.grapheneos.apps.core.updateAllPackages
 import app.grapheneos.apps.databinding.UpdatesScreenBinding
@@ -50,7 +51,8 @@ class UpdatesScreen : PackageListFragment<UpdatesScreenBinding>(), MenuProvider 
             updateList()
 
             CoroutineScope(Dispatchers.Main).launch {
-                val jobs = updateAllPackages(isUserInitiated = true)
+                val installParams = InstallParams(network = null, isUserInitiated = true, isUpdate = true)
+                val jobs = updateAllPackages(installParams)
                 if (jobs.isNotEmpty()) {
                     model.cancelableJobs = jobs
                     PackageStates.dispatchAllStatesChanged()

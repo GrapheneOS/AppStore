@@ -60,8 +60,7 @@ class InstallTask(
     val rPackage: RPackage,
     val packageState: PackageState, // access only from the main thread
     val apks: List<Apk>,
-    val isUserInitiated: Boolean,
-    val isUpdate: Boolean,
+    val params: InstallParams,
     val callbackBeforeCommit: (suspend () -> Unit)?,
 ) {
     val downloadProgress = AtomicLong()
@@ -107,7 +106,7 @@ class InstallTask(
 
                 val sessionCompletionChannel = PkgInstallerStatusReceiver.getCompletionChannelForSession(sessionId)
 
-                session.commit(PkgInstallerStatusReceiver.getIntentSender(listOf(rPackage), isUserInitiated))
+                session.commit(PkgInstallerStatusReceiver.getIntentSender(listOf(rPackage), params.isUserInitiated))
                 shouldAbandonSession = false
 
                 // actual installation is performed by the OS, represent this as Deferred
@@ -128,7 +127,7 @@ class InstallTask(
     private val packageCachePruningJob: Job? = PackageStates.packageCachePruningJob
 
     private suspend fun obtainAndWriteApks(session: Session) {
-        if (!isUpdate && maybeReuseAvailableApks(session)) {
+        if (!params.isUpdate && maybeReuseAvailableApks(session)) {
             // successfuly reused APKs from other user profile
         } else {
             // If there was a cache pruning job running when this install task was created, await
@@ -163,7 +162,7 @@ class InstallTask(
     }
 
     private fun cancelIfPackageVanished() {
-        if (isUpdate && !rPackage.common.isSharedLibrary) {
+        if (params.isUpdate && !rPackage.common.isSharedLibrary) {
             if (pkgManager.getPackageInfoOrNull(rPackage.packageName) == null) {
                 // Package that was supposed to be updated vanished, abort installation.
                 // If we have the INSTALL_PACKAGES permission and would have proceeded, we'd end up
@@ -319,7 +318,7 @@ class InstallTask(
             httpDownloadSemaphore.withPermit {
                 val url = "$REPO_BASE_URL/packages/${rPackage.manifestPackageName}/${rPackage.versionCode}/$downloadName"
 
-                openConnection(url) {
+                openConnection(params.network, url) {
                     setRequestProperty("Accept-Encoding", "identity")
                 }.use { conn ->
                     job.ensureActive()
@@ -394,7 +393,7 @@ class InstallTask(
         check(curSize >= 0L && curSize < fullSize)
 
         httpDownloadSemaphore.withPermit {
-            openConnection(url) {
+            openConnection(params.network, url) {
                 setRequestProperty("Accept-Encoding", "identity")
                 if (curSize > 0) {
                     addRequestProperty("Range", "bytes=${curSize}-")
@@ -420,7 +419,7 @@ class InstallTask(
             setAppPackageName(rPackage.manifestPackageName)
             setAppLabel(rPackage.label)
 
-            if (isUpdate) {
+            if (params.isUpdate) {
                 setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
                 setInstallScenario(PackageManager.INSTALL_SCENARIO_BULK)
             } else {
@@ -492,7 +491,7 @@ class InstallTask(
 
                     parentSession.commit(PkgInstallerStatusReceiver.getIntentSender(
                         tasks.map { it.rPackage },
-                        isUserInitiated = tasks.first().isUserInitiated)
+                        isUserInitiated = tasks.first().params.isUserInitiated)
                     )
                     shouldAbandonSession = false
 
