@@ -28,6 +28,7 @@ object Notifications {
     const val CH_AUTO_UPDATE_UPDATES_AVAILABLE = "auto_update_job_updates_available"
     const val CH_AUTO_UPDATE_CONFIRMATION_REQUIRED = "auto_update_job_confirmation_required"
     const val CH_AUTO_UPDATE_FAILED = "auto_update_job_failed"
+    const val CH_BACKGROUND_UPDATE_CHECK_FAILED = "update_check_failed"
 
     const val CH_CONFIRMATION_REQUIRED = "confirmation_required"
     const val CH_MISSING_DEPENDENCY = "dependency_error"
@@ -64,6 +65,7 @@ object Notifications {
             ch(CH_INSTALLATION_FAILED, R.string.notif_installation_failed, IMPORTANCE_HIGH),
             ch(CH_PACKAGE_DOWNLOAD, R.string.notif_ch_downloading_app, IMPORTANCE_DEFAULT),
             ch(CH_MISSING_DEPENDENCY, R.string.notif_missing_dependency, IMPORTANCE_DEFAULT),
+            ch(CH_BACKGROUND_UPDATE_CHECK_FAILED, R.string.notif_ch_background_update_check_failed)
         )
 
         channels.addAll(autoUpdateChannels)
