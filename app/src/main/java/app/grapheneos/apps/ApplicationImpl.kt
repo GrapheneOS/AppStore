@@ -8,9 +8,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
-import androidx.core.os.postDelayed
 import app.grapheneos.apps.autoupdate.AutoUpdatePrefs
-import app.grapheneos.apps.core.mainHandler
 import app.grapheneos.apps.core.notificationManager
 import app.grapheneos.apps.util.ActivityUtils
 import com.google.android.material.color.DynamicColors
@@ -24,6 +22,7 @@ class ApplicationImpl : Application(), ActivityLifecycleCallbacks {
 
         const val TAG = "ApplicationImpl"
         const val JOB_SCHEDULER_JOB_ID_AUTO_UPDATE = 1000
+        const val JOB_SCHEDULER_JOB_ID_UPDATE_CHECK = 1001
 
         fun exitIfNotInitialized() {
             if (baseAppContext == null) {
@@ -47,12 +46,7 @@ class ApplicationImpl : Application(), ActivityLifecycleCallbacks {
         Notifications.init(activeNotifications)
         ActivityUtils.init(activeNotifications)
 
-        // if the MainActivity is being launched for the first time, AutoUpdateJob would be executed
-        // before it launches, which breaks the check in AutoUpdateJob that skips the job when
-        // an activity is visible. Delay the job setup to avoid this.
-        mainHandler.postDelayed(3000) {
-            AutoUpdatePrefs.setupJob()
-        }
+        AutoUpdatePrefs.setupJobs()
 
         DynamicColors.applyToActivitiesIfAvailable(this)
         registerActivityLifecycleCallbacks(this)

@@ -43,6 +43,11 @@
 
         <service
             android:exported="false"
+            android:name=".autoupdate.UpdateCheckJob"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:exported="false"
             android:name=".autoupdate.AutoUpdateJob"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

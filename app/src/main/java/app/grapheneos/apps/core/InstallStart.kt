@@ -202,9 +202,8 @@ private fun handleInstallTaskError(tasks: List<InstallTask>, throwable: Throwabl
     }
 }
 
-fun updateAllPackages(params: InstallParams): List<Deferred<Deferred<PackageInstallerError?>>> {
+fun collectOutdatedPackageGroups(): List<List<RPackage>> {
     checkMainThread()
-    check(params.isUpdate)
 
     val rPackagesToInstall = HashMap<String, RPackage>()
     // package group is package plus its dependencies
@@ -287,84 +286,34 @@ fun updateAllPackages(params: InstallParams): List<Deferred<Deferred<PackageInst
     }
 
     val rPackageGroups = ArrayList<List<RPackage>>(packageGroups.size)
-    var selfUpdateGroup: List<RPackage>? = null
 
     for (group in packageGroups) {
         if (group == null) { // was merged into another group
             continue
         }
 
-        var hasSelfPackage = false
         val rPackageGroup = group.map {
-            if (it == selfPkgName) {
-                hasSelfPackage = true
-            }
             rPackagesToInstall[it]!!
         }
 
-        if (hasSelfPackage) {
-            check(selfUpdateGroup == null)
-            selfUpdateGroup = rPackageGroup
-            continue
-        }
         rPackageGroups.add(rPackageGroup)
     }
 
-    if (rPackageGroups.isEmpty() && selfUpdateGroup == null) {
-        if (!params.isUserInitiated) {
-            AutoUpdateJob.showAllUpToDateNotification()
-        }
-        return emptyList()
-    }
+    return rPackageGroups
+}
 
-    if (!params.isUserInitiated) {
-        if (AutoUpdatePrefs.isPackageAutoUpdateEnabled()) {
-            Notifications.cancel(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
-        } else {
-            val allRPackages = ArrayList<RPackage>()
-            rPackageGroups.forEach { it.forEach { allRPackages.add(it) } }
-            selfUpdateGroup?.forEach { allRPackages.add(it) }
+fun startPackageUpdate(params: InstallParams, rPackageGroups: List<List<RPackage>>):
+        List<Deferred<Deferred<PackageInstallerError?>>> {
+    check(params.isUpdate)
 
-            check(allRPackages.size >= 1)
+    var selfUpdateGroup: List<RPackage>? = null
 
-            val filteredRPackages = allRPackages.filter { it.common.showAutoUpdateNotifications }
-
-            if (filteredRPackages.isEmpty()) {
-                return emptyList()
-            }
-
-            val config = appResources.configuration
-            val sumSize = allRPackages.sumOf {
-                it.collectNeededApks(config).sumOf { it.compressedSize }
-            }.let {
-                Formatter.formatShortFileSize(appContext, it)
-            }
-
-            Notifications.builder(Notifications.CH_AUTO_UPDATE_UPDATES_AVAILABLE).apply {
-                setSmallIcon(R.drawable.ic_updates_available)
-
-                setContentTitle(appResources.getQuantityString(R.plurals.notif_pkg_updates_available_title,
-                    allRPackages.size, sumSize))
-                if (filteredRPackages.size == 1) {
-                    val rpkg = filteredRPackages[0]
-                    setContentText(appResources.getString(R.string.notif_pkg_update_available_text,
-                        rpkg.label, rpkg.versionName))
-                    setContentIntent(DetailsScreen.createPendingIntent(rpkg.packageName))
-                } else {
-                    setContentText(filteredRPackages.map { it.label }.joinToString())
-                    NavDeepLinkBuilder(appContext).run {
-                        setGraph(R.navigation.nav_graph)
-                        setDestination(R.id.updates_screen)
-                        setComponentName(componentName<MainActivity>())
-                        createPendingIntent()
-                    }.let {
-                        setContentIntent(it)
-                    }
-                }
-                setStyle(Notification.BigTextStyle())
-                show(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
-            }
-            return emptyList()
+    for (rPackageGroup in rPackageGroups) {
+        val selfPkgCount = rPackageGroup.count { it.packageName == selfPkgName }
+        check(selfPkgCount <= 1)
+        if (selfPkgCount == 1) {
+            check(selfUpdateGroup == null)
+            selfUpdateGroup = rPackageGroup
         }
     }
 
