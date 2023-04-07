@@ -12,7 +12,8 @@ import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
 import app.grapheneos.apps.core.InstallParams
 import app.grapheneos.apps.core.PackageState
-import app.grapheneos.apps.core.updateAllPackages
+import app.grapheneos.apps.core.collectOutdatedPackageGroups
+import app.grapheneos.apps.core.startPackageUpdate
 import app.grapheneos.apps.databinding.UpdatesScreenBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,9 +52,10 @@ class UpdatesScreen : PackageListFragment<UpdatesScreenBinding>(), MenuProvider 
             updateList()
 
             CoroutineScope(Dispatchers.Main).launch {
-                val installParams = InstallParams(network = null, isUserInitiated = true, isUpdate = true)
-                val jobs = updateAllPackages(installParams)
-                if (jobs.isNotEmpty()) {
+                val outdatedPackageGroups = collectOutdatedPackageGroups()
+                if (outdatedPackageGroups.isNotEmpty()) {
+                    val installParams = InstallParams(network = null, isUserInitiated = true, isUpdate = true)
+                    val jobs = startPackageUpdate(installParams, outdatedPackageGroups)
                     model.cancelableJobs = jobs
                     PackageStates.dispatchAllStatesChanged()
                     try {

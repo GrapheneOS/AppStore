@@ -7,19 +7,14 @@ import android.util.Log
 import app.grapheneos.apps.ApplicationImpl
 import app.grapheneos.apps.Notifications
 import app.grapheneos.apps.PackageStates
-import app.grapheneos.apps.R
 import app.grapheneos.apps.core.InstallParams
-import app.grapheneos.apps.core.updateAllPackages
-import app.grapheneos.apps.setContentTitle
-import app.grapheneos.apps.show
-import app.grapheneos.apps.ui.ErrorDialog
-import app.grapheneos.apps.util.ActivityUtils
+import app.grapheneos.apps.core.collectOutdatedPackageGroups
+import app.grapheneos.apps.core.startPackageUpdate
 import app.grapheneos.apps.util.checkMainThread
 import app.grapheneos.apps.util.isAppInstallationAllowed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
@@ -31,28 +26,37 @@ class AutoUpdateJob : JobService() {
     override fun onStartJob(jobParams: JobParameters): Boolean {
         ApplicationImpl.exitIfNotInitialized()
         Log.d(TAG, "onStartJob")
-
         checkMainThread()
-
-        if (ActivityUtils.mostRecentResumedActivity() != null) {
-            Log.d(TAG, "activity is running, skipping the job")
-            return false
-        }
 
         if (!isAppInstallationAllowed()) {
             return false
         }
 
-        val network: Network = jobParams.network ?: return false
+        val network: Network? = jobParams.network
+
+        if (network == null) {
+            Log.d(TAG, "jobParams.network == null")
+            return false
+        }
 
         val installParams = InstallParams(network, isUpdate = true, isUserInitiated = false)
 
         CoroutineScope(Dispatchers.Main).launch {
             val repoUpdateError = PackageStates.requestRepoUpdate()
 
-            if (repoUpdateError == null) {
-                val jobs = updateAllPackages(installParams)
-                if (jobs.isNotEmpty()) {
+            if (repoUpdateError != null) {
+                showUpdateCheckFailedNotification(repoUpdateError)
+            } else {
+                val outdatedPackageGroups = collectOutdatedPackageGroups()
+
+                if (outdatedPackageGroups.isEmpty()) {
+                    showAllUpToDateNotification()
+                } else {
+                    Notifications.cancel(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
+
+                    val jobs = startPackageUpdate(installParams, outdatedPackageGroups)
+                    check(jobs.isNotEmpty())
+
                     activeJobs = jobs
                     // Wait for packages to be committed, but don't wait for installation to complete.
                     // OS will continue installing the committed packages even if app process dies,
@@ -60,30 +64,12 @@ class AutoUpdateJob : JobService() {
                     // to PkgInstallerStatusReceiver)
                     jobs.joinAll()
 
-                    launch {
-                        try {
-                            val allSuccessful = jobs.awaitAll().awaitAll().none { installError -> installError != null }
-                            // note that this statement may not be reached if our process is killed
-                            // before installation fully completes
-                            if (allSuccessful) {
-                                showAllUpToDateNotification()
-                            }
-                        } catch (ignored: Throwable) {}
-                    }
-
                     activeJobs = null
-                }
-            } else {
-                Notifications.builder(Notifications.CH_BACKGROUND_UPDATE_CHECK_FAILED).run {
-                    setSmallIcon(R.drawable.ic_error)
-                    setContentTitle(R.string.unable_to_fetch_app_list)
-                    setContentIntent(ErrorDialog.createPendingIntent(repoUpdateError))
-                    show(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
                 }
             }
 
             jobFinished(jobParams, false)
-            Log.d(TAG, "job finished")
+            Log.d(TAG, "finished")
         }
 
         return true
@@ -92,8 +78,9 @@ class AutoUpdateJob : JobService() {
     override fun onStopJob(params: JobParameters): Boolean {
         checkMainThread()
 
-        // There are many reasons the job might be stopped, important one is that network type
-        // might have changed from what is specified in job parameters
+        // There are many reasons the job might be stopped, important ones are:
+        // - device is no longer idle
+        // - network type has changed from what is specified in job parameters
 
         Log.d(TAG, "onStopJob, reason ${params.stopReason}")
 
@@ -105,17 +92,6 @@ class AutoUpdateJob : JobService() {
             return true
         } else {
             return false
-        }
-    }
-
-    companion object {
-        fun showAllUpToDateNotification() {
-            Notifications.builder(Notifications.CH_AUTO_UPDATE_ALL_UP_TO_DATE).run {
-                setSmallIcon(R.drawable.ic_check)
-                setContentTitle(R.string.notif_auto_update_all_up_to_date)
-                setAutoCancel(false)
-                show(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
-            }
         }
     }
 }

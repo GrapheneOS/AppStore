@@ -308,6 +308,11 @@ object PackageStates : LifecycleEventObserver {
         }
     }
 
+    fun numberOfInstallTasks(): Int {
+        checkMainThread()
+        return installTasks.size
+    }
+
     private var pendingCachePruning = false
     private var periodicCachePruningScheduled = false
 

@@ -14,6 +14,7 @@ import android.util.SparseArray
 import app.grapheneos.apps.Notifications
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
+import app.grapheneos.apps.autoupdate.showAllUpToDateNotification
 import app.grapheneos.apps.setContentTitle
 import app.grapheneos.apps.show
 import app.grapheneos.apps.ui.DetailsScreen
@@ -152,6 +153,10 @@ class PkgInstallerStatusReceiver: BroadcastReceiver() {
                 check(completionChannel.trySend(null).isSuccess)
             }
 
+            if (collectOutdatedPackageGroups().isEmpty()) {
+                showAllUpToDateNotification()
+            }
+
             if (request.isUserInitiated) {
                 return
             }
@@ -169,6 +174,7 @@ class PkgInstallerStatusReceiver: BroadcastReceiver() {
                     show(Notifications.generateId())
                 }
             }
+
             return
         }
 
