@@ -1,12 +1,17 @@
 package app.grapheneos.apps.util
 
+import android.net.Network
 import java.net.HttpURLConnection
 import java.net.ProtocolException
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 
-inline fun openConnection(url: String, configure: HttpURLConnection.() -> Unit): ScopedHttpConnection {
-    val connection = URL(url).openConnection() as HttpURLConnection
+inline fun openConnection(network: Network?, urlString: String, configure: HttpURLConnection.() -> Unit): ScopedHttpConnection {
+    val url = URL(urlString)
+    val connection = if (network != null) {
+        network.openConnection(url)
+    } else {
+        url.openConnection()
+    } as HttpURLConnection
 
     connection.apply {
         connectTimeout = 10_000

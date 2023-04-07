@@ -96,7 +96,7 @@ class PackageState(val pkgName: String, val id: Long) {
                         appendDots(sb)
                         sb.toString()
                     } else {
-                        val ref = if (task.isUpdate) R.string.pkg_status_downloading_update
+                        val ref = if (task.params.isUpdate) R.string.pkg_status_downloading_update
                             else R.string.pkg_status_downloading
                         val percent = ((progress.toDouble() / total.toDouble()) * 100.0).toInt()
                         ctx.getString(ref, percent,

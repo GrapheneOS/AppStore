@@ -2,12 +2,13 @@ package app.grapheneos.apps.autoupdate
 
 import android.app.job.JobParameters
 import android.app.job.JobService
-import android.os.Build
+import android.net.Network
 import android.util.Log
 import app.grapheneos.apps.ApplicationImpl
 import app.grapheneos.apps.Notifications
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
+import app.grapheneos.apps.core.InstallParams
 import app.grapheneos.apps.core.updateAllPackages
 import app.grapheneos.apps.setContentTitle
 import app.grapheneos.apps.show
@@ -27,7 +28,7 @@ private const val TAG = "AutoUpdateJob"
 class AutoUpdateJob : JobService() {
     private var activeJobs: List<Job>? = null
 
-    override fun onStartJob(params: JobParameters): Boolean {
+    override fun onStartJob(jobParams: JobParameters): Boolean {
         ApplicationImpl.exitIfNotInitialized()
         Log.d(TAG, "onStartJob")
 
@@ -42,11 +43,15 @@ class AutoUpdateJob : JobService() {
             return false
         }
 
+        val network: Network = jobParams.network ?: return false
+
+        val installParams = InstallParams(network, isUpdate = true, isUserInitiated = false)
+
         CoroutineScope(Dispatchers.Main).launch {
             val repoUpdateError = PackageStates.requestRepoUpdate()
 
             if (repoUpdateError == null) {
-                val jobs = updateAllPackages(isUserInitiated = false)
+                val jobs = updateAllPackages(installParams)
                 if (jobs.isNotEmpty()) {
                     activeJobs = jobs
                     // Wait for packages to be committed, but don't wait for installation to complete.
@@ -77,7 +82,7 @@ class AutoUpdateJob : JobService() {
                 }
             }
 
-            jobFinished(params, false)
+            jobFinished(jobParams, false)
             Log.d(TAG, "job finished")
         }
 

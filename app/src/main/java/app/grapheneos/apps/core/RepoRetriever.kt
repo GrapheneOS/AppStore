@@ -32,7 +32,7 @@ fun fetchRepo(currentRepo: Repo): Repo {
     val url = "$REPO_BASE_URL/metadata.$METADATA_VERSION.$KEY_VERSION.sjson"
 
     return if (!currentRepo.isDummy) {
-        openConnection(url) {
+        openConnection(null, url) {
             setRequestProperty("If-None-Match", currentRepo.eTag)
         }.use { conn ->
             when (conn.v.responseCode) {
@@ -48,7 +48,7 @@ fun fetchRepo(currentRepo: Repo): Repo {
             }
         }
     } else {
-        openConnection(url, {}).use { conn ->
+        openConnection(null, url, {}).use { conn ->
             if (conn.v.responseCode != HTTP_OK) {
                 throwResponseCodeException(conn.v)
             }
