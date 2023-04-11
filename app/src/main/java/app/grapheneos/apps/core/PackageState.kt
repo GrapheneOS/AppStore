@@ -128,7 +128,7 @@ class PackageState(val pkgName: String, val id: Long) {
         }
 
         val ai = pi.applicationInfo
-        if (!ai.enabled) {
+        if (!canUpdateDisabledPackages && !ai.enabled) {
             return ctx.getString(R.string.pkg_status_disabled)
         }
 
@@ -136,12 +136,17 @@ class PackageState(val pkgName: String, val id: Long) {
             return ctx.getString(R.string.pkg_status_update_available, getDownloadSizeUiString())
         }
 
+        if (!ai.enabled) {
+            return ctx.getString(R.string.pkg_status_disabled)
+        }
+
         return ctx.getString(R.string.pkg_status_installed)
     }
 
     fun isOutdated(): Boolean {
         val pi = osPackageInfo
-        return pi != null && pi.applicationInfo.enabled && pi.longVersionCode < rPackage.versionCode
+        return pi != null && (canUpdateDisabledPackages || pi.applicationInfo.enabled)
+                && pi.longVersionCode < rPackage.versionCode
     }
 
     fun status(): Status {
@@ -158,12 +163,17 @@ class PackageState(val pkgName: String, val id: Long) {
             return Status.NOT_INSTALLED
         }
 
-        if (!pi.applicationInfo.enabled) {
+        val ai = pi.applicationInfo
+        if (!canUpdateDisabledPackages && !ai.enabled) {
             return Status.DISABLED
         }
 
         if (pi.longVersionCode < rPackage.versionCode) {
             return Status.OUT_OF_DATE
+        }
+
+        if (!ai.enabled) {
+            return Status.DISABLED
         }
 
         return Status.UP_TO_DATE

@@ -38,6 +38,10 @@ val pkgInstaller: PackageInstaller = pkgManager.packageInstaller
 val isPrivilegedInstaller = appContext.checkSelfPermission(Manifest.permission.INSTALL_PACKAGES) ==
     PackageManager.PERMISSION_GRANTED
 
+// TODO add support for Android 14 after its API is finalized
+///  (PackageInstaller.SessionParams.setApplicationEnabledSettingPersistent())
+val canUpdateDisabledPackages = pkgManager.hasSystemFeature("grapheneos.package_update_preserves_package_enabled_setting")
+
 val notificationManager: NotificationManager = appContext.getSystemService()!!
 
 val userManager: UserManager = appContext.getSystemService()!!
