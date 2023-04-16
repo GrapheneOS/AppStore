@@ -456,12 +456,12 @@ object PackageStates : LifecycleEventObserver {
         owner.lifecycle.addObserver(this)
     }
 
-    override fun onStateChanged(owner: LifecycleOwner, event: Lifecycle.Event) {
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_DESTROY) {
-            check(listeners.containsKey(owner))
-            check(listeners.remove(owner) != null)
+            check(listeners.containsKey(source))
+            check(listeners.remove(source) != null)
         } else if (event == Lifecycle.Event.ON_START) {
-            listeners[owner]!!.let {
+            listeners[source]!!.let {
                 it.onAllPackageStatesChanged(map)
                 it.onRepoUpdateResult(lastRepoUpdateResult)
                 it.onNumberOfOutdatedPackagesChanged(numberOfOutdatedPackages)
