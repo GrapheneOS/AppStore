@@ -3,8 +3,7 @@
     <base-config cleartextTrafficPermitted="false"/>
     <domain-config>
         <domain includeSubdomains="true">apps.grapheneos.org</domain>
-        <!-- no expiry since the app is expected to be kept relatively up-to-date to use the services -->
-        <pin-set>
+        <pin-set expiration="2024-05-01">
             <!-- ISRG Root X1 -->
             <pin digest="SHA-256">C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=</pin>
 
