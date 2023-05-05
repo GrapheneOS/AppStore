@@ -44,16 +44,26 @@ private fun getDependencies(pkg: RPackage, skipPresent: Boolean, forUpdate: Bool
         return emptyList()
     }
 
+    var requireEnabled = true
+    if (forUpdate) {
+        val maybePkgState = PackageStates.maybeGetPackageState(pkg.packageName)
+        if (maybePkgState?.osPackageInfo?.applicationInfo?.enabled == false) {
+            // allow dependencies of disabled package to be disabled too
+            requireEnabled = false
+        }
+    }
+
     val visited = ArraySet<String>()
     visited.add(pkg.packageName)
 
     val result = ArrayList<RPackage>()
-    collectDependencies(pkg.packageName, deps, skipPresent, forUpdate, visited, result)
+    collectDependencies(pkg.packageName, deps, skipPresent, forUpdate, requireEnabled, visited, result)
     return result
 }
 
 private fun collectDependencies(dependant: String, dependencies: Array<Dependency>,
                                 skipPresent: Boolean, forUpdate: Boolean,
+                                requireEnabled: Boolean,
                                 visited: ArraySet<String>,
                                 result: ArrayList<RPackage>) {
     for (dep in dependencies) {
@@ -82,7 +92,7 @@ private fun collectDependencies(dependant: String, dependencies: Array<Dependenc
         val preferredChannel = PackageStates.getPackageState(dep.packageName).preferredReleaseChannel()
         val depPackage = findRPackage(matchingVariants, preferredChannel)
 
-        collectDependencies(dep.packageName, depPackage.dependencies, skipPresent, forUpdate, visited, result)
+        collectDependencies(dep.packageName, depPackage.dependencies, skipPresent, forUpdate, requireEnabled, visited, result)
 
         if (skipPresent) {
             if (depPackage.common.isSharedLibrary) {
@@ -106,7 +116,7 @@ private fun collectDependencies(dependant: String, dependencies: Array<Dependenc
                     throw DependencyResolutionException(err)
                 }
             } else {
-                if (!pkgInfo.applicationInfo.enabled) {
+                if (requireEnabled && !pkgInfo.applicationInfo.enabled) {
                     val err = MissingDependencyError(dependant, dep,
                         if (forUpdate)
                             MissingDependencyError.REASON_DEPENDENCY_DISABLED_AFTER_INSTALL
