@@ -44,13 +44,6 @@ private fun getDependencies(pkg: RPackage, skipPresent: Boolean, forUpdate: Bool
         return emptyList()
     }
 
-    if (forUpdate) {
-        val maybePkgState = PackageStates.maybeGetPackageState(pkg.packageName)
-        if (maybePkgState?.osPackageInfo?.applicationInfo?.enabled == false) {
-            return emptyList()
-        }
-    }
-
     val visited = ArraySet<String>()
     visited.add(pkg.packageName)
 
