@@ -1,26 +1,18 @@
 package app.grapheneos.apps.core
 
-import android.app.Notification
 import android.content.Intent
 import android.net.Network
-import android.text.format.Formatter
 import android.util.ArraySet
 import android.util.Log
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavDeepLinkBuilder
 import app.grapheneos.apps.Notifications
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
-import app.grapheneos.apps.autoupdate.AutoUpdateJob
-import app.grapheneos.apps.autoupdate.AutoUpdatePrefs
 import app.grapheneos.apps.setContentTitle
-import app.grapheneos.apps.show
 import app.grapheneos.apps.ui.DetailsScreen
 import app.grapheneos.apps.ui.ErrorDialog
-import app.grapheneos.apps.ui.MainActivity
 import app.grapheneos.apps.util.ActivityUtils
 import app.grapheneos.apps.util.checkMainThread
-import app.grapheneos.apps.util.componentName
 import app.grapheneos.apps.util.isSystemPackage
 import app.grapheneos.apps.util.packageUri
 import kotlinx.coroutines.CancellationException
@@ -302,45 +294,49 @@ fun collectOutdatedPackageGroups(): List<List<RPackage>> {
     return rPackageGroups
 }
 
-fun startPackageUpdate(params: InstallParams, rPackageGroups: List<List<RPackage>>):
+fun startPackageUpdate(params: InstallParams, allRPackageGroups: List<List<RPackage>>):
         List<Deferred<Deferred<PackageInstallerError?>>> {
     check(params.isUpdate)
 
-    var selfUpdateGroup: List<RPackage>? = null
+    var selfUpdateGroup_: List<RPackage>? = null
 
-    for (rPackageGroup in rPackageGroups) {
-        val selfPkgCount = rPackageGroup.count { it.packageName == selfPkgName }
+    val regularGroups = allRPackageGroups.filter { group ->
+        val selfPkgCount = group.count { it.packageName == selfPkgName }
         check(selfPkgCount <= 1)
         if (selfPkgCount == 1) {
-            check(selfUpdateGroup == null)
-            selfUpdateGroup = rPackageGroup
+            check(selfUpdateGroup_ == null)
+            selfUpdateGroup_ = group
         }
+        selfPkgCount == 0
     }
+    // workaround for bad mutability inference in Kotlin compiler
+    val selfUpdateGroup = selfUpdateGroup_
 
-    if (selfUpdateGroup != null && !params.isUserInitiated) {
-        // installing self-update will kill our process and cancel all notifications about previous
-        // background auto-updates (if they are present), so install it first
-        val job = startInstallTaskInner(selfUpdateGroup, params)
-        return listOf(job)
+    if (params.isUserInitiated) {
+        val jobs = regularGroups.map { startInstallTaskInner(it, params) }
+
+        if (selfUpdateGroup == null) {
+            return jobs
+        }
+        // user has explicitly started the update process, install self-update after all other updates
+        // (our process will be killed by the OS during self-update)
+        val selfUpdateJob = startInstallTaskInner(selfUpdateGroup, params, callbackBeforeCommit = {
+            val TAG = "SelfUpdate"
+            Log.d(TAG, "waiting for all updates to complete before committing self-update session")
+            jobs.awaitAll().awaitAll()
+            Log.d(TAG, "finished waiting")
+        })
+
+        return jobs + selfUpdateJob
+    } else { // !params.isUserInitiated, ie auto-update
+        if (selfUpdateGroup != null) {
+            // installing self-update will kill our process and cancel all notifications about previous
+            // background auto-updates (if they are present), so install it first
+            val job = startInstallTaskInner(selfUpdateGroup, params)
+            return listOf(job)
+        }
+        return regularGroups.map { startInstallTaskInner(it, params) }
     }
-
-    val jobs = rPackageGroups.map { packages ->
-        startInstallTaskInner(packages, params)
-    }
-
-    if (selfUpdateGroup == null) {
-        return jobs
-    }
-
-    check(params.isUserInitiated) // handled above
-    // "update all" was trigerred from UpdatesScreen, install self-update after all other updates
-    // (our process will be killed by the OS during self-update)
-    val selfUpdateJob = startInstallTaskInner(selfUpdateGroup, params, callbackBeforeCommit = {
-        Log.d("SelfUpdate", "waiting for all updates to complete before committing self-update session")
-        jobs.awaitAll().awaitAll()
-        Log.d("SelfUpdate", "finished waiting")
-    })
-    return jobs + selfUpdateJob
 }
 
 private val updateListOfBusyPackagesMethod: Method? by lazy {
