@@ -307,6 +307,7 @@ fun startPackageUpdate(params: InstallParams, rPackageGroups: List<List<RPackage
     check(params.isUpdate)
 
     var selfUpdateGroup: List<RPackage>? = null
+    val otherUpdateGroups = mutableListOf<List<RPackage>>()
 
     for (rPackageGroup in rPackageGroups) {
         val selfPkgCount = rPackageGroup.count { it.packageName == selfPkgName }
@@ -314,6 +315,8 @@ fun startPackageUpdate(params: InstallParams, rPackageGroups: List<List<RPackage
         if (selfPkgCount == 1) {
             check(selfUpdateGroup == null)
             selfUpdateGroup = rPackageGroup
+        } else {
+            otherUpdateGroups.add(rPackageGroup)
         }
     }
 
@@ -324,7 +327,7 @@ fun startPackageUpdate(params: InstallParams, rPackageGroups: List<List<RPackage
         return listOf(job)
     }
 
-    val jobs = rPackageGroups.map { packages ->
+    val jobs = otherUpdateGroups.map { packages ->
         startInstallTaskInner(packages, params)
     }
 
