@@ -72,8 +72,6 @@
 
     <string name="notif_download_in_progress">Downloading files, %1$s left</string>
 
-    <string name="app_icon">App icon</string>
-
     <string name="notif_title_pending_user_action">Action required</string>
     <string name="notif_text_pending_user_action_install">Confirm installation of %1$s, version %2$s</string>
     <string name="notif_text_pending_user_action_update">Confirm update of %1$s to version %2$s</string>
