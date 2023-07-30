@@ -103,7 +103,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.6.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")
     implementation("androidx.navigation:navigation-ui-ktx:2.6.0")
-    implementation("androidx.preference:preference:1.2.0")
+    implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
