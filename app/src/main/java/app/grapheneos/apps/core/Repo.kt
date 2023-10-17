@@ -218,7 +218,7 @@ class RPackageContainer(val repo: Repo, val packageName: String,
                 }
             }
 
-            if (!checkStaticDeps(json, repo)) {
+            if (!checkStaticDeps(jo, repo)) {
                 continue
             }
 
