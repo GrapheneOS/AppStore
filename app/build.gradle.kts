@@ -111,7 +111,7 @@ dependencies {
 
     implementation("org.bouncycastle:bcprov-jdk18on:1.76")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
 
     // force newer version of dependency of dependency
