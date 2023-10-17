@@ -431,6 +431,10 @@ class InstallTask(
                 setPackageSource(PackageInstaller.PACKAGE_SOURCE_STORE)
             }
 
+            if (Build.VERSION.SDK_INT >= 34) {
+                setApplicationEnabledSettingPersistent()
+            }
+
             setSize(apks.sumOf { it.size })
         }
     }
