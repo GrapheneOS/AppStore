@@ -13,6 +13,7 @@ import android.util.Log
 import android.util.SparseArray
 import androidx.annotation.StringRes
 import androidx.core.content.getSystemService
+import androidx.core.util.getOrElse
 import androidx.core.util.keyIterator
 import androidx.core.util.size
 import app.grapheneos.apps.BuildConfig
@@ -304,7 +305,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
 
         val res = mutableListOf<Apk>()
 
-        val availableDensities = SparseArray<Apk>()
+        val availableDensities = SparseArray<MutableList<Apk>>()
         val pkgState = PackageStates.getPackageState(packageName)
         val neededLocales = getNeededLocales(config, pkgState)
 
@@ -333,7 +334,12 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
                         "xxxhdpi" -> DisplayMetrics.DENSITY_XXXHIGH
                         else -> 0
                     }
-                    availableDensities.put(dpi, apk)
+                    val dpiApks = availableDensities.getOrElse(dpi) {
+                        val l = ArrayList<Apk>(7)
+                        availableDensities.put(dpi, l)
+                        l
+                    }
+                    dpiApks.add(apk)
                 }
             }
         }
@@ -343,7 +349,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
 
             val sortedKeys = availableDensities.keyIterator().asSequence().sorted().toList()
             val key = sortedKeys.firstOrNull { it >= targetDensity } ?: sortedKeys.last()
-            res.add(availableDensities[key])
+            res.addAll(availableDensities[key])
         }
 
         return res
