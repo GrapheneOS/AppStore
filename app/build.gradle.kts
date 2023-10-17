@@ -11,7 +11,7 @@ if (useKeystoreProperties) {
 plugins {
     id("com.android.application")
     kotlin("android")
-    kotlin("kapt")
+    id("com.google.devtools.ksp")
     id("androidx.navigation.safeargs")
     id("kotlin-parcelize")
 }
@@ -121,9 +121,5 @@ dependencies {
 
     val glideVersion = "4.15.1"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
-    kapt("com.github.bumptech.glide:compiler:$glideVersion")
-}
-
-kapt {
-    correctErrorTypes = true
+    ksp("com.github.bumptech.glide:ksp:$glideVersion")
 }
