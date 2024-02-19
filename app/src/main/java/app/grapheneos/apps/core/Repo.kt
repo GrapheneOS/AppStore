@@ -124,7 +124,7 @@ enum class ReleaseChannel(@StringRes val uiName: Int) {
 }
 
 fun findRPackage(variants: List<RPackage>, channel: ReleaseChannel): RPackage {
-    // variants are sorted by stability in descending order
+    // variants are sorted by stability in ascending order (from least stable to most stable)
     return variants.find { it.releaseChannel >= channel } ?: variants.last()
 }
 
