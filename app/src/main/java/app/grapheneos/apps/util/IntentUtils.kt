@@ -9,7 +9,7 @@ import app.grapheneos.apps.core.appContext
 import java.util.UUID
 
 inline fun <reified T : Parcelable> getParcelableExtra(intent: Intent, name: String): T? {
-    return if (Build.VERSION.SDK_INT >= 33) {
+    return if (Build.VERSION.SDK_INT >= 34) {
         intent.getParcelableExtra(name, T::class.java)
     } else {
         @Suppress("DEPRECATION")
@@ -18,7 +18,7 @@ inline fun <reified T : Parcelable> getParcelableExtra(intent: Intent, name: Str
 }
 
 inline fun <reified T : Parcelable> getParcelableArrayListExtra(intent: Intent, name: String): ArrayList<T>? {
-    return if (Build.VERSION.SDK_INT >= 33) {
+    return if (Build.VERSION.SDK_INT >= 34) {
         intent.getParcelableArrayListExtra(name, T::class.java)
     } else {
         @Suppress("DEPRECATION")

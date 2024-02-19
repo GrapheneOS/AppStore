@@ -22,7 +22,7 @@ fun Bundle.maybeGetBool(key: String): Boolean? {
 fun Bundle.getBool(key: String): Boolean = maybeGetBool(key)!!
 
 inline fun <reified T : Parcelable> Bundle.maybeGetParcelable(key: String): T? {
-    if (Build.VERSION.SDK_INT >= 33) {
+    if (Build.VERSION.SDK_INT >= 34) {
         return getParcelable(key, T::class.java)
     } else {
         @Suppress("DEPRECATION")
@@ -33,7 +33,7 @@ inline fun <reified T : Parcelable> Bundle.maybeGetParcelable(key: String): T? {
 inline fun <reified T : Parcelable> Bundle.getParcelableOrThrow(key: String): T = maybeGetParcelable<T>(key)!!
 
 inline fun <reified T : Parcelable> Bundle.maybeGetParcelableArray(key: String): Array<T>? {
-    if (Build.VERSION.SDK_INT >= 33) {
+    if (Build.VERSION.SDK_INT >= 34) {
         return getParcelableArray(key, T::class.java)
     } else {
         @Suppress("DEPRECATION", "UNCHECKED_CAST")
@@ -81,7 +81,7 @@ fun unmarshallParcelableInner(bytes: ByteArray, type: Class<out Parcelable>): Pa
         parcel.unmarshall(bytes, 0, bytes.size)
         parcel.setDataPosition(0)
         val classLoader = type.classLoader
-        val obj = if (Build.VERSION.SDK_INT >= 33) {
+        val obj = if (Build.VERSION.SDK_INT >= 34) {
             parcel.readParcelable(classLoader, type)
         } else {
             @Suppress("DEPRECATION")
