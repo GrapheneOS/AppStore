@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -35,6 +36,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val views = MainActivityBinding.inflate(layoutInflater)
         this.views = views
+        //get the current intent
+        val intent = intent
+
+        //get the attached extras from the intent
+        //we should use the same key as we used to attach the data.
+        val isSuW = intent.getBooleanExtra("SuW", false)
+
+        if (isSuW) {
+            views.done.isVisible = true
+        }
 
         window.setDecorFitsSystemWindows(false)
 
@@ -78,6 +89,8 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= 33) {
             maybeAskForNotificationPermission()
         }
+
+        views.done.setOnClickListener { finish() }
     }
 
     override fun onNewIntent(intent: Intent) {
