@@ -41,10 +41,12 @@ class MainActivity : AppCompatActivity() {
 
         //get the attached extras from the intent
         //we should use the same key as we used to attach the data.
-        val isSuW = intent.getBooleanExtra("SuW", false)
+        const val isSuW = intent.getBooleanExtra("SuW", false)
+
+        views.done.isVisible = isSuW
 
         if (isSuW) {
-            views.done.isVisible = true
+            //TODO: add the theme controls
         }
 
         window.setDecorFitsSystemWindows(false)

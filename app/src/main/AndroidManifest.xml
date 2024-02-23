@@ -31,7 +31,7 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="app.grapheneos.setupwizard.action.APPS" />
+                <action android:name="app.grapheneos.apps.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
