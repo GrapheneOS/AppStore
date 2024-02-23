@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         //get the attached extras from the intent
         //we should use the same key as we used to attach the data.
-        val isSuW = intent.getBooleanExtra("SuW", false)
+        val isSuW = intent.getBooleanExtra(setupWizardIntent, false)
 
         views.done.isVisible = isSuW
 
@@ -123,5 +123,9 @@ class MainActivity : AppCompatActivity() {
         } else {
             requestPermissionLauncher.launch(perm)
         }
+    }
+
+    companion object {
+        const val setupWizardIntent = "app.grapheneos.apps.EXTRA_SUW"
     }
 }
