@@ -13,3 +13,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Apps"
 include(":app")
+include(":setupdesign")
+include(":setupcompat")

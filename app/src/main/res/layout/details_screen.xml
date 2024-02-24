@@ -52,6 +52,17 @@
                 android:layout_marginEnd="8dp"
                 tools:text="@string/btn_update" />
 
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text"
+                style="?attr/textAppearanceLabelMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/in_SuW"
+                android:visibility="gone"
+                android:textColor="?attr/colorPrimaryDark"/>
+
         </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView

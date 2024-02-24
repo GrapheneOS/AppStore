@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -36,17 +37,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val views = MainActivityBinding.inflate(layoutInflater)
         this.views = views
-        //get the current intent
+        // set defaultValue to true if you are testing SuW mode "features", remember to change it back to false when you are done
+        val defaultValue = false
+
+        // get the current intent
         val intent = intent
 
-        //get the attached extras from the intent
-        //we should use the same key as we used to attach the data.
-        val isSuW = intent.getBooleanExtra(setupWizardIntent, false)
+        // get the attached extras from the intent
+        val isSuW = intent.getBooleanExtra(setupWizardIntent, defaultValue)
+
+        // export isSuW for other stuff
+        lanchedFromSuW = isSuW
 
         views.done.isVisible = isSuW
 
         if (isSuW) {
-            //TODO: add the theme controls
+            setTheme(com.google.android.setupdesign.R.style.SudThemeGlifV4_DayNight)
+            Log.i("Theme", "using setup theme")
+        } else {
+            Log.i("Theme", "using normal theme")
         }
 
         window.setDecorFitsSystemWindows(false)
@@ -127,5 +136,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val setupWizardIntent = "app.grapheneos.apps.EXTRA_SUW"
+        var lanchedFromSuW = false
     }
 }

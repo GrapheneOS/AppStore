@@ -121,4 +121,8 @@ dependencies {
     val glideVersion = "4.16.0"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
     ksp("com.github.bumptech.glide:ksp:$glideVersion")
+
+    // setupdesign
+    implementation(project(":setupcompat"))
+    implementation(project(":setupdesign"))
 }

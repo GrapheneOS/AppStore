@@ -198,13 +198,18 @@ class DetailsScreen : ViewBindingFragment<DetailsScreenBinding>(), MenuProvider 
 
             PackageState.Status.OUT_OF_DATE,
             PackageState.Status.UP_TO_DATE -> {
-                setAction(secondary, R.string.settings) {
-                    startActivity(appDetailsIntent(pkgName))
+                if (!MainActivity.lanchedFromSuW) {
+                    setAction(secondary, R.string.settings) {
+                        startActivity(appDetailsIntent(pkgName))
+                    }
+                } else {
+                    secondary.isGone = true
                 }
             }
             else -> {}
         }
         val primary = views.primaryActionBtn
+        val text = views.text
         when (status) {
             PackageState.Status.NOT_INSTALLED -> {
                 setAction(primary, R.string.btn_install) {
@@ -230,14 +235,18 @@ class DetailsScreen : ViewBindingFragment<DetailsScreenBinding>(), MenuProvider 
                 //  OS confirmation UI fails to update its state. Allow cancelling such sessions.
                 secondary.isEnabled = task != null && !task.jobReferenceForMainThread.isCancelled
                 primary.isGone = true
+                secondary.isGone = false
             }
             PackageState.Status.UP_TO_DATE -> {
                 val intent = pkgManager.getLaunchIntentForPackage(pkgName)
-                if (intent != null && pkgName != selfPkgName) {
+                if (intent != null && pkgName != selfPkgName && !MainActivity.lanchedFromSuW) {
                     setAction(primary, R.string.btn_open) {
                         startActivity(intent)
                     }
                 } else {
+                    if (MainActivity.lanchedFromSuW) {
+                        text.isGone = false
+                    }
                     primary.isGone = true
                 }
             }

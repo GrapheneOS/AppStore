@@ -33,11 +33,24 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <Button
-        android:id="@+id/done"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        style="@style/SudGlifButtonBar.Stackable"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:text="@string/done" />
+        android:layout_gravity="bottom">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/done"
+            style="@style/SudGlifButton.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/done" />
+    </LinearLayout>
 
 </LinearLayout>
