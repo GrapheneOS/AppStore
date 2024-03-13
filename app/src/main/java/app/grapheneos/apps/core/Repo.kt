@@ -75,6 +75,12 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 
             val packageName = translateManifestPackageName(manifestPackageName)
 
+            if (Build.VERSION.SDK_INT == 34 && isPrivilegedInstaller
+                && packageName != manifestPackageName && shouldSkipRenamedPackages()
+            ) {
+                continue
+            }
+
             val res = RPackageContainer(this@Repo, packageName, manifestPackageName, packageContainerJson)
             if (res.variants.isNotEmpty()) {
                 map.put(packageName, res)
@@ -533,4 +539,13 @@ private fun hexStringToByteArray(s: String): ByteArray {
         arr[i] = ((top shl 4) or bot).toByte()
     }
     return arr
+}
+
+private fun shouldSkipRenamedPackages(): Boolean {
+    val buildIncremental: Long? = Build.VERSION.INCREMENTAL.toLongOrNull()
+    return buildIncremental != null
+            // updates of packages that were renamed by the original-package system cause a
+            // system_server crash on these versions.
+            // See https://github.com/GrapheneOS/platform_frameworks_base/commit/3fd0aaea464535b683a231bd92627056c2e02518
+            && buildIncremental > 2024_0303_00 && buildIncremental <= 2024_0311_00
 }
