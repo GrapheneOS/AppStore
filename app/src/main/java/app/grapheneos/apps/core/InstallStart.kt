@@ -63,7 +63,7 @@ fun startPackageInstall(pkg: RPackage, params: InstallParams,
 
     if (packagesToInstall.size == 1 && isPrivilegedInstaller && params.isUserInitiated
             && !params.isUpdate && callerFragment != null) {
-        val pkgInfo = InstallTask.findPackage(pkg.packageName, pkg.versionCode, pkg.common.signatures)
+        val pkgInfo = InstallTask.findPackage(pkg.packageName, pkg.versionCode, pkg.common.validCertDigests)
         if (pkgInfo != null && pkgInfo.isSystemPackage()) {
             // This is a system package that is not installed in the current user. Installing it
             // using the regular method will fail on GrapheneOS because update of a system package to
@@ -75,7 +75,7 @@ fun startPackageInstall(pkg: RPackage, params: InstallParams,
             // Using ACTION_INSTALL_PACKAGE with package:// Uri will show the standard PackageInstaller
             // UI which will use installExistingPackage() itself.
             //
-            // Note that using this approach for non-system packages is unsafe, despite the signature
+            // Note that using this approach for non-system packages is unsafe, despite the certificate
             // check above, because package may change by the time user confirms the installation.
 
             val uri = packageUri(pkg.packageName)
