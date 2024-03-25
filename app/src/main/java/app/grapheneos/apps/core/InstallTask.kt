@@ -173,7 +173,7 @@ class InstallTask(
     }
 
     private suspend fun maybeReuseAvailableApks(session: Session): Boolean {
-        val pkgInfo = findPackage(rPackage.packageName, rPackage.versionCode, rPackage.common.signatures)
+        val pkgInfo = findPackage(rPackage.packageName, rPackage.versionCode, rPackage.common.validCertDigests)
         if (pkgInfo == null) {
             return false
         }
@@ -513,8 +513,8 @@ class InstallTask(
         }
 
         // Ask the PackageManager to return APKs for this package if it's already installed on this device
-        // by another user, its version is >= the requested version, and its signature hashes match
-        fun findPackage(packageName: String, minVersion: Long, signatures: Array<ByteArray>): PackageInfo? {
+        // by another user, its version is >= the requested version, and its cert digests match
+        fun findPackage(packageName: String, minVersion: Long, validCertDigests: Array<ByteArray>): PackageInfo? {
             if (!isPrivilegedInstaller) {
                 return null
             }
@@ -533,11 +533,11 @@ class InstallTask(
                 return null
             }
 
-            val sigBundle = Bundle()
-            sigBundle.putInt("len", signatures.size)
-            signatures.forEachIndexed { i, arr -> sigBundle.putByteArray(i.toString(), arr) }
+            val certDigestBundle = Bundle()
+            certDigestBundle.putInt("len", validCertDigests.size)
+            validCertDigests.forEachIndexed { i, arr -> certDigestBundle.putByteArray(i.toString(), arr) }
 
-            return method.invoke(pkgManager, packageName, minVersion, sigBundle) as PackageInfo?
+            return method.invoke(pkgManager, packageName, minVersion, certDigestBundle) as PackageInfo?
         }
     }
 }

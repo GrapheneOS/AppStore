@@ -169,8 +169,9 @@ class RPackageContainer(val repo: Repo, val packageName: String,
             repo.translateManifestPackageName(it)
         } ?: emptyList()
 
-    // SHA-256 of known signatures
-    val signatures: Array<ByteArray> = json.getJSONArray("signatures").asStringList().map {
+    // SHA-256 digests of valid signing certificates
+    val validCertDigests: Array<ByteArray> =
+            json.getJSONArray("signatures" /* historical name */).asStringList().map {
         val arr = hexStringToByteArray(it)
         check(arr.size == (256 / 8))
         arr
