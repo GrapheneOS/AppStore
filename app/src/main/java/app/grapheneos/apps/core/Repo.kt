@@ -140,7 +140,7 @@ class RPackageGroup(val name: String) {
 }
 
 // Contains properties that are common to variants of the package, and the list of variants.
-// Some of the comman properties can be overriden in its variants
+// Some of the common properties can be overridden in its variants
 class RPackageContainer(val repo: Repo, val packageName: String,
                         // different from packageName if renamed via the original-package system
                         val manifestPackageName: String,
@@ -397,7 +397,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
                 val list = try {
                     localeManager.getApplicationLocales(packageName)
                 } catch (e: Exception) {
-                    // getApplicationLocales() is allowed only we are currently the
+                    // getApplicationLocales() is allowed only if we are currently the
                     // installer-of-record for this package. It also could have been racily
                     // uninstalled, which results in an IllegalArgumentException
                     LocaleList.getEmptyLocaleList()

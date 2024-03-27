@@ -128,7 +128,7 @@ class InstallTask(
 
     private suspend fun obtainAndWriteApks(session: Session) {
         if (!params.isUpdate && maybeReuseAvailableApks(session)) {
-            // successfuly reused APKs from other user profile
+            // successfully reused APKs from other user profile
         } else {
             // If there was a cache pruning job running when this install task was created, await
             // for its completion to improve reliability of apk downloads. Creation of new pruning
