@@ -20,7 +20,7 @@
         <com.google.android.material.textfield.TextInputEditText
             style="@style/Widget.Material3.TextInputEditText.FilledBox.Dense"
             android:id="@+id/search_input"
-            android:imeOptions="actionSearch"
+            android:imeOptions="actionDone"
             android:maxLines="1"
             android:singleLine="true"
             android:padding="12dp"
