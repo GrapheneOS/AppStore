@@ -201,7 +201,7 @@ class RPackageContainer(val repo: Repo, val packageName: String,
     val dependencies: Array<Dependency>? = parseDependencies(json, repo)
 
     val variants: List<RPackage> = json.getJSONObject("variants").let {
-        val pkgs = arrayOfNulls<RPackage>(ReleaseChannel.values().size)
+        val pkgs = arrayOfNulls<RPackage>(ReleaseChannel.entries.size)
 
         for (versionString in it.keys()) {
             val jo = it.getJSONObject(versionString)
@@ -446,7 +446,7 @@ class Apk(
 
             if (qualifier.endsWith("dpi")) {
                 Type.DENSITY
-            } else if (Abi.values().any { it.apkSplitQualifier == qualifier }) {
+            } else if (Abi.entries.any { it.apkSplitQualifier == qualifier }) {
                 Type.ABI
             } else {
                 Type.LANGUAGE
@@ -474,7 +474,7 @@ class Apk(
 private val deviceAbi: Apk.Abi = run {
     // Intentionally don't support secondary ABIs. They are expected to work worse than the primary ABI.
     val osName: String = Build.SUPPORTED_ABIS.first()
-    Apk.Abi.values().first { it.osName == osName }
+    Apk.Abi.entries.first { it.osName == osName }
 }
 
 // Used only for static deps. If it was used for dynamic deps, dependency resolution would become

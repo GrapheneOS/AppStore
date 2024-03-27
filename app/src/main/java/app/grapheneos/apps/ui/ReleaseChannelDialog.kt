@@ -16,7 +16,7 @@ class ReleaseChannelDialog : DialogFragment() {
         val pkgName = navArgs<ReleaseChannelDialogArgs>().value.pkgName
         val pkgState = PackageStates.getPackageState(pkgName)
 
-        val channels = ReleaseChannel.values()
+        val channels = ReleaseChannel.entries
 
         val channelNames = channels.map { resources.getText(it.uiName) }
         val curIndex = channels.indexOf(pkgState.preferredReleaseChannel())
