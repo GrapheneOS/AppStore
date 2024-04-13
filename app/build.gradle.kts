@@ -11,7 +11,6 @@ if (useKeystoreProperties) {
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("com.google.devtools.ksp")
     id("androidx.navigation.safeargs")
     id("kotlin-parcelize")
 }
@@ -109,7 +108,5 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
 
-    val glideVersion = "4.16.0"
-    implementation("com.github.bumptech.glide:glide:$glideVersion")
-    ksp("com.github.bumptech.glide:ksp:$glideVersion")
+    implementation("io.coil-kt:coil:2.6.0")
 }
