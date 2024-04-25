@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.SystemClock
 import android.util.ArrayMap
+import android.util.ArraySet
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -136,8 +137,11 @@ object PackageStates : LifecycleEventObserver {
 
 //        val start = SystemClock.uptimeMillis()
 
+        val leftoverPackages = ArraySet(map.keys)
+
         repo.packages.forEach { entry ->
             val pkgName = entry.key
+            leftoverPackages.remove(pkgName)
 
             map.getOrPut(pkgName) {
                 PackageState(pkgName, ++prevPackageStateId).apply {
@@ -156,6 +160,13 @@ object PackageStates : LifecycleEventObserver {
                 }
             }
         }
+
+        leftoverPackages.forEach {
+            // this package is missing from the new repo, drop its PackageState
+            Log.d(TAG, "leftover package: $it")
+            map.remove(it)
+        }
+
 //        Log.d("updateRepo", "took ${SystemClock.uptimeMillis() - start} ms")
 
         this.repo = repo
