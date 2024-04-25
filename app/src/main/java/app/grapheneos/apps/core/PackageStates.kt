@@ -200,7 +200,7 @@ object PackageStates : LifecycleEventObserver {
 
             withContext(Dispatchers.Main) {
                 checkMainThread()
-                check(repoUpdateJob == job)
+                check(repoUpdateJob === job)
                 repoUpdateJob = null
                 lastRepoUpdateResult = result
                 if (repo != null) {
