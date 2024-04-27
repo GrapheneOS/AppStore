@@ -433,6 +433,9 @@ class InstallTask(
 
             if (Build.VERSION.SDK_INT >= 34) {
                 setApplicationEnabledSettingPersistent()
+                if (rPackage.common.requestUpdateOwnership) {
+                    setRequestUpdateOwnership(true)
+                }
             }
 
             setSize(apks.sumOf { it.size })

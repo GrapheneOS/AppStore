@@ -248,6 +248,8 @@ class RPackageContainer(val repo: Repo, val packageName: String,
 
     val hasFsVeritySignatures = json.optBoolean("hasFsVeritySignatures", false)
 
+    val requestUpdateOwnership = json.optBoolean("requestUpdateOwnership", true)
+
     fun getPackage(channel: ReleaseChannel): RPackage {
         return findRPackage(variants, channel)
     }
