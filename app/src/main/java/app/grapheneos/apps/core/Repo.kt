@@ -1,6 +1,7 @@
 package app.grapheneos.apps.core
 
 import android.content.pm.ApplicationInfo
+import android.content.pm.FeatureInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
@@ -23,6 +24,7 @@ import app.grapheneos.apps.util.asStringList
 import app.grapheneos.apps.util.checkMainThread
 import app.grapheneos.apps.util.getPackageInfoOrNull
 import app.grapheneos.apps.util.isEven
+import app.grapheneos.apps.util.maybeGetSystemFeatureInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -511,6 +513,12 @@ private class ComplexDependency(string: String) {
 }
 
 private fun checkStaticDeps(json: JSONObject, repo: Repo): Boolean {
+    json.optJSONArray("requiredSystemFeatures")?.asStringList()?.let { features ->
+        if (features.any { !checkSystemFeatureDep(ComplexDependency(it)) }) {
+            return false
+        }
+    }
+
     json.optJSONArray("staticDeps")?.asStringList()?.let { pkgDeps ->
         if (pkgDeps.any { !checkPackageDep(ComplexDependency(it), repo, enforceSystemPkg = true) }) {
             return false
@@ -518,6 +526,11 @@ private fun checkStaticDeps(json: JSONObject, repo: Repo): Boolean {
     }
 
     return true
+}
+
+private fun checkSystemFeatureDep(dep: ComplexDependency): Boolean {
+    val featureInfo: FeatureInfo = maybeGetSystemFeatureInfo(dep.lhs) ?: return false
+    return dep.check(featureInfo.version.toLong())
 }
 
 private fun checkPackageDep(dep: ComplexDependency, repo: Repo, enforceSystemPkg: Boolean = false): Boolean {
