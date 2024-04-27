@@ -4,6 +4,7 @@ package app.grapheneos.apps.util
 
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.content.pm.FeatureInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -13,7 +14,9 @@ import android.content.pm.SharedLibraryInfo
 import android.os.Build
 import android.os.UserManager
 import android.provider.Settings
+import android.util.ArrayMap
 import app.grapheneos.apps.core.isPrivilegedInstaller
+import app.grapheneos.apps.core.pkgManager
 import app.grapheneos.apps.core.userManager
 
 fun PackageManager.getPackageInfoOrNull(packageName: String, flags: Long = 0L): PackageInfo? {
@@ -34,6 +37,24 @@ fun PackageManager.getPackageInfo(packageName: String, flags: Long = 0L): Packag
         getPackageInfo(packageName, flags.toInt())
     }
 }
+
+private val systemFeatures: Map<String, FeatureInfo> = run {
+    val arr: Array<FeatureInfo> = pkgManager.getSystemAvailableFeatures()
+    val res = ArrayMap<String, FeatureInfo>(arr.size)
+    arr.forEach {
+        val name = it.name
+        if (name != null) {
+            res.put(name, it)
+        }
+    }
+    res
+}
+
+fun maybeGetSystemFeatureInfo(name: String): FeatureInfo? {
+    return systemFeatures.get(name)
+}
+
+fun hasSystemFeature(name: String): Boolean = maybeGetSystemFeatureInfo(name) != null
 
 fun PackageManager.getInstalledPackages(flags: Long = 0L): List<PackageInfo> {
     return if (Build.VERSION.SDK_INT >= 33) {
