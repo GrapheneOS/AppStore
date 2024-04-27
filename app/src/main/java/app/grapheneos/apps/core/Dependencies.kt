@@ -20,6 +20,10 @@ class Dependency(string: String, repo: Repo) {
     val flags: Set<Flag>
 
     enum class Flag {
+        // Whether to ignore this dependency if it's missing from the parsed repo. Useful for
+        // optional dependencies that are filtered out from the repo during parsing due to static
+        // constraints (staticDeps, minSdk, etc).
+        SkipIfMissing,
     }
 
     init {
@@ -91,6 +95,10 @@ private fun collectDependencies(dependant: String, dependencies: Array<Dependenc
         val container = PackageStates.repo.packages[dep.packageName]
 
         if (container == null) {
+            if (dep.flags.contains(Dependency.Flag.SkipIfMissing)) {
+                continue
+            }
+
             val err = MissingDependencyError(dependant, dep,
                 MissingDependencyError.REASON_MISSING_IN_REPO)
             throw DependencyResolutionException(err)
