@@ -1,5 +1,6 @@
 package app.grapheneos.apps.core
 
+import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
@@ -366,18 +367,36 @@ class InstallTask(
 
             lseekToStart(uncompressedFd.v)
 
-            // enforce that packages that declare that they don't have code declare it in their
-            // AndroidManifest too. OS won't run any code from packages that have hasCode="false"
-            // directive in their manifest
-            if (apk.pkg.common.noCode) {
+            if (apk.pkg.common.noCode || apk.pkg.common.isSharedLibrary) {
                 // see dupToPfd comment to see why dup is even needed
                 uncompressedFd.dupToPfd().use {
                     // there's no public variant of getPackageArchiveInfo() that accepts a file descriptor
                     val pkgInfo = pkgManager.getPackageArchiveInfo("/proc/self/fd/${it.getFd()}", 0L)!!
-                    if ((pkgInfo.applicationInfo.flags and ApplicationInfo.FLAG_HAS_CODE) != 0) {
-                        throw GeneralSecurityException("${apk.pkg.packageName}: ${apk.name} should have " +
+
+                    // enforce that packages that declare that they don't have code declare it in their
+                    // AndroidManifest too. OS won't run any code from packages that have hasCode="false"
+                    // directive in their manifest
+                    if (apk.pkg.common.noCode) {
+                        if ((pkgInfo.applicationInfo.flags and ApplicationInfo.FLAG_HAS_CODE) != 0) {
+                            throw GeneralSecurityException("${apk.pkg.packageName}: ${apk.name} should have " +
                                     "hasCode=\"false\" attribute in its AndroidManifest")
+                        }
                     }
+
+                    // don't allow abusing isSharedLibrary property to bypass app install confirmation
+                    // requirement
+                    if (apk.pkg.common.isSharedLibrary) {
+                        // there's no equivalent public API as of SDK 34
+                        @SuppressLint("DiscouragedPrivateApi")
+                        val privateFlagsField = ApplicationInfo::class.java.getDeclaredField("privateFlags")
+                        val privateFlags = privateFlagsField.get(pkgInfo.applicationInfo) as Int
+                        val PRIVATE_FLAG_STATIC_SHARED_LIBRARY = 1 shl 14
+                        if ((privateFlags and PRIVATE_FLAG_STATIC_SHARED_LIBRARY) == 0) {
+                            throw GeneralSecurityException("${apk.pkg.packageName}: " +
+                                    "${apk.name} is not a static shared library")
+                        }
+                    }
+
                 }
                 lseekToStart(uncompressedFd.v)
             }
