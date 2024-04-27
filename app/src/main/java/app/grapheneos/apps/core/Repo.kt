@@ -482,52 +482,57 @@ private val deviceAbi: Apk.Abi = run {
 
 // Used only for static deps. If it was used for dynamic deps, dependency resolution would become
 // too complex, especially during package updates.
-private class ComplexDependency(string: String, repo: Repo) {
-    val packageName: String
+private class ComplexDependency(string: String) {
+    val lhs: String // left-hand-side
     val op: String
     val version: Long
 
     init {
         val tokens = string.split(" ")
-        val manifestPackageName = tokens[0]
-        packageName = repo.translateManifestPackageName(manifestPackageName)
+        lhs = tokens[0]
         if (tokens.size == 1) {
             op = ">="
             version = 0
         } else {
-            kotlin.check(tokens.size == 3)
+            check(tokens.size == 3)
             op = tokens[1]
             version = tokens[2].toLong()
         }
     }
 
-    fun check(enforceSystemPkg: Boolean = false): Boolean {
-        val pi = pkgManager.getPackageInfoOrNull(packageName) ?: return false
-        if (!pi.applicationInfo.enabled) {
-            return false
-        }
-        if (enforceSystemPkg) {
-            if (pi.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
-                return false
-            }
-        }
-        val installedVersion = pi.longVersionCode
-
+    fun check(presentVersion: Long): Boolean {
         return when (op) {
-            ">=" -> installedVersion >= version
-            "==" -> installedVersion == version
-            "<" -> installedVersion < version
+            ">=" -> presentVersion >= version
+            "==" -> presentVersion == version
+            "<" -> presentVersion < version
             else -> throw IllegalStateException(op)
         }
     }
 }
 
 private fun checkStaticDeps(json: JSONObject, repo: Repo): Boolean {
-    val arr = json.optJSONArray("staticDeps")?.asStringList() ?: return true
-
-    return arr.all {
-        ComplexDependency(it, repo).check(enforceSystemPkg = true)
+    json.optJSONArray("staticDeps")?.asStringList()?.let { pkgDeps ->
+        if (pkgDeps.any { !checkPackageDep(ComplexDependency(it), repo, enforceSystemPkg = true) }) {
+            return false
+        }
     }
+
+    return true
+}
+
+private fun checkPackageDep(dep: ComplexDependency, repo: Repo, enforceSystemPkg: Boolean = false): Boolean {
+    val manifestPackageName = dep.lhs
+    val packageName = repo.translateManifestPackageName(manifestPackageName)
+    val pi = pkgManager.getPackageInfoOrNull(packageName) ?: return false
+    if (!pi.applicationInfo.enabled) {
+        return false
+    }
+    if (enforceSystemPkg) {
+        if (pi.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
+            return false
+        }
+    }
+    return dep.check(pi.longVersionCode)
 }
 
 private fun hexStringToByteArray(s: String): ByteArray {
