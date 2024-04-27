@@ -11,6 +11,7 @@ import app.grapheneos.apps.ui.ErrorDialog
 import app.grapheneos.apps.util.ActivityUtils
 import app.grapheneos.apps.util.checkMainThread
 import app.grapheneos.apps.util.getSharedLibraries
+import app.grapheneos.apps.util.hasSystemFeature
 import kotlin.jvm.Throws
 
 class Dependency(string: String, repo: Repo) {
@@ -121,8 +122,17 @@ private fun collectDependencies(dependant: String, dependencies: Array<Dependenc
 
         if (skipPresent) {
             if (depPackage.common.isSharedLibrary) {
+                val flags: Long = if (canUseMatchAnyUserForSharedLibs()) {
+                    // MATCH_ANY_USER is required to properly handle shared library updates in
+                    // multi-user scenarios, since installing the same version of library for the
+                    // second time is not allowed by the OS.
+                    0x00400000L // PackageManager.MATCH_ANY_USER, not a part of public API
+                } else {
+                    0L
+                }
+
                 // no public API to get info about a particular library
-                val isPresent = pkgManager.getSharedLibraries().any {
+                val isPresent = pkgManager.getSharedLibraries(flags).any {
                     val pkg = it.declaringPackage
                     pkg.packageName == depPackage.packageName && pkg.longVersionCode == depPackage.versionCode
                 }
@@ -175,4 +185,12 @@ fun showMissingDependencyUi(err: MissingDependencyError) {
             setContentIntent(DetailsScreen.createPendingIntent(err.dependantPkgName))
         }
     }
+}
+
+private fun canUseMatchAnyUserForSharedLibs(): Boolean {
+    if (!isPrivilegedInstaller) {
+        return false
+    }
+    val featureName = "grapheneos.priv_installer_can_use_getSharedLibraries_MATCH_ANY_USER"
+    return hasSystemFeature(featureName)
 }
