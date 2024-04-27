@@ -18,8 +18,8 @@ import app.grapheneos.apps.core.PackageState
 import app.grapheneos.apps.core.ReleaseChannel
 import app.grapheneos.apps.databinding.PackageListItemBinding
 import app.grapheneos.apps.util.maybeSetText
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import coil.load
+import coil.transform.RoundedCornersTransformation
 
 class ViewBindingVH<T : ViewBinding>(val binding: T) : ViewHolder(binding.root)
 
@@ -78,12 +78,10 @@ fun PackageListItemBinding.set(fragment: Fragment, pkgState: PackageState) {
 
     val iconUrl = rPackage.common.iconUrl
     if (iconUrl != null && pkgIcon.tag != iconUrl) {
-        Glide.with(fragment)
-            .load(iconUrl)
-            .placeholder(R.drawable.ic_placeholder_app_icon)
-            .centerInside()
-            .transform(RoundedCorners(20))
-            .into(pkgIcon)
+        pkgIcon.load(iconUrl) {
+            transformations(RoundedCornersTransformation(20f))
+            placeholder(R.drawable.ic_placeholder_app_icon)
+        }
     }
 
     if (iconUrl == null) {
