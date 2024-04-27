@@ -210,7 +210,7 @@ class InstallTask(
     // - don't reopen files unless it can't be avoided (file descriptor remains valid even if its
     // file is removed)
 
-    private fun openTempFileFd(tmpPath: String): ScopedFileDescriptor { // todo use common
+    private fun openTempFileFd(tmpPath: String): ScopedFileDescriptor {
         apksDir.mkdirs()
         // O_TRUNC to handle stale tmp files that may remain after process kill, power loss etc
         val flags = O_RDWR or O_CREAT or O_TRUNC
