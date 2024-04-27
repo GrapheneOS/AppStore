@@ -26,6 +26,7 @@ import app.grapheneos.apps.util.isEven
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.security.cert.CertificateFactory
@@ -258,7 +259,7 @@ class RPackageContainer(val repo: Repo, val packageName: String,
 private val emptyDependencyArray = emptyArray<Dependency>()
 
 private fun parseDependencies(json: JSONObject, repo: Repo): Array<Dependency>? {
-    val arr = json.optJSONArray("deps")
+    val arr: JSONArray? = json.optJSONArray("deps2") ?: json.optJSONArray("deps")
     return if (arr != null) {
         arr.asStringList().map { Dependency(it, repo) }.toTypedArray()
     } else {
