@@ -14,6 +14,7 @@ import android.os.Looper
 import android.os.UserManager
 import androidx.core.content.getSystemService
 import app.grapheneos.apps.ApplicationImpl
+import app.grapheneos.apps.util.hasSystemFeature
 import kotlinx.coroutines.sync.Semaphore
 import java.io.File
 import java.util.concurrent.Executor
@@ -39,7 +40,7 @@ val isPrivilegedInstaller = appContext.checkSelfPermission(Manifest.permission.I
     PackageManager.PERMISSION_GRANTED
 
 val canUpdateDisabledPackages = Build.VERSION.SDK_INT >= 34 ||
-    pkgManager.hasSystemFeature("grapheneos.package_update_preserves_package_enabled_setting")
+    hasSystemFeature("grapheneos.package_update_preserves_package_enabled_setting")
 
 val notificationManager: NotificationManager = appContext.getSystemService()!!
 
