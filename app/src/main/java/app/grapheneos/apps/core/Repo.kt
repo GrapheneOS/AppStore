@@ -513,6 +513,12 @@ private class ComplexDependency(string: String) {
 }
 
 private fun checkStaticDeps(json: JSONObject, repo: Repo): Boolean {
+    json.optJSONArray("supportedDevices")?.asStringList()?.let { devices ->
+        if (!devices.contains(Build.DEVICE)) {
+            return false
+        }
+    }
+
     json.optJSONArray("requiredSystemFeatures")?.asStringList()?.let { features ->
         if (features.any { !checkSystemFeatureDep(ComplexDependency(it)) }) {
             return false
