@@ -10,7 +10,7 @@
     <bool name="pref_def_auto_update_packages" translatable="false">true</bool>
 
     <string name="pref_key_background_update_check_interval" translatable="false">rescheduleTiming</string>
-<!--    in milliseconds, leftover from the jnitial version-->
+<!--    in milliseconds, leftover from the initial version-->
     <string name="pref_def_background_update_check_interval">21600000</string>
 
     <string-array name="pref_values_background_update_check_interval">
