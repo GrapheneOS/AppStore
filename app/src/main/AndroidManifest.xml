@@ -48,19 +48,18 @@
             android:targetActivity=".ui.MainActivity" />
 
         <service
-            android:exported="false"
             android:name=".autoupdate.UpdateCheckJob"
+            android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
-            android:exported="false"
             android:name=".autoupdate.AutoUpdateJob"
+            android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
             android:name=".BootCompletedReceiver"
-            android:exported="false"
-        >
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -68,15 +67,14 @@
 
         <provider
             android:name=".RpcProvider"
-            android:exported="true"
             android:authorities="${applicationId}.RpcProvider"
-            tools:ignore="ExportedContentProvider"
-        />
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
 
         <service
             android:name=".PackageDownloadFgService"
-            android:foregroundServiceType="dataSync"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <receiver
             android:name=".core.PkgInstallerStatusReceiver"
