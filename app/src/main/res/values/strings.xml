@@ -31,8 +31,9 @@
     <string name="pkg_dependencies">Dependencies</string>
 
     <string name="pkg_source_grapheneos">GrapheneOS</string>
-    <string name="pkg_source_google">Google (mirror)</string>
     <string name="pkg_source_grapheneos_build">GrapheneOS build</string>
+    <string name="pkg_source_mirror">Mirror</string>
+    <string name="pkg_source_google">Google (mirror)</string>
 
     <string name="settings">Settings</string>
     <string name="open_settings">Open settings</string>
