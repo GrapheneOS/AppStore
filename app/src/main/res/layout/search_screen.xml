@@ -56,6 +56,13 @@
                 android:text="@string/pkg_source_grapheneos" />
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/pkg_source_Mirror"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pkg_source_mirror" />
+
+            <com.google.android.material.chip.Chip
                 android:id="@+id/pkg_source_Google"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
