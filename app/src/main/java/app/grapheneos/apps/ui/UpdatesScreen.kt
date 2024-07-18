@@ -86,7 +86,7 @@ class UpdatesScreen : PackageListFragment<UpdatesScreenBinding>(), MenuProvider 
 
     override fun updateList() {
         packages.values.filter {
-            it.isOutdated()
+            it.isEligibleForBulkUpdate()
         }.sortedBy {
             it.rPackage.label
         }.let { list ->
