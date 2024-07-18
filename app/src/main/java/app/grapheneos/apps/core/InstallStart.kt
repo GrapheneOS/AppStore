@@ -213,7 +213,7 @@ fun collectOutdatedPackageGroups(): List<List<RPackage>> {
     }
 
     PackageStates.map.values.filter {
-        it.isOutdated() && !it.isInstalling()
+        it.isEligibleForBulkUpdate() && !it.isInstalling()
     }.forEach addPkg@{ pkgState ->
         val rPackage = pkgState.rPackage
         val pkgName = rPackage.packageName

@@ -483,7 +483,7 @@ object PackageStates : LifecycleEventObserver {
     var numberOfOutdatedPackages = 0; private set
 
     fun updateNumberOfOutdatedPackages() {
-        val count = map.values.count { it.isOutdated() }
+        val count = map.values.count { it.isEligibleForBulkUpdate() }
 
         if (count != numberOfOutdatedPackages) {
             numberOfOutdatedPackages = count

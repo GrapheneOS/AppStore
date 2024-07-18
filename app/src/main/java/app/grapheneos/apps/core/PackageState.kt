@@ -131,7 +131,8 @@ class PackageState(val pkgName: String, val id: Long) {
         }
     }
 
-    fun isOutdated(): Boolean {
+    // Bulk updates are performed by the auto-update job and by the "Update all" button on Updates screen
+    fun isEligibleForBulkUpdate(): Boolean {
         val pi = osPackageInfo
         return pi != null && (canUpdateDisabledPackages || pi.applicationInfo.enabled)
                 && pi.longVersionCode < rPackage.versionCode
