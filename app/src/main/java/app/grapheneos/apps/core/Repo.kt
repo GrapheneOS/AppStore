@@ -254,6 +254,10 @@ class RPackageContainer(val repo: Repo, val packageName: String,
 
     val requestUpdateOwnership = json.optBoolean("requestUpdateOwnership", true)
 
+    // Opt out of bulk updates that are performed by the auto-update job and by the "Update all"
+    // button. This option is intended for packages that are able to self-update, such as app stores.
+    val optOutOfBulkUpdates = json.optBoolean("optOutOfBulkUpdates", false)
+
     fun getPackage(channel: ReleaseChannel): RPackage {
         return findRPackage(variants, channel)
     }

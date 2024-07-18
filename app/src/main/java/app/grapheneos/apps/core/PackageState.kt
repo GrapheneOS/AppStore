@@ -136,6 +136,7 @@ class PackageState(val pkgName: String, val id: Long) {
         val pi = osPackageInfo
         return pi != null && (canUpdateDisabledPackages || pi.applicationInfo.enabled)
                 && pi.longVersionCode < rPackage.versionCode
+                && !rPackage.common.optOutOfBulkUpdates
     }
 
     fun status(): Status {
