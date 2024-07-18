@@ -105,7 +105,8 @@ private fun networkErrorResStringOrZero(e: Throwable) = when (e) {
 
 @Parcelize
 class RepoUpdateError(val throwable: Throwable, val wasUpdateManuallyRequested: Boolean) : ErrorTemplate() {
-    override fun titleResource() = R.string.unable_to_fetch_app_list
+    override fun titleResource() = if (wasUpdateManuallyRequested)
+        R.string.unable_to_fetch_app_list else R.string.app_update_check_failed
 
     fun isNotable() = when (throwable) {
         is ConnectException,
