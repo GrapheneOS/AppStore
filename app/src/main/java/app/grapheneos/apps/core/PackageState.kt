@@ -67,80 +67,68 @@ class PackageState(val pkgName: String, val id: Long) {
     }
 
     fun statusString(ctx: Context): String {
-        installTask?.let { task ->
-            if (task.jobReferenceForMainThread.isCancelled) {
-                val sb = StringBuilder()
-                sb.appendRes(ctx, R.string.cancelling_download)
-                appendDots(sb)
-                return sb.toString()
-            }
-            val taskState = task.state
-            return when (taskState) {
-                InstallTask.STATE_PENDING_DOWNLOAD, InstallTask.STATE_PENDING_INSTALL -> {
+        when (status()) {
+            Status.NOT_INSTALLED ->
+                return getDownloadSizeUiString()
+            Status.SHARED_LIBRARY ->
+                return ctx.getString(R.string.pkg_status_shared_library, getDownloadSizeUiString())
+            Status.OUT_OF_DATE ->
+                return ctx.getString(R.string.pkg_status_update_available, getDownloadSizeUiString())
+            Status.DISABLED ->
+                return ctx.getString(R.string.pkg_status_disabled)
+            Status.UP_TO_DATE ->
+                return ctx.getString(R.string.pkg_status_installed)
+            Status.INSTALLING -> {
+                val installTask = this.installTask
+                if (installTask == null) {
+                    check(hasInstallerSession())
                     val sb = StringBuilder()
-                    val res = if (taskState == InstallTask.STATE_PENDING_DOWNLOAD)
-                        R.string.pkg_status_pending_download
+                    val resource = if (waitingForPendingUserAction)
+                        R.string.pkg_status_waiting_for_confirmation
                     else
-                        R.string.pkg_status_pending_install
-                    sb.appendRes(ctx, res)
+                        R.string.pkg_status_installing
+                    sb.appendRes(ctx, resource)
                     appendDots(sb)
-                    sb.toString()
+                    return sb.toString()
                 }
-                else -> {
-                    check(taskState == InstallTask.STATE_DOWNLOADING)
-                    val progress = task.downloadProgress.get()
-                    val total = task.downloadTotal
-                    if (progress == total) {
+
+                if (installTask.jobReferenceForMainThread.isCancelled) {
+                    val sb = StringBuilder()
+                    sb.appendRes(ctx, R.string.cancelling_download)
+                    appendDots(sb)
+                    return sb.toString()
+                }
+                val taskState = installTask.state
+                when (taskState) {
+                    InstallTask.STATE_PENDING_DOWNLOAD, InstallTask.STATE_PENDING_INSTALL -> {
                         val sb = StringBuilder()
-                        sb.appendRes(ctx, R.string.pkg_status_unpacking)
+                        val res = if (taskState == InstallTask.STATE_PENDING_DOWNLOAD)
+                            R.string.pkg_status_pending_download
+                        else
+                            R.string.pkg_status_pending_install
+                        sb.appendRes(ctx, res)
                         appendDots(sb)
-                        sb.toString()
-                    } else {
-                        val ref = if (task.params.isUpdate) R.string.pkg_status_downloading_update
-                            else R.string.pkg_status_downloading
-                        val percent = ((progress.toDouble() / total.toDouble()) * 100.0).toInt()
-                        ctx.getString(ref, percent,
-                            Formatter.formatShortFileSize(ctx, task.downloadTotal)
-                        )
+                        return sb.toString()
                     }
                 }
+                check(taskState == InstallTask.STATE_DOWNLOADING)
+                val progress = installTask.downloadProgress.get()
+                val total = installTask.downloadTotal
+                if (progress == total) {
+                    val sb = StringBuilder()
+                    sb.appendRes(ctx, R.string.pkg_status_unpacking)
+                    appendDots(sb)
+                    return sb.toString()
+                }
+
+                val ref = if (installTask.params.isUpdate) R.string.pkg_status_downloading_update
+                    else R.string.pkg_status_downloading
+                val percent = ((progress.toDouble() / total.toDouble()) * 100.0).toInt()
+                return ctx.getString(ref, percent,
+                    Formatter.formatShortFileSize(ctx, installTask.downloadTotal)
+                )
             }
         }
-
-        if (hasInstallerSession()) {
-            val sb = StringBuilder()
-            val resource = if (waitingForPendingUserAction)
-                R.string.pkg_status_waiting_for_confirmation
-            else
-                R.string.pkg_status_installing
-            sb.appendRes(ctx, resource)
-            appendDots(sb)
-            return sb.toString()
-        }
-
-        if (rPackage.common.isSharedLibrary) {
-            return ctx.getString(R.string.pkg_status_shared_library, getDownloadSizeUiString())
-        }
-
-        val pi = osPackageInfo
-        if (pi == null) {
-            return getDownloadSizeUiString()
-        }
-
-        val ai = pi.applicationInfo
-        if (!canUpdateDisabledPackages && !ai.enabled) {
-            return ctx.getString(R.string.pkg_status_disabled)
-        }
-
-        if (pi.longVersionCode < rPackage.versionCode) {
-            return ctx.getString(R.string.pkg_status_update_available, getDownloadSizeUiString())
-        }
-
-        if (!ai.enabled) {
-            return ctx.getString(R.string.pkg_status_disabled)
-        }
-
-        return ctx.getString(R.string.pkg_status_installed)
     }
 
     fun isOutdated(): Boolean {
