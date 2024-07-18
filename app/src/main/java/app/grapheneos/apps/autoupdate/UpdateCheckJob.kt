@@ -141,7 +141,7 @@ fun showAllUpToDateNotification() {
 fun showUpdateCheckFailedNotification(repoUpdateError: RepoUpdateError) {
     Notifications.builder(Notifications.CH_BACKGROUND_UPDATE_CHECK_FAILED).run {
         setSmallIcon(R.drawable.ic_error)
-        setContentTitle(R.string.unable_to_fetch_app_list)
+        setContentTitle(R.string.app_update_check_failed)
         setContentIntent(ErrorDialog.createPendingIntent(repoUpdateError))
         show(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
     }
