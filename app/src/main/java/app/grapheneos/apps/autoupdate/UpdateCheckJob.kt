@@ -24,13 +24,17 @@ import app.grapheneos.apps.util.componentName
 import app.grapheneos.apps.util.isAppInstallationAllowed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "UpdateCheckJob"
 
 class UpdateCheckJob : JobService() {
+    private var job: Job? = null
 
-    override fun onStartJob(jobParams: JobParameters?): Boolean {
+    override fun onStartJob(jobParams: JobParameters): Boolean {
         ApplicationImpl.exitIfNotInitialized()
         Log.d(TAG, "onStartJob")
 
@@ -38,7 +42,12 @@ class UpdateCheckJob : JobService() {
             return false
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
+        job = CoroutineScope(Dispatchers.Main).launch {
+            // When there's an enabled VPN, this job is sometimes executed before VPN establishes
+            // its connection, which makes the job fail due to network not being up at that point.
+            // As a workaround, delay the network request for a bit.
+            delay(10.seconds)
+
             val repoUpdateError = PackageStates.requestRepoUpdate()
             if (repoUpdateError != null) {
                 showUpdateCheckFailedNotification(repoUpdateError)
@@ -62,8 +71,10 @@ class UpdateCheckJob : JobService() {
     }
 
     override fun onStopJob(params: JobParameters): Boolean {
-        // ignore the stop signal: update check is inexpensive and doesn't have relevant cancellation points
-        return false
+        Log.d(TAG, "onStopJob, reason: ${params.stopReason}")
+        job?.cancel()
+        // "true" means "reschedule the job"
+        return true
     }
 
     private fun showUpdatesAvailableNotification(rPackageGroups: List<List<RPackage>>) {
