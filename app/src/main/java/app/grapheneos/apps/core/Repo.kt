@@ -531,8 +531,14 @@ private fun checkStaticDeps(json: JSONObject, repo: Repo): Boolean {
     }
 
     json.optJSONArray("staticDeps")?.asStringList()?.let { pkgDeps ->
-        if (pkgDeps.any { !checkPackageDep(ComplexDependency(it), repo, enforceSystemPkg = true) }) {
-            return false
+        for (depStr in pkgDeps) {
+            val dep = ComplexDependency(depStr)
+            // there's currently no certificate checks for static dependencies, require them to
+            // be a system package instead, unless it's our own package
+            val enforceSystemPkg = dep.lhs != selfPkgName
+            if (!checkPackageDep(dep, repo, enforceSystemPkg)) {
+                return false
+            }
         }
     }
 
