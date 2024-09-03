@@ -72,8 +72,8 @@ object InstallerSessions {
                 continue
             }
 
-            if (Build.VERSION.SDK_INT <= 33) {
-                // As of Android 13, committed PackageInstaller sessions sometimes get stuck and
+            if (true) {
+                // As of Android 14, committed PackageInstaller sessions sometimes get stuck and
                 // never complete. Sessions are persisted by the OS across reboots, which means that
                 // the package is stuck in "Installing..." state until the OS removes the session
                 // when it gets too old (see MAX_AGE_MILLIS in
