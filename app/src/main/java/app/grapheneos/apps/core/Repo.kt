@@ -94,6 +94,11 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
     }
 
     val fsVerityCertificateId: Int? = run {
+        if (Build.VERSION.SDK_INT >= 35) {
+            // fs-verity certificates are not used by the OS since SDK 35
+            return@run null
+        }
+
         if (!isPrivilegedInstaller) {
             if (!pkgManager.canRequestPackageInstalls()) {
                 // isAppSourceCertificateTrusted() below requires {REQUEST_,}INSTALL_PACKAGES
@@ -250,7 +255,12 @@ class RPackageContainer(val repo: Repo, val packageName: String,
         return@let pkgs.filterNotNull()
     }
 
-    val hasFsVeritySignatures = json.optBoolean("hasFsVeritySignatures", false)
+    val hasFsvSigSignatures = if (Build.VERSION.SDK_INT >= 35) {
+        // fsv_sig are not used by the OS since SDK 35, v4 APK signatures are used instead
+        false
+    } else {
+        json.optBoolean("hasFsVeritySignatures", false)
+    }
 
     val requestUpdateOwnership = json.optBoolean("requestUpdateOwnership", true)
 
@@ -315,6 +325,15 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
             list.add(apk)
         }
         list
+    }
+
+    val hasV4Signatures = if (Build.VERSION.SDK_INT >= 35) {
+        // v4 signatures are used by the OS to enable fs-verity for APKs
+        json.optBoolean("hasV4Signatures", false)
+    } else {
+        // v4 signatures are supported since SDK 30, but before SDK 35 they were used only for
+        // IncFS-backed APK streaming, which isn't used by this installer
+        false
     }
 
     fun collectNeededApks(config: Configuration): List<Apk> {
