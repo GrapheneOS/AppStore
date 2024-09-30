@@ -56,7 +56,7 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 
             if (originalPackage != null) {
                 pkgManager.getPackageInfoOrNull(originalPackage)?.let {
-                    if (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) {
+                    if (it.applicationInfo?.flags ?: 0 and ApplicationInfo.FLAG_SYSTEM != 0) {
                         renamedPackages.put(manifestPackageName, originalPackage)
                     }
                 }
@@ -573,11 +573,12 @@ private fun checkPackageDep(dep: ComplexDependency, repo: Repo, enforceSystemPkg
     val manifestPackageName = dep.lhs
     val packageName = repo.translateManifestPackageName(manifestPackageName)
     val pi = pkgManager.getPackageInfoOrNull(packageName) ?: return false
-    if (!pi.applicationInfo.enabled) {
+    val appInfo = pi.applicationInfo ?: return false
+    if (!appInfo.enabled) {
         return false
     }
     if (enforceSystemPkg) {
-        if (pi.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
+        if (appInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
             return false
         }
     }

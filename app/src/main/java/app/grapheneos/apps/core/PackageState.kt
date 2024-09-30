@@ -134,7 +134,7 @@ class PackageState(val pkgName: String, val id: Long) {
     // Bulk updates are performed by the auto-update job and by the "Update all" button on Updates screen
     fun isEligibleForBulkUpdate(): Boolean {
         val pi = osPackageInfo
-        return pi != null && (canUpdateDisabledPackages || pi.applicationInfo.enabled)
+        return pi != null && (canUpdateDisabledPackages || pi.applicationInfo?.enabled == true)
                 && pi.longVersionCode < rPackage.versionCode
                 && !rPackage.common.optOutOfBulkUpdates
     }
@@ -154,7 +154,7 @@ class PackageState(val pkgName: String, val id: Long) {
         }
 
         val ai = pi.applicationInfo
-        if (!canUpdateDisabledPackages && !ai.enabled) {
+        if (!canUpdateDisabledPackages && ai?.enabled == false) {
             return Status.DISABLED
         }
 
@@ -162,7 +162,7 @@ class PackageState(val pkgName: String, val id: Long) {
             return Status.OUT_OF_DATE
         }
 
-        if (!ai.enabled) {
+        if (ai?.enabled == false) {
             return Status.DISABLED
         }
 

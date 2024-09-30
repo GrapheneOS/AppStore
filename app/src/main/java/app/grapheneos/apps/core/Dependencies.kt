@@ -151,7 +151,7 @@ private fun collectDependencies(dependant: String, dependencies: Array<Dependenc
                     throw DependencyResolutionException(err)
                 }
             } else {
-                if (requireEnabled && !pkgInfo.applicationInfo.enabled) {
+                if (requireEnabled && pkgInfo.applicationInfo?.enabled == false) {
                     val err = MissingDependencyError(dependant, dep,
                         if (forUpdate)
                             MissingDependencyError.REASON_DEPENDENCY_DISABLED_AFTER_INSTALL

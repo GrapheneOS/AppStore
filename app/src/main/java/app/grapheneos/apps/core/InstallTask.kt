@@ -191,6 +191,9 @@ class InstallTask(
         }
 
         val appInfo = pkgInfo.applicationInfo
+        if (appInfo == null) {
+            return false
+        }
 
         coroutineScope {
             val splitSourceDirs = appInfo.splitSourceDirs ?: emptyArray<String>()
@@ -390,7 +393,8 @@ class InstallTask(
                     // AndroidManifest too. OS won't run any code from packages that have hasCode="false"
                     // directive in their manifest
                     if (apk.pkg.common.noCode) {
-                        if ((pkgInfo.applicationInfo.flags and ApplicationInfo.FLAG_HAS_CODE) != 0) {
+                        val appInfo = pkgInfo.applicationInfo
+                        if (appInfo == null || (appInfo.flags and ApplicationInfo.FLAG_HAS_CODE) != 0) {
                             throw GeneralSecurityException("${apk.pkg.packageName}: ${apk.name} should have " +
                                     "hasCode=\"false\" attribute in its AndroidManifest")
                         }
