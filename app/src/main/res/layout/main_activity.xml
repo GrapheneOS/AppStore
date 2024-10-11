@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         app:elevation="4dp"
         android:orientation="vertical"
-        app:popupTheme="@style/Theme.Apps.PopUpOverlay"
         tools:menu="@menu/main_screen_menu" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
