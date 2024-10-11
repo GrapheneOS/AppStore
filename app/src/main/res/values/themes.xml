@@ -7,6 +7,4 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
-
-    <style name="Theme.Apps.PopUpOverlay" parent="ThemeOverlay.Material3.Light" />
 </resources>
