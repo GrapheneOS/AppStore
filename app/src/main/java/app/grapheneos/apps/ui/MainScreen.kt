@@ -21,6 +21,7 @@ import app.grapheneos.apps.databinding.MainScreenBinding
 import app.grapheneos.apps.util.intent
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,21 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
 
     override fun onViewsCreated(views: MainScreenBinding, savedInstanceState: Bundle?) {
         createListAdapter(views.appList)
+
+        views.swipeRefreshContainer.apply {
+            setProgressBackgroundColorSchemeColor(
+                MaterialColors.getColor(
+                    this,
+                    com.google.android.material.R.attr.colorSurface
+                )
+            )
+            setColorSchemeColors(
+                MaterialColors.getColor(
+                    this,
+                    com.google.android.material.R.attr.colorPrimary
+                )
+            )
+        }
 
         views.swipeRefreshContainer.setOnRefreshListener {
             CoroutineScope(Dispatchers.Main).launch {
