@@ -126,9 +126,9 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 }
 
 enum class ReleaseChannel(@StringRes val uiName: Int) {
-    alpha(R.string.release_channel_alpha),
-    beta(R.string.release_channel_beta),
     stable(R.string.release_channel_stable),
+    beta(R.string.release_channel_beta),
+    alpha(R.string.release_channel_alpha),
 }
 
 fun findRPackage(variants: List<RPackage>, channel: ReleaseChannel): RPackage {
