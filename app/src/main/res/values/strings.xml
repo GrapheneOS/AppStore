@@ -67,9 +67,9 @@
     <string name="search">Search</string>
 
     <string name="release_channel">Release channel</string>
-    <string name="release_channel_alpha">alpha</string>
-    <string name="release_channel_beta">beta</string>
-    <string name="release_channel_stable">stable</string>
+    <string name="release_channel_alpha">Alpha</string>
+    <string name="release_channel_beta">Beta</string>
+    <string name="release_channel_stable">Stable</string>
 
     <string name="notif_download_in_progress">Downloading files, %1$s left</string>
 
