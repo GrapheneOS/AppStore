@@ -67,6 +67,7 @@
     <string name="search">Search</string>
 
     <string name="release_channel">Release channel</string>
+    <string name="default_release_channel">Default release channel</string>
     <string name="release_channel_alpha">Alpha</string>
     <string name="release_channel_beta">Beta</string>
     <string name="release_channel_stable">Stable</string>
