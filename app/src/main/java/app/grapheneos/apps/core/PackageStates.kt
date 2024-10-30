@@ -371,7 +371,6 @@ object PackageStates : LifecycleEventObserver {
         }
     }
 
-    // TODO: surface in UI
     var defaultReleaseChannel: ReleaseChannel = ReleaseChannel.valueOf(
         prefs.getString(defaultReleaseChannelPrefsKey, ReleaseChannel.stable.name)!!
     ); private set

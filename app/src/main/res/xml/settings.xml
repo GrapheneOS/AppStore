@@ -22,6 +22,14 @@
             app:key="@string/pref_key_background_update_check_interval"
             app:defaultValue="@string/pref_def_background_update_check_interval" />
 
+        <ListPreference
+            app:title="@string/default_release_channel"
+            app:useSimpleSummaryProvider="true"
+            app:key="@string/pref_key_default_release_channel"
+            app:entries="@array/pref_release_channels"
+            app:entryValues="@array/pref_release_channel_values"
+            app:defaultValue="@string/pref_def_release_channel" />
+
         <SwitchPreferenceCompat
             app:title="@string/pref_auto_update_packages"
             app:dependency="@string/pref_key_background_update_check"

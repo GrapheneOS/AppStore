@@ -51,7 +51,19 @@
         <item>Unmetered</item>
     </string-array>
 
+    <!-- Keep this in sync with Repo.kt::ReleaseChannel and its order -->
     <string name="pref_key_default_release_channel">default_release_channel</string>
+    <string-array name="pref_release_channels">
+        <item>@string/release_channel_stable</item>
+        <item>@string/release_channel_beta</item>
+        <item>@string/release_channel_alpha</item>
+    </string-array>
+    <string name="pref_def_release_channel">stable</string>
+    <string-array name="pref_release_channel_values">
+        <item>stable</item>
+        <item>beta</item>
+        <item>alpha</item>
+    </string-array>
 
     <string name="pref_key_always_allow_nocode_updates">always_allow_nocode_updates</string>
     <bool name="pref_def_always_allow_noCode_updates">true</bool>
