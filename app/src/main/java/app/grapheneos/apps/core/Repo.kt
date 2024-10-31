@@ -125,6 +125,8 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
     }
 }
 
+// ReleaseChannel enum entries are expected to be ordered from least stable to most stable by the
+// package variant selection code.
 enum class ReleaseChannel(@StringRes val uiName: Int) {
     alpha(R.string.release_channel_alpha),
     beta(R.string.release_channel_beta),
