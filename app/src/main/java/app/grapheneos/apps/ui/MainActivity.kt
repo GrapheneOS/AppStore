@@ -6,6 +6,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         val views = MainActivityBinding.inflate(layoutInflater)
         this.views = views
 
-        window.setDecorFitsSystemWindows(false)
+        enableEdgeToEdge()
 
         ViewCompat.setOnApplyWindowInsetsListener(views.root) { v, insets ->
             val paddingInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
