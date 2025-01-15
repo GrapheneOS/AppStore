@@ -46,7 +46,6 @@ android {
         targetSdk = 34
         versionCode = 27
         versionName = versionCode.toString()
-        resourceConfigurations.add("en")
 
         buildConfigField(String::class.java.name, "REPO_BASE_URL",
             "\"${System.getenv("REPO_BASE_URL") ?: "https://apps.grapheneos.org"}\"")
@@ -77,6 +76,10 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+    }
+
+    androidResources {
+        localeFilters += listOf("en")
     }
 
     packaging {
