@@ -96,8 +96,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("androidx.activity:activity-ktx:1.10.0")
     implementation("androidx.fragment:fragment-ktx:1.8.6")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.8.5")
-    implementation("androidx.navigation:navigation-ui-ktx:2.8.5")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.8.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.8.7")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
