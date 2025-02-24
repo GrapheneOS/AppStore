@@ -44,7 +44,7 @@ android {
         applicationId = "app.grapheneos.apps"
         minSdk = 31
         targetSdk = 35
-        versionCode = 28
+        versionCode = 29
         versionName = versionCode.toString()
 
         buildConfigField(String::class.java.name, "REPO_BASE_URL",
