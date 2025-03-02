@@ -41,17 +41,9 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
 
         views.swipeRefreshContainer.apply {
             setProgressBackgroundColorSchemeColor(
-                MaterialColors.getColor(
-                    this,
-                    com.google.android.material.R.attr.colorSurface
-                )
-            )
+                MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface))
             setColorSchemeColors(
-                MaterialColors.getColor(
-                    this,
-                    com.google.android.material.R.attr.colorPrimary
-                )
-            )
+                MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary))
         }
 
         views.swipeRefreshContainer.setOnRefreshListener {
