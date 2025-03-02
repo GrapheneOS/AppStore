@@ -56,7 +56,8 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 
             if (originalPackage != null) {
                 pkgManager.getPackageInfoOrNull(originalPackage)?.let {
-                    if (it.applicationInfo?.flags ?: 0 and ApplicationInfo.FLAG_SYSTEM != 0) {
+                    val ai = it.applicationInfo
+                    if (ai != null && ai.flags and ApplicationInfo.FLAG_SYSTEM != 0) {
                         renamedPackages.put(manifestPackageName, originalPackage)
                     }
                 }

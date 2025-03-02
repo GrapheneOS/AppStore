@@ -105,9 +105,15 @@ fun PackageManager.getSharedLibraries(flags: Long = 0L): List<SharedLibraryInfo>
 
 fun PackageInfo.getVersionNameOrVersionCode() = versionName ?: versionCode.toString()
 
-fun PackageInfo.isSystemPackage() = applicationInfo?.flags ?: 0 and ApplicationInfo.FLAG_SYSTEM != 0
+fun PackageInfo.isSystemPackage(): Boolean {
+    val appInfo = applicationInfo ?: return false
+    return appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
+}
 
-fun PackageInfo.isUpdatedSystemPackage() = applicationInfo?.flags ?: 0 and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
+fun PackageInfo.isUpdatedSystemPackage(): Boolean {
+    val appInfo = applicationInfo ?: return false
+    return appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
+}
 
 fun appDetailsIntent(pkgName: String) = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri(pkgName))
 
