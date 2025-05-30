@@ -102,17 +102,16 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
+    val lifecycleVersion = "2.9.0"
+    implementation("androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+
     implementation("com.google.android.material:material:1.12.0")
 
     implementation("org.bouncycastle:bcprov-jdk18on:1.80")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-
-    // force newer version of dependency of dependency
-    val lifecycleVersion = "2.8.7"
-    implementation("androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
 
     val glideVersion = "4.16.0"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
