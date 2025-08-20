@@ -73,7 +73,7 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
         for (manifestPackageName in packagesJson.keys()) {
             val packageContainerJson = packagesJson.getJSONObject(manifestPackageName)
 
-            if (!checkStaticDeps(packageContainerJson, this)) {
+            if (!checkStaticDeps(packageContainerJson, manifestPackageName, this)) {
                 continue
             }
 
@@ -237,7 +237,7 @@ class RPackageContainer(val repo: Repo, val packageName: String,
                 }
             }
 
-            if (!checkStaticDeps(jo, repo)) {
+            if (!checkStaticDeps(jo, manifestPackageName, repo)) {
                 continue
             }
 
@@ -539,7 +539,7 @@ private class ComplexDependency(string: String) {
     }
 }
 
-private fun checkStaticDeps(json: JSONObject, repo: Repo): Boolean {
+private fun checkStaticDeps(json: JSONObject, dependentManifestPkgName: String, repo: Repo): Boolean {
     json.optJSONArray("supportedDevices")?.asStringList()?.let { devices ->
         if (!devices.contains(Build.DEVICE)) {
             return false
@@ -558,7 +558,7 @@ private fun checkStaticDeps(json: JSONObject, repo: Repo): Boolean {
             // there's currently no certificate checks for static dependencies, require them to
             // be a system package instead, unless it's our own package
             val enforceSystemPkg = dep.lhs != selfPkgName
-            if (!checkPackageDep(dep, repo, enforceSystemPkg)) {
+            if (!checkPackageDep(dep, dependentManifestPkgName, repo, enforceSystemPkg)) {
                 return false
             }
         }
@@ -572,12 +572,13 @@ private fun checkSystemFeatureDep(dep: ComplexDependency): Boolean {
     return dep.check(featureInfo.version.toLong())
 }
 
-private fun checkPackageDep(dep: ComplexDependency, repo: Repo, enforceSystemPkg: Boolean = false): Boolean {
+private fun checkPackageDep(dep: ComplexDependency, dependentManifestPkgName: String,
+                            repo: Repo, enforceSystemPkg: Boolean = false): Boolean {
     val manifestPackageName = dep.lhs
     val packageName = repo.translateManifestPackageName(manifestPackageName)
     val pi = pkgManager.getPackageInfoOrNull(packageName) ?: return false
     val appInfo = pi.applicationInfo ?: return false
-    if (!appInfo.enabled) {
+    if (!appInfo.enabled && manifestPackageName != dependentManifestPkgName) {
         return false
     }
     if (enforceSystemPkg) {
