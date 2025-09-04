@@ -112,7 +112,6 @@ object PackageStates : LifecycleEventObserver {
                 Log.d(TAG, "${intent.action} packageName $packageName")
             }
         }
-
         val filter = IntentFilter().apply {
             addDataScheme("package")
             addAction(Intent.ACTION_PACKAGE_ADDED)
@@ -124,8 +123,7 @@ object PackageStates : LifecycleEventObserver {
                 addAction(Intent.ACTION_APPLICATION_LOCALE_CHANGED)
             }
         }
-
-        ContextCompat.registerReceiver(appContext, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        appContext.registerReceiver(receiver, filter)
     }
 
     fun updateRepo(repo: Repo) {
