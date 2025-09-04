@@ -38,7 +38,10 @@ class ApplicationImpl : Application(), ActivityLifecycleCallbacks {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
         baseAppContext = base
+    }
 
+    override fun onCreate() {
+        super.onCreate()
         PackageStates.requestRepoUpdateNoSuspend()
         PackageStates.init()
 
