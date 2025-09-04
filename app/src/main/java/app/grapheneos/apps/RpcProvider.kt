@@ -29,10 +29,17 @@ class RpcProvider : ContentProvider() {
         when (method) {
             "update_package" -> {
                 val callingPackage = callingPackage!!
+                val pkgName = arg!!
                 val callback = extras?.maybeGetParcelable<Messenger>("callback")
                 CoroutineScope(Dispatchers.Main).launch {
-                    val res: Boolean = updatePackage(callingPackage, arg!!)
-                    callback?.send(Message().apply { arg1 = res.toInt() })
+                    val res = runCatching {
+                        updatePackage(callingPackage, pkgName)
+                    }
+                    res.exceptionOrNull()?.let {
+                        Log.e("RpcProvider", method, it)
+                    }
+                    val resBool = res.getOrNull() ?: false
+                    callback?.send(Message().apply { arg1 = resBool.toInt() })
                 }
                 return null
             }
