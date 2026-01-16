@@ -52,6 +52,8 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
             }
         }
 
+        badgeShowingNumberOfOutdatedPackages = BadgeDrawable.create(requireActivity())
+
         // Block for a bit if repo metadata is still being obtained to avoid showing refresh indicator
         // that would almost always would be hidden very soon (10s to low 100s of milliseconds).
         // Repo metadata is cached, so this will happen only if it was never successfully obtained
@@ -133,18 +135,25 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
         requireActivity().invalidateMenu()
     }
 
+    private lateinit var badgeShowingNumberOfOutdatedPackages: BadgeDrawable
+
     @com.google.android.material.badge.ExperimentalBadgeUtils
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         super.onCreateMenu(menu, menuInflater)
 
         PackageStates.numberOfOutdatedPackages.let {
-            if (it == 0) {
-                menu.removeItem(R.id.updates_screen)
-            } else {
+            val showMenuItemAndBadge = it > 0
+
+            if (showMenuItemAndBadge) {
                 val activity = requireActivity() as MainActivity
-                val badge = BadgeDrawable.create(activity)
-                badge.number = it
-                BadgeUtils.attachBadgeDrawable(badge, activity.views.toolbar, R.id.updates_screen)
+                badgeShowingNumberOfOutdatedPackages.number = it
+                BadgeUtils.attachBadgeDrawable(
+                    badgeShowingNumberOfOutdatedPackages,
+                    activity.views.toolbar,
+                    R.id.updates_screen
+                )
+            } else {
+                menu.removeItem(R.id.updates_screen)
             }
         }
 
