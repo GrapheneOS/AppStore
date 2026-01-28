@@ -103,6 +103,13 @@ private fun networkErrorResStringOrZero(e: Throwable) = when (e) {
     else -> 0
 }
 
+private fun isKnownNetworkError(e: Throwable) = when (e) {
+    is ConnectException,
+    is SocketTimeoutException,
+    is UnknownHostException -> true
+    else -> false
+}
+
 @Parcelize
 class RepoUpdateError(val throwable: Throwable, val wasUpdateManuallyRequested: Boolean) : ErrorTemplate() {
     override fun titleResource() = if (wasUpdateManuallyRequested)
@@ -122,8 +129,10 @@ class RepoUpdateError(val throwable: Throwable, val wasUpdateManuallyRequested: 
             appendRes(ctx, resource)
             append('.')
         }
-        appendDetailsPrefix(ctx, this)
-        append(throwable.toString())
+        if (!isKnownNetworkError(throwable)) {
+            appendDetailsPrefix(ctx, this)
+            append(throwable.toString())
+        }
         toString()
     }
 }
@@ -159,7 +168,8 @@ class DownloadError(val pkgLabels: List<String>, val throwable: Throwable) : Err
         }
         append('.')
 
-        if (throwable !is UserRestrictionException && throwable !is PackagesBusyException) {
+        if (throwable !is UserRestrictionException && throwable !is PackagesBusyException
+                && !isKnownNetworkError(throwable)) {
             appendDetailsPrefix(ctx, this)
             append(throwable.toString())
         }
