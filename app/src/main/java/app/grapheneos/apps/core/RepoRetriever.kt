@@ -22,7 +22,7 @@ import java.security.GeneralSecurityException
 private const val METADATA_VERSION = 1
 private const val CACHE_FILE_VERSION = 1
 
-private const val MIN_TIMESTAMP = 1_714_000_000L
+private const val MIN_TIMESTAMP = 1_770_000_000L
 private const val PUBLIC_KEY = BuildConfig.REPO_PUBLIC_KEY
 private const val KEY_VERSION = BuildConfig.REPO_KEY_VERSION
 
