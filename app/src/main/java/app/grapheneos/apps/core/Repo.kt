@@ -212,11 +212,11 @@ class RPackageContainer(val repo: Repo, val packageName: String,
 
     val dependencies: Array<Dependency>? = parseDependencies(json, repo)
 
-    val variants: List<RPackage> = json.getJSONObject("variants").let {
+    val variants: List<RPackage> = json.getJSONObject("variants").let { variantJson ->
         val pkgs = arrayOfNulls<RPackage>(ReleaseChannel.entries.size)
 
-        for (versionString in it.keys()) {
-            val jo = it.getJSONObject(versionString)
+        for (versionString in variantJson.keys()) {
+            val jo = variantJson.getJSONObject(versionString)
 
             val minSdk = jo.optInt("minSdk", 0)
             if (minSdk > Build.VERSION.SDK_INT) {
@@ -241,15 +241,29 @@ class RPackageContainer(val repo: Repo, val packageName: String,
                 continue
             }
 
-            val pkg = RPackage(this, versionString.toLong(), repo, jo)
+            val pkg = RPackage(this, versionString.toLong(), abis?.toTypedArray(), repo, jo)
 
             val arrayIndex = pkg.releaseChannel.ordinal
 
             val prevPkg = pkgs[arrayIndex]
 
             // make sure there's at most one package in each release channel
-            if (prevPkg != null && prevPkg.versionCode > pkg.versionCode) {
-                continue
+            if (prevPkg != null) {
+                if (prevPkg.versionCode > pkg.versionCode) {
+                    continue
+                }
+                if (prevPkg.abis != null && pkg.abis != null) {
+                    val prevNumAbiMismatches =
+                        prevPkg.abis.count { !Build.SUPPORTED_ABIS.contains(it) } +
+                                Build.SUPPORTED_ABIS.count { !prevPkg.abis.contains(it) }
+
+                    val numAbiMismatches = pkg.abis.count { !Build.SUPPORTED_ABIS.contains(it) } +
+                            Build.SUPPORTED_ABIS.count { !pkg.abis.contains(it) }
+
+                    if (prevNumAbiMismatches < numAbiMismatches) {
+                        continue
+                    }
+                }
             }
 
             pkgs[arrayIndex] = pkg
@@ -288,7 +302,7 @@ private fun parseDependencies(json: JSONObject, repo: Repo): Array<Dependency>? 
 }
 
 // "Repo package"
-class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo, json: JSONObject) {
+class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: Array<String>?, repo: Repo, json: JSONObject) {
     val packageName: String = common.packageName
     val manifestPackageName: String
         get() = common.manifestPackageName
