@@ -42,7 +42,7 @@ class AutoUpdateJob : JobService() {
         val installParams = InstallParams(network, isUpdate = true, isUserInitiated = false)
 
         CoroutineScope(Dispatchers.Main).launch {
-            val repoUpdateError = PackageStates.requestRepoUpdate()
+            val repoUpdateError = PackageStates.requestRepoUpdateRetrying()
 
             if (repoUpdateError != null) {
                 showUpdateCheckFailedNotification(repoUpdateError)

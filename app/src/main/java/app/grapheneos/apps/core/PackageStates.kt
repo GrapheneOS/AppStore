@@ -9,7 +9,6 @@ import android.os.SystemClock
 import android.util.ArrayMap
 import android.util.ArraySet
 import android.util.Log
-import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.os.postDelayed
 import androidx.core.util.isEmpty
@@ -48,6 +47,10 @@ import app.grapheneos.apps.core.getCachedRepo
 import app.grapheneos.apps.core.prunePackageCache
 import app.grapheneos.apps.util.getParcelableOrThrow
 import app.grapheneos.apps.util.simpleName
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.retry.policy.binaryExponentialBackoff
+import com.github.michaelbull.retry.result.retry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.hours
@@ -180,6 +183,14 @@ object PackageStates : LifecycleEventObserver {
         }
     }
 
+    suspend fun requestRepoUpdateRetrying(force: Boolean = false, isManuallyRequested: Boolean = false): RepoUpdateError? {
+        val (_, err) = retry(binaryExponentialBackoff(1_000, 30_000)) {
+            val err = requestRepoUpdate(force, isManuallyRequested)
+            if (err != null) Err(err) else Ok(Unit)
+        }
+        return err
+    }
+
     suspend fun requestRepoUpdate(force: Boolean = false, isManuallyRequested: Boolean = false): RepoUpdateError? {
         checkMainThread()
 
@@ -204,7 +215,7 @@ object PackageStates : LifecycleEventObserver {
                 if (t is CancellationException) {
                     throw t
                 }
-                Log.d(TAG, "", t)
+                Log.w(TAG, "unable to fetch repo", t)
                 result = RepoUpdateError(t, isManuallyRequested)
                 null
             }
