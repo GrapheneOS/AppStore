@@ -1,13 +1,8 @@
 plugins {
-    id("com.android.application") version "9.0.0" apply false
-    id("androidx.navigation.safeargs") version "2.9.7" apply false
-}
-
-buildscript {
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
-        classpath("com.google.devtools.ksp:symbol-processing-gradle-plugin:2.3.5")
-    }
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.androidx.navigation.safeargs) apply false
+    alias(libs.plugins.google.devtools.ksp) apply false
 }
 
 allprojects {
