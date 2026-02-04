@@ -8,6 +8,7 @@ coreKtx = "1.17.0"
 fragmentKtx = "1.8.9"
 glide = "5.0.5"
 kotlin = "2.3.0"
+kotlinRetry = "2.0.2"
 kotlinxCoroutines = "1.10.2"
 ksp = "2.3.5"
 lifecycle = "2.10.0"
@@ -31,6 +32,8 @@ androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "s
 bcprov-jdk18on = { group = "org.bouncycastle", name = "bcprov-jdk18on", version.ref = "bcprovJdk18on" }
 glide-core = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-ksp = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "glide" }
+kotlin-retry = { group = "com.michael-bull.kotlin-retry", name = "kotlin-retry", version.ref = "kotlinRetry" }
+kotlin-retry-result = { group = "com.michael-bull.kotlin-retry", name = "kotlin-retry-result", version.ref = "kotlinRetry" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }

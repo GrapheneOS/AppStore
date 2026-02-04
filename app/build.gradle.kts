@@ -110,6 +110,8 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlin.retry)
+    implementation(libs.kotlin.retry.result)
 
     implementation(libs.glide.core)
     ksp(libs.glide.ksp)
