@@ -118,6 +118,7 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 
             val cert = certFactory.generateCertificate(ByteArrayInputStream(certBytes)) as X509Certificate
 
+            @Suppress("DEPRECATION") // not deprecated for SDK < 35
             if (fim.isAppSourceCertificateTrusted(cert)) {
                 return@run id.toInt()
             }
