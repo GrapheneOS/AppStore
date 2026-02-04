@@ -48,6 +48,7 @@ import app.grapheneos.apps.core.getCachedRepo
 import app.grapheneos.apps.core.prunePackageCache
 import app.grapheneos.apps.util.getParcelableOrThrow
 import app.grapheneos.apps.util.simpleName
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -200,6 +201,9 @@ object PackageStates : LifecycleEventObserver {
             val repo = try {
                 fetchRepo(currentRepo)
             } catch (t: Throwable) {
+                if (t is CancellationException) {
+                    throw t
+                }
                 Log.d(TAG, "", t)
                 result = RepoUpdateError(t, isManuallyRequested)
                 null
