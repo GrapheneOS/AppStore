@@ -128,7 +128,7 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 
 // ReleaseChannel enum entries are expected to be ordered from least stable to most stable by the
 // package variant selection code.
-enum class ReleaseChannel(@StringRes val uiName: Int) {
+enum class ReleaseChannel(@param:StringRes val uiName: Int) {
     alpha(R.string.release_channel_alpha),
     beta(R.string.release_channel_beta),
     stable(R.string.release_channel_stable),
@@ -139,7 +139,7 @@ fun findRPackage(variants: List<RPackage>, channel: ReleaseChannel): RPackage {
     return variants.find { it.releaseChannel >= channel } ?: variants.last()
 }
 
-enum class PackageSource(@StringRes val uiName: Int) {
+enum class PackageSource(@param:StringRes val uiName: Int) {
     GrapheneOS(R.string.pkg_source_grapheneos),
     GrapheneOS_build(R.string.pkg_source_grapheneos_build),
     Mirror(R.string.pkg_source_mirror),
