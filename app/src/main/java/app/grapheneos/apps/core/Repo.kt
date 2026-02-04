@@ -373,7 +373,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: A
                     res.add(apk)
 
                 Apk.Type.LANGUAGE -> {
-                    if (neededLocales.contains(Locale(qualifier))) {
+                    if (neededLocales.contains(Locale.Builder().setLanguage(qualifier).build())) {
                         res.add(apk)
                     }
                 }
@@ -428,7 +428,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: A
             val set = ArraySet<Locale>(len)
             for (i in 0 until len) {
                 val locale = locales.get(i)
-                set.add(Locale(locale.language))
+                set.add(Locale.Builder().setLanguage(locale.language).build())
             }
             cache = Pair(tags, set)
             localeCache = cache
