@@ -1,6 +1,6 @@
 [versions]
 activityKtx = "1.12.3"
-agp = "9.0.0"
+agp = "9.1.0"
 appcompat = "1.7.1"
 bcprovJdk18on = "1.83"
 constraintlayout = "2.2.1"
