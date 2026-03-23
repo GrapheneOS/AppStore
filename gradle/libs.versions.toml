@@ -1,5 +1,5 @@
 [versions]
-activityKtx = "1.12.3"
+activityKtx = "1.13.0"
 agp = "9.0.0"
 appcompat = "1.7.1"
 bcprovJdk18on = "1.83"
