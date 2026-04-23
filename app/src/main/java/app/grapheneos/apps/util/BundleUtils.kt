@@ -91,7 +91,7 @@ fun unmarshallParcelableInner(bytes: ByteArray, type: Class<out Parcelable>): Pa
         if (obj is Bundle) {
             obj.classLoader = ApplicationImpl::class.java.classLoader
         }
-        return obj as Parcelable
+        return obj
     } finally {
         parcel.recycle()
     }

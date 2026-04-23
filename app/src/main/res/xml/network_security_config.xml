@@ -3,7 +3,7 @@
     <base-config cleartextTrafficPermitted="false"/>
     <domain-config>
         <domain includeSubdomains="true">apps.grapheneos.org</domain>
-        <pin-set expiration="2026-09-01">
+        <pin-set expiration="2027-02-01">
             <!-- ISRG Root X1 -->
             <pin digest="SHA-256">C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=</pin>
 

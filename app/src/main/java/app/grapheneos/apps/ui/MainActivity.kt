@@ -60,10 +60,7 @@ class MainActivity : AppCompatActivity() {
         navController = supportFragmentManager.findFragmentById(R.id.container)!!.findNavController()
         setSupportActionBar(views.toolbar)
 
-        // doesn't work properly if setup in onCreate() if activity is recreated
-        mainHandler.post {
-            NavigationUI.setupWithNavController(views.toolbar, navController)
-        }
+        NavigationUI.setupWithNavController(views.toolbar, navController)
 
         intent.let {
             if (it.action == Intent.ACTION_SHOW_APP_INFO) {

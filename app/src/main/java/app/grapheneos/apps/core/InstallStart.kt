@@ -345,9 +345,10 @@ private val updateListOfBusyPackagesMethod: Method? by lazy {
     }
 
     try {
+        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         pkgManager.javaClass.getDeclaredMethod("updateListOfBusyPackages",
             java.lang.Boolean.TYPE, java.util.List::class.java)
-    } catch (ignored: ReflectiveOperationException) {
+    } catch (_: ReflectiveOperationException) {
         null
     }
 }

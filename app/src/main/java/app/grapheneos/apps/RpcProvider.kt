@@ -16,7 +16,6 @@ import app.grapheneos.apps.core.PackageState
 import app.grapheneos.apps.core.startPackageInstall
 import app.grapheneos.apps.core.pkgManager
 import app.grapheneos.apps.util.getApplicationInfo
-import app.grapheneos.apps.util.getSharedPreferences
 import app.grapheneos.apps.util.maybeGetParcelable
 import app.grapheneos.apps.util.toInt
 import kotlinx.coroutines.CoroutineScope
@@ -73,7 +72,7 @@ class RpcProvider : ContentProvider() {
             return false
         }
 
-        val repoUpdateError = PackageStates.requestRepoUpdate()
+        val repoUpdateError = PackageStates.requestRepoUpdateRetrying()
         val pkg = pkgState.rPackage
 
         if (repoUpdateError != null) {

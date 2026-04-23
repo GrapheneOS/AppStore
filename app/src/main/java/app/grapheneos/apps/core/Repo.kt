@@ -118,6 +118,7 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 
             val cert = certFactory.generateCertificate(ByteArrayInputStream(certBytes)) as X509Certificate
 
+            @Suppress("DEPRECATION") // not deprecated for SDK < 35
             if (fim.isAppSourceCertificateTrusted(cert)) {
                 return@run id.toInt()
             }
@@ -128,7 +129,7 @@ class Repo(json: JSONObject, val eTag: String, val isDummy: Boolean = false) {
 
 // ReleaseChannel enum entries are expected to be ordered from least stable to most stable by the
 // package variant selection code.
-enum class ReleaseChannel(@StringRes val uiName: Int) {
+enum class ReleaseChannel(@param:StringRes val uiName: Int) {
     alpha(R.string.release_channel_alpha),
     beta(R.string.release_channel_beta),
     stable(R.string.release_channel_stable),
@@ -139,7 +140,7 @@ fun findRPackage(variants: List<RPackage>, channel: ReleaseChannel): RPackage {
     return variants.find { it.releaseChannel >= channel } ?: variants.last()
 }
 
-enum class PackageSource(@StringRes val uiName: Int) {
+enum class PackageSource(@param:StringRes val uiName: Int) {
     GrapheneOS(R.string.pkg_source_grapheneos),
     GrapheneOS_build(R.string.pkg_source_grapheneos_build),
     Mirror(R.string.pkg_source_mirror),
@@ -212,11 +213,11 @@ class RPackageContainer(val repo: Repo, val packageName: String,
 
     val dependencies: Array<Dependency>? = parseDependencies(json, repo)
 
-    val variants: List<RPackage> = json.getJSONObject("variants").let {
+    val variants: List<RPackage> = json.getJSONObject("variants").let { variantJson ->
         val pkgs = arrayOfNulls<RPackage>(ReleaseChannel.entries.size)
 
-        for (versionString in it.keys()) {
-            val jo = it.getJSONObject(versionString)
+        for (versionString in variantJson.keys()) {
+            val jo = variantJson.getJSONObject(versionString)
 
             val minSdk = jo.optInt("minSdk", 0)
             if (minSdk > Build.VERSION.SDK_INT) {
@@ -241,15 +242,29 @@ class RPackageContainer(val repo: Repo, val packageName: String,
                 continue
             }
 
-            val pkg = RPackage(this, versionString.toLong(), repo, jo)
+            val pkg = RPackage(this, versionString.toLong(), abis?.toTypedArray(), repo, jo)
 
             val arrayIndex = pkg.releaseChannel.ordinal
 
             val prevPkg = pkgs[arrayIndex]
 
             // make sure there's at most one package in each release channel
-            if (prevPkg != null && prevPkg.versionCode > pkg.versionCode) {
-                continue
+            if (prevPkg != null) {
+                if (prevPkg.versionCode > pkg.versionCode) {
+                    continue
+                }
+                if (prevPkg.abis != null && pkg.abis != null) {
+                    val prevNumAbiMismatches =
+                        prevPkg.abis.count { !Build.SUPPORTED_ABIS.contains(it) } +
+                                Build.SUPPORTED_ABIS.count { !prevPkg.abis.contains(it) }
+
+                    val numAbiMismatches = pkg.abis.count { !Build.SUPPORTED_ABIS.contains(it) } +
+                            Build.SUPPORTED_ABIS.count { !pkg.abis.contains(it) }
+
+                    if (prevNumAbiMismatches < numAbiMismatches) {
+                        continue
+                    }
+                }
             }
 
             pkgs[arrayIndex] = pkg
@@ -288,7 +303,7 @@ private fun parseDependencies(json: JSONObject, repo: Repo): Array<Dependency>? 
 }
 
 // "Repo package"
-class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo, json: JSONObject) {
+class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: Array<String>?, repo: Repo, json: JSONObject) {
     val packageName: String = common.packageName
     val manifestPackageName: String
         get() = common.manifestPackageName
@@ -358,7 +373,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
                     res.add(apk)
 
                 Apk.Type.LANGUAGE -> {
-                    if (neededLocales.contains(Locale(qualifier))) {
+                    if (neededLocales.contains(Locale.Builder().setLanguage(qualifier).build())) {
                         res.add(apk)
                     }
                 }
@@ -413,7 +428,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, repo: Repo,
             val set = ArraySet<Locale>(len)
             for (i in 0 until len) {
                 val locale = locales.get(i)
-                set.add(Locale(locale.language))
+                set.add(Locale.Builder().setLanguage(locale.language).build())
             }
             cache = Pair(tags, set)
             localeCache = cache

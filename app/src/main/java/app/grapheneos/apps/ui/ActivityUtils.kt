@@ -200,7 +200,7 @@ class PendingActivityIntent(val intent: Intent) : PendingAction() {
     }
 }
 
-class PendingDialog(@IdRes val id: Int, val args: Bundle) : PendingAction() {
+class PendingDialog(@param:IdRes val id: Int, val args: Bundle) : PendingAction() {
     override fun toBundleInner() = Bundle().apply {
         putInt(KEY_TYPE, TYPE_DIALOG)
         putInt(KEY_DIALOG_ID, id)

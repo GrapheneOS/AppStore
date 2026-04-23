@@ -25,9 +25,7 @@ import app.grapheneos.apps.util.isAppInstallationAllowed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "UpdateCheckJob"
 
@@ -43,12 +41,7 @@ class UpdateCheckJob : JobService() {
         }
 
         job = CoroutineScope(Dispatchers.Main).launch {
-            // When there's an enabled VPN, this job is sometimes executed before VPN establishes
-            // its connection, which makes the job fail due to network not being up at that point.
-            // As a workaround, delay the network request for a bit.
-            delay(10.seconds)
-
-            val repoUpdateError = PackageStates.requestRepoUpdate()
+            val repoUpdateError = PackageStates.requestRepoUpdateRetrying()
             if (repoUpdateError != null) {
                 showUpdateCheckFailedNotification(repoUpdateError)
             } else {
