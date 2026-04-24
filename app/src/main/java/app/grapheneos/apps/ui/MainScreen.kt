@@ -2,12 +2,10 @@ package app.grapheneos.apps.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.core.view.isInvisible
@@ -19,8 +17,6 @@ import app.grapheneos.apps.core.RepoUpdateError
 import app.grapheneos.apps.core.mainHandler
 import app.grapheneos.apps.databinding.MainScreenBinding
 import app.grapheneos.apps.util.intent
-import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
@@ -133,19 +129,11 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
         requireActivity().invalidateMenu()
     }
 
-    @com.google.android.material.badge.ExperimentalBadgeUtils
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         super.onCreateMenu(menu, menuInflater)
 
-        PackageStates.numberOfOutdatedPackages.let {
-            if (it == 0) {
-                menu.removeItem(R.id.updates_screen)
-            } else {
-                val activity = requireActivity() as MainActivity
-                val badge = BadgeDrawable.create(activity)
-                badge.number = it
-                BadgeUtils.attachBadgeDrawable(badge, activity.views.toolbar, R.id.updates_screen)
-            }
+        if (PackageStates.numberOfOutdatedPackages == 0) {
+            menu.removeItem(R.id.updates_screen)
         }
 
         if (BuildConfig.DEBUG) {
