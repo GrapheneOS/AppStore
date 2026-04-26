@@ -15,7 +15,6 @@ import app.grapheneos.apps.R
 import app.grapheneos.apps.core.ErrorTemplate
 import app.grapheneos.apps.core.appContext
 import app.grapheneos.apps.util.PendingDialog
-import app.grapheneos.apps.util.componentName
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class ErrorDialog : DialogFragment() {
@@ -55,7 +54,7 @@ class ErrorDialog : DialogFragment() {
             NavDeepLinkBuilder(appContext).run {
                 setGraph(R.navigation.nav_graph)
                 setDestination(R.id.error_dialog, createArgs(template))
-                setComponentName(componentName<MainActivity>())
+                setComponentName(MainActivity.internalName())
                 createPendingIntent()
             }
     }

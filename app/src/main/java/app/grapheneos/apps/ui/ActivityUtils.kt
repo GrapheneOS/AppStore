@@ -5,16 +5,13 @@ import android.app.Notification
 import android.content.Intent
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
-import android.util.Log
 import androidx.annotation.IdRes
 import androidx.core.os.postDelayed
-import app.grapheneos.apps.ApplicationImpl
 import app.grapheneos.apps.Notifications
 import app.grapheneos.apps.core.mainHandler
 import app.grapheneos.apps.core.notificationManager
 import app.grapheneos.apps.show
 import app.grapheneos.apps.ui.MainActivity
-import java.util.ArrayList
 import java.util.function.Supplier
 
 object ActivityUtils {
@@ -25,7 +22,8 @@ object ActivityUtils {
     fun init(activeNotifications: Array<StatusBarNotification>) {
         // restore PendingActions made by previous process launches
         for (sbn: StatusBarNotification in activeNotifications.sortedBy { it.id }) {
-            val pendingAction = PendingAction.fromBundle(sbn.notification.extras) ?: continue
+            // StatusBarNotification.notification.extras is trusted since it's maintained by the OS
+            val pendingAction = PendingAction.fromTrustedBundle(sbn.notification.extras) ?: continue
 
             if (pendingAction.transient) {
                 Notifications.cancel(pendingAction.notificationId)
@@ -111,8 +109,9 @@ object ActivityUtils {
         }
     }
 
-    fun maybeAddPendingActionFromIntent(intent: Intent) {
-        val pa = PendingAction.fromIntent(intent)
+    // Warning: this function is insecure if the intent is from an untrusted source
+    fun maybeAddPendingActionFromTrustedIntent(intent: Intent) {
+        val pa = PendingAction.fromTrustedIntent(intent)
         if (pa != null) {
             pendingActions.removeAll {
                 it.notificationId == pa.notificationId
@@ -165,14 +164,16 @@ sealed class PendingAction {
         const val KEY_NOTIFICATION_ID = "notification_id"
         const val KEY_TRANSIENT = "transient"
 
-        fun fromIntent(intent: Intent): PendingAction? {
+        // Warning: this function is insecure if the intent is from an untrusted source
+        fun fromTrustedIntent(intent: Intent): PendingAction? {
             intent.extras?.let {
-                return fromBundle(it)
+                return fromTrustedBundle(it)
             }
             return null
         }
 
-        fun fromBundle(bundle: Bundle): PendingAction? {
+        // Warning: this function is insecure if the bundle is from an untrusted source
+        fun fromTrustedBundle(bundle: Bundle): PendingAction? {
             val b = bundle.maybeGetParcelable2<Bundle>(KEY_BUNDLE) ?: return null
 
             val type = b.getNumber<Int>(KEY_TYPE)
