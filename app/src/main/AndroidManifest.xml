@@ -45,6 +45,11 @@
         </activity>
 
         <activity-alias
+            android:name=".ui.InternalMainActivityAlias"
+            android:exported="false"
+            android:targetActivity=".ui.MainActivity" />
+
+        <activity-alias
             android:name="org.grapheneos.apps.client.ui.container.MainActivity"
             android:targetActivity=".ui.MainActivity" />
 

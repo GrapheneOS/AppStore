@@ -37,7 +37,6 @@ import app.grapheneos.apps.core.startPackageInstallFromUi
 import app.grapheneos.apps.databinding.DetailsScreenBinding
 import app.grapheneos.apps.databinding.PackageListItemBinding
 import app.grapheneos.apps.util.appDetailsIntent
-import app.grapheneos.apps.util.componentName
 import app.grapheneos.apps.util.getVersionNameOrVersionCode
 import app.grapheneos.apps.util.isSystemPackage
 import app.grapheneos.apps.util.isUpdatedSystemPackage
@@ -318,7 +317,7 @@ class DetailsScreen : ViewBindingFragment<DetailsScreenBinding>(), MenuProvider 
             NavDeepLinkBuilder(appContext).run {
                 setGraph(R.navigation.nav_graph)
                 setDestination(R.id.details_screen, DetailsScreenArgs.Builder(pkgName).build().toBundle())
-                setComponentName(componentName<MainActivity>())
+                setComponentName(MainActivity.internalName())
                 createPendingIntent()
             }
     }

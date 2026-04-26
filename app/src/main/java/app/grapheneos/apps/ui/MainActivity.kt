@@ -1,10 +1,12 @@
 package app.grapheneos.apps.ui
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,19 +17,25 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import app.grapheneos.apps.NavGraphDirections
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
-import app.grapheneos.apps.core.mainHandler
+import app.grapheneos.apps.core.selfPkgName
 import app.grapheneos.apps.databinding.MainActivityBinding
 import app.grapheneos.apps.util.ActivityUtils
 import app.grapheneos.apps.util.InternalSettings
 import app.grapheneos.apps.util.InternalSettings.KEY_SUPPRESS_NOTIFICATION_PERMISSION_DIALOG
 
+private const val TAG = "MainActivity"
+
 class MainActivity : AppCompatActivity() {
+    companion object {
+        // non-exported alias, see its usages
+        fun internalName() = ComponentName(selfPkgName, "app.grapheneos.apps.ui.InternalMainActivityAlias")
+    }
+
     lateinit var navController: NavController
 
     lateinit var views: MainActivityBinding
@@ -70,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(NavGraphDirections.actionToDetailsScreen(pkgState.pkgName), opts)
             }
 
-            ActivityUtils.maybeAddPendingActionFromIntent(it)
+            maybeAddPendingActionFromIntent(it)
         }
 
         if (Build.VERSION.SDK_INT >= 33) {
@@ -80,7 +88,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        ActivityUtils.maybeAddPendingActionFromIntent(intent)
+        maybeAddPendingActionFromIntent(intent)
+    }
+
+    private fun maybeAddPendingActionFromIntent(intent: Intent) {
+        if (intent.component == internalName()) {
+            // only trusted code can launch this activity via its internal name
+            ActivityUtils.maybeAddPendingActionFromTrustedIntent(intent)
+        } else {
+            Log.d(TAG, "maybeAddPendingActionFromIntent: ignored untrusted intent");
+        }
     }
 
     override fun onResume() {
