@@ -63,7 +63,7 @@ object ActivityUtils {
                 if (action.notificationId == 0) {
                     action.notificationId = Notifications.generateId()
                 }
-                extras.putParcelable2(PendingAction.KEY_BUNDLE, action.toBundle())
+                extras.putParcelable(PendingAction.KEY_BUNDLE, action.toBundle())
                 show(action.notificationId)
             }
         }
@@ -174,11 +174,11 @@ sealed class PendingAction {
 
         // Warning: this function is insecure if the bundle is from an untrusted source
         fun fromTrustedBundle(bundle: Bundle): PendingAction? {
-            val b = bundle.maybeGetParcelable2<Bundle>(KEY_BUNDLE) ?: return null
+            val b = bundle.maybeGetParcelable<Bundle>(KEY_BUNDLE) ?: return null
 
             val type = b.getNumber<Int>(KEY_TYPE)
             val pa = if (type == TYPE_INTENT) {
-                PendingActivityIntent(b.getParcelable2(KEY_INTENT))
+                PendingActivityIntent(b.getParcelableOrThrow(KEY_INTENT))
             } else {
                 check(type == TYPE_DIALOG)
                 PendingDialog(b.getNumber(KEY_DIALOG_ID), b.getParcelable2(KEY_DIALOG_ARGS))
@@ -193,7 +193,7 @@ sealed class PendingAction {
 class PendingActivityIntent(val intent: Intent) : PendingAction() {
     override fun toBundleInner() = Bundle().apply {
         putInt(KEY_TYPE, TYPE_INTENT)
-        putParcelable2(KEY_INTENT, intent)
+        putParcelable(KEY_INTENT, intent)
     }
 
     override fun execute(activity: MainActivity) {
