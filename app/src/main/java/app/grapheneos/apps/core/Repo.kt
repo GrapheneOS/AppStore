@@ -454,7 +454,7 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: A
                 list
             }
 
-            if (!pkgSpecificLocales.isEmpty) {
+            if (pkgSpecificLocales.isEmpty) {
                 return globalLocales
             }
 
