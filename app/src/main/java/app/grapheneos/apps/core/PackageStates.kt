@@ -122,12 +122,14 @@ object PackageStates : LifecycleEventObserver {
             addAction(Intent.ACTION_PACKAGE_CHANGED)
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
-
-            if (Build.VERSION.SDK_INT >= 33) {
-                addAction(Intent.ACTION_APPLICATION_LOCALE_CHANGED)
-            }
         }
         appContext.registerReceiver(receiver, filter)
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            // ACTION_APPLICATION_LOCALE_CHANGED has no package: data URI, so it needs a separate IntentFilter without addDataScheme("package").
+            val localeFilter = IntentFilter(Intent.ACTION_APPLICATION_LOCALE_CHANGED)
+            appContext.registerReceiver(receiver, localeFilter)
+        }
     }
 
     fun updateRepo(repo: Repo) {
