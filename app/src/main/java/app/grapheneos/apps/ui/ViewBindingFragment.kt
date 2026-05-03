@@ -71,7 +71,6 @@ abstract class ViewBindingFragment<T : ViewBinding> : Fragment(), MenuProvider {
 fun setupSlideTransitions(fragment: Fragment) {
     fragment.apply {
         val axis = MaterialSharedAxis.Y
-//        val axis = MaterialSharedAxis.X
         enterTransition = MaterialSharedAxis(axis, true)
         exitTransition = MaterialSharedAxis(axis, true)
         reenterTransition = MaterialSharedAxis(axis, false)
