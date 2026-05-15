@@ -1,8 +1,10 @@
 package app.grapheneos.apps.autoupdate
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.app.job.JobParameters
 import android.app.job.JobService
+import android.content.Intent
 import android.text.format.Formatter
 import android.util.Log
 import androidx.navigation.NavDeepLinkBuilder
@@ -21,6 +23,7 @@ import app.grapheneos.apps.ui.DetailsScreen
 import app.grapheneos.apps.ui.ErrorDialog
 import app.grapheneos.apps.ui.MainActivity
 import app.grapheneos.apps.util.componentName
+import app.grapheneos.apps.util.intent
 import app.grapheneos.apps.util.isAppInstallationAllowed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -126,7 +129,11 @@ fun showAllUpToDateNotification() {
     Notifications.builder(Notifications.CH_AUTO_UPDATE_ALL_UP_TO_DATE).run {
         setSmallIcon(R.drawable.ic_check)
         setContentTitle(R.string.notif_auto_update_all_up_to_date)
-        setAutoCancel(false)
+        setAutoCancel(false) // this notification is a security status indicator
+        val contentIntent = PendingIntent.getActivity(appContext, 0,
+            intent<MainActivity>().setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_IMMUTABLE)
+        setContentIntent(contentIntent)
         show(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
     }
 }
