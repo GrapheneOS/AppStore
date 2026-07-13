@@ -2,7 +2,7 @@
 activityKtx = "1.13.0"
 agp = "9.2.0"
 appcompat = "1.7.1"
-bcprovJdk18on = "1.84"
+bcprovJdk18on = "1.85"
 constraintlayout = "2.2.1"
 coreKtx = "1.18.0"
 fragmentKtx = "1.8.9"
