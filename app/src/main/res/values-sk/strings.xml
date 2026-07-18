@@ -42,6 +42,8 @@
 
     <plurals name="number_of_updates">
         <item quantity="one">%d aktualizácia</item>
+        <item quantity="few">%d aktualizácie</item>
+        <item quantity="many">%d aktualizácie</item>
         <item quantity="other">%d aktualizácií</item>
     </plurals>
 
