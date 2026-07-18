@@ -56,11 +56,15 @@
 
     <plurals name="cancel_plural">
         <item quantity="one">Zrušiť</item>
+        <item quantity="few">Zrušiť všetky</item>
+        <item quantity="many">Zrušiť všetky</item>
         <item quantity="other">Zrušiť všetky</item>
     </plurals>
 
     <plurals name="start_update_button">
         <item quantity="one">Aktualizovať</item>
+        <item quantity="few">Aktualizovať všetky</item>
+        <item quantity="many">Aktualizovať všetky</item>
         <item quantity="other">Aktualizovať všetky</item>
     </plurals>
 
@@ -92,6 +96,8 @@
     <string name="notif_pkg_update_available_text">%1$s, verzia %2$s</string>
     <plurals name="notif_pkg_updates_available_title">
         <item quantity="one">Dostupná aktualizácia, %1$s</item>
+        <item quantity="few">Dostupné aktualizácie, %1$s</item>
+        <item quantity="many">Dostupné aktualizácie, %1$s</item>
         <item quantity="other">Dostupné aktualizácie, %1$s</item>
     </plurals>
 
@@ -122,6 +128,8 @@
     <string name="download_error_user_restriction">zásady na tomto zariadení bránia inštalácii aplikácií</string>
     <plurals name="download_error_packages_busy">
         <item quantity="one">tento balík sa práve inštaluje u iného používateľa</item>
+        <item quantity="few">jeden alebo viac z týchto balíkov sa práve inštaluje u iného používateľa</item>
+        <item quantity="many">jeden alebo viac z týchto balíkov sa práve inštaluje u iného používateľa</item>
         <item quantity="other">jeden alebo viac z týchto balíkov sa práve inštaluje u iného používateľa</item>
     </plurals>
 
