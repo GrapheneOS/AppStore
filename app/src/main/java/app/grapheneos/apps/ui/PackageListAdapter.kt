@@ -1,6 +1,7 @@
 package app.grapheneos.apps.ui
 
 import android.annotation.SuppressLint
+import android.os.SystemClock
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -112,8 +113,21 @@ fun PackageListItemBinding.set(fragment: Fragment, pkgState: PackageState) {
     root.tag = pkgState
 }
 
+// Debounces navigation to the details screen: without this, tapping a list item (e.g. a
+// dependency shown within the details screen itself) repeatedly in quick succession queues up
+// fragment transactions faster than their enter transitions can finish, which can crash
+// FragmentManager (see https://github.com/GrapheneOS/AppStore/issues/436).
+private const val DETAILS_NAVIGATION_DEBOUNCE_MS = 500L
+private var lastDetailsNavigationTime = 0L
+
 fun PackageListItemBinding.setOnClickListener(fragment: Fragment) {
     root.setOnClickListener { root ->
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastDetailsNavigationTime < DETAILS_NAVIGATION_DEBOUNCE_MS) {
+            return@setOnClickListener
+        }
+        lastDetailsNavigationTime = now
+
         val packageState = root.tag as PackageState
         val pkgName = packageState.pkgName
         fragment.findNavController().navigate(NavGraphDirections.actionToDetailsScreen(pkgName))
