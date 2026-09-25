@@ -1,8 +1,10 @@
 package app.grapheneos.apps.autoupdate
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.app.job.JobParameters
 import android.app.job.JobService
+import android.content.Intent
 import android.text.format.Formatter
 import android.util.Log
 import androidx.navigation.NavDeepLinkBuilder
@@ -126,7 +128,18 @@ fun showAllUpToDateNotification() {
     Notifications.builder(Notifications.CH_AUTO_UPDATE_ALL_UP_TO_DATE).run {
         setSmallIcon(R.drawable.ic_check)
         setContentTitle(R.string.notif_auto_update_all_up_to_date)
-        setAutoCancel(false)
+
+        val intent = Intent(appContext, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            appContext,
+            0,
+            intent,
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        setContentIntent(pendingIntent)
+        setAutoCancel(true)
+        
         show(Notifications.ID_AUTO_UPDATE_JOB_STATUS)
     }
 }
