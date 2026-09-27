@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Obchod s Aplikáciami</string>
+
+    <string name="pkg_status_disabled">Zakázané</string>
+    <string name="pkg_status_update_available">Dostupná aktualizácia (%1$s)</string>
+    <string name="pkg_status_installed">Nainštalované</string>
+    <string name="pkg_status_downloading">Sťahovanie: %1$d%% z %2$s</string>
+    <string name="pkg_status_downloading_update">Sťahovanie aktualizácie: %1$d%% z %2$s</string>
+    <string name="pkg_status_pending_download">Čaká na stiahnutie</string>
+    <string name="pkg_status_pending_install">Čakajúce</string>
+    <string name="pkg_status_installing">Inštalujem</string>
+    <string name="pkg_status_unpacking">Rozbaľujem</string>
+    <string name="pkg_status_waiting_for_confirmation">Čaká na potvrdenie</string>
+    <string name="pkg_status_shared_library">Zdieľaná knižnica, %1$s</string>
+
+    <string name="btn_install">Inštalovať</string>
+    <string name="btn_open">Otvoriť</string>
+    <string name="btn_update">Aktualizovať</string>
+    <string name="btn_enable_package">Povoliť</string>
+
+    <string name="menu_item_all_packages">Všetky appky</string>
+    <string name="menu_item_uninstall">Odstrániť</string>
+    <string name="menu_item_uninstall_updates">Odstrániť aktualizácie</string>
+
+    <string name="pkg_installed_version">Nainštalovaná verzia</string>
+    <string name="pkg_available_version">Dostupná verzia</string>
+
+    <string name="pkg_description">Popis</string>
+    <string name="pkg_release_notes">Poznámky k vydaniu</string>
+    <string name="pkg_dependencies">Závislosti</string>
+
+    <string name="pkg_source_grapheneos">GrapheneOS</string>
+    <string name="pkg_source_grapheneos_build">Zostavenie GrapheneOS</string>
+    <string name="pkg_source_mirror">Alt. server</string>
+    <string name="pkg_source_google">Google (alt. server)</string>
+
+    <string name="settings">Nastavenia</string>
+    <string name="open_settings">Otvoriť nastavenia</string>
+
+    <string name="updates_screen_title">Aktualizácie</string>
+
+    <plurals name="number_of_updates">
+        <item quantity="one">%d aktualizácia</item>
+        <item quantity="few">%d aktualizácie</item>
+        <item quantity="many">%d aktualizácie</item>
+        <item quantity="other">%d aktualizácií</item>
+    </plurals>
+
+    <string name="no_available_updates">Žiadne dostupné aktualizácie</string>
+
+    <string name="cancel">Zrušiť</string>
+    <string name="cancelling_download">Zrušiť sťahovanie</string>
+
+    <string name="dismiss">Zatvoriť</string>
+
+    <plurals name="cancel_plural">
+        <item quantity="one">Zrušiť</item>
+        <item quantity="few">Zrušiť všetky</item>
+        <item quantity="many">Zrušiť všetky</item>
+        <item quantity="other">Zrušiť všetky</item>
+    </plurals>
+
+    <plurals name="start_update_button">
+        <item quantity="one">Aktualizovať</item>
+        <item quantity="few">Aktualizovať všetky</item>
+        <item quantity="many">Aktualizovať všetky</item>
+        <item quantity="other">Aktualizovať všetky</item>
+    </plurals>
+
+    <string name="installation_failed">Inštalácia zlyhala</string>
+
+    <string name="search">Hľadaj</string>
+
+    <string name="release_channel">Kanál vydania</string>
+    <string name="release_channel_alpha">Alfa</string>
+    <string name="release_channel_beta">Beta</string>
+    <string name="release_channel_stable">Stabilná</string>
+
+    <string name="notif_download_in_progress">Sťahovanie súborov, zostáva %1$s</string>
+
+    <string name="notif_title_pending_user_action">Vyžaduje sa akcia</string>
+    <string name="notif_text_pending_user_action_install">Potvrďte inštaláciu %1$s, verzie %2$s</string>
+    <string name="notif_text_pending_user_action_update">Potvrďte aktualizáciu %1$s na verziu %2$s</string>
+
+    <string name="notif_group_auto_update">Automatická aktualizácia</string>
+    <string name="notif_auto_update_all_up_to_date">Aplikácie sú aktuálne</string>
+    <string name="notif_ch_auto_update_updated_packages">Aktualizované aplikácie</string>
+    <string name="notif_auto_update_updated_package_title">Aktualizovaná aplikácia</string>
+    <string name="notif_auto_update_updated_package_text">Aplikácia %1$s bola aktualizovaná na verziu %2$s</string>
+    <string name="notif_ch_auto_update_confirmation_required">Vyžaduje sa potvrdenie</string>
+    <string name="notif_ch_auto_update_failed">Automatická aktualizácia zlyhala</string>
+    <string name="notif_ch_background_update_check_failed">Kontrola aktualizácií na pozadí zlyhala</string>
+    <string name="notif_ch_updates_available">Dostupné aktualizácie</string>
+
+    <string name="notif_pkg_update_available_text">%1$s, verzia %2$s</string>
+    <plurals name="notif_pkg_updates_available_title">
+        <item quantity="one">Dostupná aktualizácia, %1$s</item>
+        <item quantity="few">Dostupné aktualizácie, %1$s</item>
+        <item quantity="many">Dostupné aktualizácie, %1$s</item>
+        <item quantity="other">Dostupné aktualizácie, %1$s</item>
+    </plurals>
+
+    <string name="notif_ch_downloading_app">Sťahovanie aplikácie</string>
+    <string name="notif_missing_dependency">Chýbajúca závislosť</string>
+    <string name="notif_installation_failed">Inštalácia zlyhala</string>
+    <string name="notif_download_failed">Sťahovanie zlyhalo</string>
+
+    <string name="unable_to_fetch_app_list">Nepodarilo sa načítať zoznam aplikácií</string>
+    <string name="app_update_check_failed">Kontrola aktualizácií aplikácií zlyhala</string>
+
+    <string name="main_screen_unable_to_fetch_app_list_initial">Nepodarilo sa načítať zoznam aplikácií, skúste to znova potiahnutím nadol.</string>
+
+    <string name="uninstall_failed">Odinštalovanie zlyhalo</string>
+
+    <string name="msg_unable_to_download_pkg">Nepodarilo sa stiahnuť %1$s</string>
+    <string name="msg_unable_to_install_pkg">Nepodarilo sa nainštalovať %1$s</string>
+    <string name="msg_unable_to_uninstall_pkg">Nepodarilo sa odinštalovať %1$s</string>
+
+    <string name="error_details_prefix">Podrobnosti: \n</string>
+    <string name="snackbar_action_details">Podrobnosti</string>
+
+    <string name="err_title_missing_dependency">Chýbajúca závislosť</string>
+    <string name="err_msg_dependency_resolution_dep_missing_in_repo">%1$s závisí od %2$s, ktorý chýba v zozname dostupných balíkov.</string>
+    <string name="err_msg_dependency_resolution_dep_disabled">%1$s závisí od %2$s, ktorý je zakázaný.</string>
+    <string name="err_msg_dependency_resolution_dep_not_installed">%1$s závisí od %2$s, ktorý nie je nainštalovaný.</string>
+
+    <string name="download_error_user_restriction">zásady na tomto zariadení bránia inštalácii aplikácií</string>
+    <plurals name="download_error_packages_busy">
+        <item quantity="one">tento balík sa práve inštaluje u iného používateľa</item>
+        <item quantity="few">jeden alebo viac z týchto balíkov sa práve inštaluje u iného používateľa</item>
+        <item quantity="many">jeden alebo viac z týchto balíkov sa práve inštaluje u iného používateľa</item>
+        <item quantity="other">jeden alebo viac z týchto balíkov sa práve inštaluje u iného používateľa</item>
+    </plurals>
+
+    <string name="network_error_unable_to_connect_to_server">Nepodarilo sa pripojiť k serveru</string>
+    <string name="network_error_connection_timed_out">Časový limit pripojenia k serveru vypršal</string>
+    <string name="network_error_unknown_host_name">Nepodarilo sa preložiť názov servera</string>
+
+    <string name="installer_error_conflict">balík je v konflikte s iným balíkom, ktorý je už na tomto zariadení nainštalovaný</string>
+    <string name="installer_error_version_downgrade">novšia verzia balíka je už na tomto zariadení nainštalovaná</string>
+    <string name="installer_error_insufficient_storage">nedostatok úložného priestoru</string>
+
+    <string name="err_msg_uninstall_restricted">tento balík nie je dovolené odinštalovať</string>
+
+    <string name="err_title_pkg_is_installing">Balík sa práve inštaluje</string>
+    <string name="err_title_dep_is_installing">Závislosť sa práve inštaluje</string>
+    <string name="err_msg_pkg_is_installing">%1$s sa práve inštaluje. Skúste to znova po dokončení inštalácie.</string>
+
+    <string name="btn_copy">Kopírovať</string>
+
+    <string name="notification_permission_dialog_title">Chýba povolenie na upozornenia</string>
+    <string name="notification_permission_dialog_message">Povoľte upozornenia, aby ste dostávali informácie o aktualizáciách aplikácií a o stave sťahovania a inštalácie.</string>
+
+    <string name="dont_show_again">Znova nezobrazovať</string>
+</resources>

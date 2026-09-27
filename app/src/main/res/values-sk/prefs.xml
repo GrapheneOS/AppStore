@@ -46,9 +46,9 @@
     </string-array>
 
     <string-array name="pref_labels_network_type_for_auto_updates">
-        <item>Any</item>
-        <item>Not roaming</item>
-        <item>Unmetered</item>
+        <item>Akýkoľvek</item>
+        <item>Mimo roamingu</item>
+        <item>Bez merania</item>
     </string-array>
 
     <string name="pref_key_default_release_channel" translatable="false">default_release_channel</string>
@@ -56,16 +56,16 @@
     <string name="pref_key_always_allow_nocode_updates" translatable="false">always_allow_nocode_updates</string>
     <bool name="pref_def_always_allow_noCode_updates">true</bool>
 
-    <string name="pref_background_update_check">Check for updates</string>
-    <string name="pref_background_update_check_summary_on">Periodically check for updates in the background</string>
-    <string name="pref_background_update_check_summary_off">Periodic background update check is disabled</string>
+    <string name="pref_background_update_check">Kontrolovať aktualizácie</string>
+    <string name="pref_background_update_check_summary_on">Pravidelne kontrolovať aktualizácie na pozadí</string>
+    <string name="pref_background_update_check_summary_off">Pravidelná kontrola aktualizácií na pozadí je vypnutá</string>
 
-    <string name="pref_background_update_check_interval">Update check interval</string>
-    <string name="pref_auto_update_packages">Auto-update apps</string>
-    <string name="pref_network_type_for_auto_updates">Allowed network type for auto-updates</string>
+    <string name="pref_background_update_check_interval">Interval kontroly aktualizácií</string>
+    <string name="pref_auto_update_packages">Automaticky aktualizovať aplikácie</string>
+    <string name="pref_network_type_for_auto_updates">Povolený typ siete pre automatické aktualizácie</string>
 
-    <string name="pref_always_allow_noCode_updates">Always allow auto-updates of config files and resources</string>
-    <string name="pref_always_allow_noCode_updates_summary_on">Allow these updates even if regular auto-updates are disabled</string>
-    <string name="pref_always_allow_noCode_updates_summary_off">Allow these updates only if regular auto-updates are enabled</string>
+    <string name="pref_always_allow_noCode_updates">Vždy povoliť automatické aktualizácie konfiguračných súborov a zdrojov</string>
+    <string name="pref_always_allow_noCode_updates_summary_on">Povoliť tieto aktualizácie aj vtedy, keď sú bežné automatické aktualizácie vypnuté</string>
+    <string name="pref_always_allow_noCode_updates_summary_off">Povoliť tieto aktualizácie len vtedy, keď sú bežné automatické aktualizácie zapnuté</string>
 
 </resources>
