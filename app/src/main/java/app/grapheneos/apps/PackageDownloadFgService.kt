@@ -36,7 +36,7 @@ class PackageDownloadFgService : Service() {
             }
 
             val progress = downloading.sumOf { it.downloadProgress.get() }
-            val total = downloading.sumOf { it.downloadTotal }
+            val total = downloading.sumOf { it.downloadTotal.get() }
             val remaining = total - progress
             val remainingStr = Formatter.formatShortFileSize(appContext, remaining)
 

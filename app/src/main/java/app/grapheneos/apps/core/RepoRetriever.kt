@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.security.GeneralSecurityException
 
 private const val METADATA_VERSION = 1
-private const val CACHE_FILE_VERSION = 1
+private const val CACHE_FILE_VERSION = 2
 
 private const val MIN_TIMESTAMP = 1_770_000_000L
 private const val PUBLIC_KEY = BuildConfig.REPO_PUBLIC_KEY
@@ -53,7 +53,7 @@ fun fetchRepo(currentRepo: Repo): Repo {
                 throwResponseCodeException(conn.v)
             }
 
-            fetchInner(conn.v, MIN_TIMESTAMP)
+            fetchInner(conn.v, maxOf(currentRepo.timestamp, MIN_TIMESTAMP))
         }
     }
 }
@@ -110,13 +110,17 @@ fun getCachedRepo(): Repo {
     val json = dis.readByteArray().toString(UTF_8)
     check(dis.available() == 0)
 
+    if (fileVersion != CACHE_FILE_VERSION) {
+        return createDummy(JSONObject(json).getLong("time"))
+    }
+
     return Repo(JSONObject(json), eTag)
 }
 
 // make a dummy repo to remove the need to check for null Repo everywhere
-private fun createDummy(): Repo {
+private fun createDummy(minTimestamp: Long = MIN_TIMESTAMP): Repo {
     val jo = JSONObject().apply {
-        put("time", MIN_TIMESTAMP)
+        put("time", maxOf(MIN_TIMESTAMP, minTimestamp))
         put("packages", JSONObject())
     }
     return Repo(jo, eTag = "", isDummy = true)

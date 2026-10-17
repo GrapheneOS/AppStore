@@ -128,6 +128,8 @@ class RepoUpdateError(val throwable: Throwable, val wasUpdateManuallyRequested: 
     }
 }
 
+class InvalidDeltaBaseApkException(msg: String?) : Exception(msg)
+
 // All errors that happen before the installer session is committed are considered to be download
 // errors, "download" means "download into PackageInstaller session", not just "download from the
 // network"
@@ -142,6 +144,8 @@ class DownloadError(val pkgLabels: List<String>, val throwable: Throwable) : Err
             is PackagesBusyException ->
                 return appResources.getQuantityString(R.plurals.download_error_packages_busy,
                     throwable.packageNames.size)
+            is InvalidDeltaBaseApkException ->
+                return appResources.getString(R.string.download_error_delta_base_apk_invalid)
         }
         return null
     }
