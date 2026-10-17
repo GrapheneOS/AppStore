@@ -34,7 +34,7 @@ android {
         }
     }
 
-    compileSdk = 36
+    compileSdk = 37
     buildToolsVersion = "36.1.0"
 
     namespace = "app.grapheneos.apps"
@@ -42,7 +42,7 @@ android {
     defaultConfig {
         applicationId = "app.grapheneos.apps"
         minSdk = 31
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 36
         versionName = versionCode.toString()
 
