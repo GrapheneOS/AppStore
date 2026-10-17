@@ -54,3 +54,5 @@ val cacheDir: File = appContext.cacheDir
 
 // limit the number of concurrent downloads
 val httpDownloadSemaphore = Semaphore(3)
+// limit ina memory use
+val inaPatcherSemaphore = Semaphore(5)

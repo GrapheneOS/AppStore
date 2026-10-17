@@ -5,14 +5,27 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.os.LocaleList
 import android.text.format.Formatter
+import android.util.ArrayMap
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.R
 import app.grapheneos.apps.util.appendRes
+import app.grapheneos.apps.util.checkMainThread
+import java.util.Collections
 
 // Access only from the main thread
 class PackageState(val pkgName: String, val id: Long) {
     lateinit var rPackage: RPackage; private set
+    var installedSplits: Map<String, String> = emptyMap()
     var osPackageInfo: PackageInfo? = null
+        set(value) {
+            field = value
+            installedSplits = getSplitsMap(value)
+            onDeltaStatusChanged()
+        }
+
+    var ignoreDeltasForVersion: Long? = null
+        private set
+
     var releaseChannelOverride: ReleaseChannel? = null
     var pkgSpecificLocales: LocaleList? = null
 
@@ -53,11 +66,46 @@ class PackageState(val pkgName: String, val id: Long) {
     fun getDownloadSizeUiString(): String {
         cachedDownloadSize?.let { return it }
 
-        val size = rPackage.collectNeededApks(appResources.configuration).sumOf { it.compressedSize }
+        val size = rPackage.calculateDownloadSize(this, rPackage.collectNeededApks(appResources.configuration))
         Formatter.formatShortFileSize(appContext, size).let {
             cachedDownloadSize = it
             return it
         }
+    }
+
+    fun ignoreDeltasForVersion(versionCode: Long) {
+        checkMainThread()
+        this.ignoreDeltasForVersion = versionCode
+        onDeltaStatusChanged()
+        notifyListeners()
+    }
+
+    fun onDeltaStatusChanged() {
+        cachedDownloadSize = null
+    }
+
+    private fun getSplitsMap(pkgInfo: PackageInfo?): Map<String, String> {
+        val appInfo = pkgInfo?.applicationInfo ?: return emptyMap()
+        val baseApkPath = checkNotNull(appInfo.sourceDir)
+        val baseApkName = "base.apk"
+        val splitNames = appInfo.splitNames
+        if (splitNames == null) {
+            return Collections.singletonMap(baseApkName, baseApkPath)
+        }
+        val numSplits = splitNames.size
+        val splitPaths = requireNotNull(appInfo.splitSourceDirs)
+        check(splitPaths.size == numSplits)
+        val res = ArrayMap<String, String>(numSplits + 1)
+        res.put(baseApkName, baseApkPath)
+        val b = StringBuilder()
+        for (i in 0 until numSplits) {
+            b.setLength(0)
+            b.append("split_")
+            b.append(checkNotNull(splitNames[i]))
+            b.append(".apk")
+            check(res.put(b.toString(), checkNotNull(splitPaths[i])) == null)
+        }
+        return res
     }
 
     private fun appendDots(sb: StringBuilder) {
@@ -113,7 +161,7 @@ class PackageState(val pkgName: String, val id: Long) {
                 }
                 check(taskState == InstallTask.STATE_DOWNLOADING)
                 val progress = installTask.downloadProgress.get()
-                val total = installTask.downloadTotal
+                val total = installTask.downloadTotal.get()
                 if (progress == total) {
                     val sb = StringBuilder()
                     sb.appendRes(ctx, R.string.pkg_status_unpacking)
@@ -125,7 +173,7 @@ class PackageState(val pkgName: String, val id: Long) {
                     else R.string.pkg_status_downloading
                 val percent = ((progress.toDouble() / total.toDouble()) * 100.0).toInt()
                 return ctx.getString(ref, percent,
-                    Formatter.formatShortFileSize(ctx, installTask.downloadTotal)
+                    Formatter.formatShortFileSize(ctx, total)
                 )
             }
         }

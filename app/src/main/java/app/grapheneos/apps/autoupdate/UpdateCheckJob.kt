@@ -87,7 +87,8 @@ class UpdateCheckJob : JobService() {
 
         val config = appResources.configuration
         val sumSize = rPackages.sumOf {
-            it.collectNeededApks(config).sumOf { it.compressedSize }
+            val state = PackageStates.getPackageState(it.packageName)
+            it.calculateDownloadSize(state, it.collectNeededApks(config))
         }.let {
             Formatter.formatShortFileSize(appContext, it)
         }

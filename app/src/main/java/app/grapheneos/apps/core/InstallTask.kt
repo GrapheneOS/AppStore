@@ -19,10 +19,12 @@ import android.system.OsConstants.SEEK_CUR
 import android.system.OsConstants.S_IRUSR
 import android.system.OsConstants.S_IWUSR
 import android.util.Log
+import app.accrescent.ina.Ina
 import app.grapheneos.apps.PackageStates
 import app.grapheneos.apps.core.InstallerSessions.abandonSession
 import app.grapheneos.apps.util.ScopedFileDescriptor
 import app.grapheneos.apps.util.checkMainThread
+import app.grapheneos.apps.util.checkSha256
 import app.grapheneos.apps.util.copyTo2
 import app.grapheneos.apps.util.getPackageArchiveInfo
 import app.grapheneos.apps.util.getPackageInfoOrNull
@@ -39,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
@@ -47,15 +50,12 @@ import java.io.File
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.reflect.Method
 import java.net.HttpURLConnection.HTTP_PARTIAL
-import java.security.DigestOutputStream
 import java.security.GeneralSecurityException
-import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLong
-import java.util.zip.GZIPInputStream
 import javax.net.ssl.HttpsURLConnection.HTTP_OK
-import kotlin.coroutines.coroutineContext
 
 class InstallTask(
     val rPackage: RPackage,
@@ -65,7 +65,10 @@ class InstallTask(
     val callbackBeforeCommit: (suspend () -> Unit)?,
 ) {
     val downloadProgress = AtomicLong()
-    val downloadTotal = apks.sumOf { it.compressedSize }
+    val currentVersion = packageState.osPackageInfo?.longVersionCode
+    val deltaSourceIndex: Int = rPackage.getDeltaSourceIndex(packageState)
+    val installedSplits: Map<String, String> = packageState.installedSplits
+    val downloadTotal = AtomicLong(rPackage.calculateDownloadSize(deltaSourceIndex, installedSplits, apks))
 
     init {
         checkMainThread()
@@ -91,7 +94,7 @@ class InstallTask(
     suspend fun run(): Deferred<PackageInstallerError?> {
         throwIfAppInstallationNotAllowed()
 
-        job = coroutineContext.job
+        job = currentCoroutineContext().job
 
         val sessionId = InstallerSessions.createSession(makeSessionParams(), packageState)
         var shouldAbandonSession = true
@@ -140,7 +143,14 @@ class InstallTask(
             coroutineScope {
                 apks.forEach { apk ->
                     launch {
-                        obtainAndWriteApk(apk, session)
+                        val deltaBaseFd = obtainDeltaBaseFd(apk)
+                        try {
+                            obtainAndWriteApk(apk, session, deltaBaseFd)
+                        } finally {
+                            if (deltaBaseFd != null) {
+                                Os.close(deltaBaseFd)
+                            }
+                        }
                     }
                 }
 
@@ -148,7 +158,8 @@ class InstallTask(
                     apks.forEach { apk ->
                         launch {
                             val name = "${apk.name}.idsig"
-                            obtainAndWriteV4OrFsvSigSignature(name, name, session)
+                            obtainAndWriteV4OrFsvSigSignature(name, name,
+                                apk.v4SignatureSize.toLong(), apk.v4SignatureSha256!!, session)
                         }
                     }
                 }
@@ -161,7 +172,8 @@ class InstallTask(
                                 val downloadName = "${apk.name}.${certId}.fsv_sig"
                                 // OS requires this format for file name that is written into session
                                 val name = "${apk.name}.fsv_sig"
-                                obtainAndWriteV4OrFsvSigSignature(downloadName, name, session,
+                                obtainAndWriteV4OrFsvSigSignature(downloadName, name,
+                                    apk.fsvSignatureSize.toLong(), apk.fsvSignatureSha256!!, session,
                                     // fsv_sig signatures are small (typically under 1K) and don't compress well
                                     disableCompression = true)
                             }
@@ -200,9 +212,10 @@ class InstallTask(
             (splitSourceDirs + appInfo.sourceDir).forEach { apkPath ->
                 val apkFile = File(apkPath)
                 launch {
+                    val apkSize = apkFile.length()
                     apkFile.inputStream().use { input ->
-                    session.openWrite(apkFile.name, 0L, apkFile.length()).use { output ->
-                        input.copyTo2(output, job)
+                    session.openWrite(apkFile.name, 0L, apkSize).use { output ->
+                        input.copyTo2(apkSize, output, job, apkFile.path)
                     }}
                 }
             }
@@ -245,43 +258,105 @@ class InstallTask(
         }
     }
 
-    private suspend fun obtainAndWriteApk(apk: Apk, session: Session) {
-        val file = File(apksDir, "${apk.name}.gz")
+    private fun obtainDeltaBaseFd(apk: Apk): FileDescriptor? {
+        val deltaBasePath: String? =
+            if (deltaSourceIndex >= 0 && apk.deltaSizes[deltaSourceIndex] > 0) {
+                installedSplits[apk.name]
+            } else {
+                null
+            }
+        if (deltaBasePath == null) {
+            return null
+        }
+        var result: FileDescriptor? = null
+        try {
+            val fd = try {
+                Os.open(deltaBasePath, O_RDONLY, 0)
+            } catch (e: ErrnoException) {
+                Log.w("obtainDeltaBaseFd", "unable to open $deltaBasePath", e)
+                return null
+            }
+
+            try {
+                if (checkSha256(fd, Os.fstat(fd).st_size, apk.deltasSrcSha256[deltaSourceIndex])) {
+                    lseekToStart(fd)
+                    result = fd
+                } else {
+                    if (params.isUserInitiated) {
+                        mainHandler.post {
+                            packageState.ignoreDeltasForVersion(currentVersion!!)
+                        }
+                        throw InvalidDeltaBaseApkException("SHA-256 check failed for $deltaBasePath")
+                    } else {
+                        Log.w("obtainDeltaBaseFd", "SHA-256 check failed for $deltaBasePath, falling back to full APK download")
+                    }
+                }
+            } finally {
+                if (result !== fd) {
+                    Os.close(fd)
+                }
+            }
+        } finally {
+            if (result == null) {
+                // download will fall back to the full compressed APK
+                downloadTotal.addAndGet(apk.compressedSize - apk.deltaSizes[deltaSourceIndex])
+            }
+        }
+        return result
+    }
+
+    private suspend fun obtainAndWriteApk(apk: Apk, session: Session, deltaBaseFd: FileDescriptor?) {
+        val fileName = StringBuilder(apk.name).run {
+            append('.')
+            if (deltaBaseFd != null) {
+                append(rPackage.availableDeltaVersions[deltaSourceIndex])
+                append(".ina")
+            } else {
+                append("br")
+            }
+            toString()
+        }
+        val file = File(apksDir, fileName)
         val path = file.path
         val tmpPath = "$path.tmp"
+        val fullSize = if (deltaBaseFd != null) apk.deltaSizes[deltaSourceIndex] else apk.compressedSize
 
         // Check whether this apk is already partially or fully downloaded
         try {
             Os.open(path, O_RDONLY, 0)
-        } catch (e: ErrnoException) {
+        } catch (_: ErrnoException) {
             null
         }?.let {
             ScopedFileDescriptor(it).use { fd ->
-                val curSize = Os.fstat(fd.v).st_size
-                val fullSize = apk.compressedSize
+                var curSize = Os.fstat(fd.v).st_size
                 // apk is already fully downloaded
                 if (curSize == fullSize) {
                     downloadProgress.getAndAdd(curSize)
-                    uncompressAndWriteApk(fd.v, apk, session)
+                    uncompressAndWriteApk(fd.v, path, fullSize, apk, deltaBaseFd, session)
                     return
                 }
 
-                check(curSize < fullSize) { "unexpected size of $path: $curSize, max expected ${fullSize}" }
+                if (curSize > fullSize) {
+                    Log.e("obtainAndWriteApk", "unexpected size of $path: $curSize, max expected $fullSize")
+                    curSize = 0
+                }
 
                 // Copy incomplete apk into a tmp file. Could have renamed apk file into tmp file directly,
                 // but this would make things more complicated and brittle, because rename and write
                 // to file may get reordered before they are actually written to storage, which
                 // could corrupt file's contents
                 openTempFileFd(tmpPath).use { tmpFd ->
-                    sendfile(tmpFd.v, fd.v, curSize)
-                    check(Os.lseek(tmpFd.v, 0L, SEEK_CUR) == curSize)
-                    downloadProgress.getAndAdd(curSize)
+                    if (curSize > 0) {
+                        sendfile(tmpFd.v, fd.v, curSize)
+                        check(Os.lseek(tmpFd.v, 0L, SEEK_CUR) == curSize)
+                        downloadProgress.getAndAdd(curSize)
+                    }
                     try {
-                        download(apk.downloadUrl(), tmpFd.v, curSize, fullSize)
+                        download(apk.downloadUrl(fileName), tmpFd.v, curSize, fullSize)
                     } finally {
                         fsyncAndRename(tmpFd.v, tmpPath, path)
                     }
-                    uncompressAndWriteApk(tmpFd.v, apk, session)
+                    uncompressAndWriteApk(tmpFd.v, path, fullSize, apk, deltaBaseFd, session)
                 }
             }
             return
@@ -290,40 +365,44 @@ class InstallTask(
         // cached apk not found
         openTempFileFd(tmpPath).use { tmpFd ->
             try {
-                download(apk.downloadUrl(), tmpFd.v, curSize = 0L, apk.compressedSize)
+                download(apk.downloadUrl(fileName), tmpFd.v, curSize = 0L, fullSize)
             } finally {
                 fsyncAndRename(tmpFd.v, tmpPath, path)
             }
-            uncompressAndWriteApk(tmpFd.v, apk, session)
+            uncompressAndWriteApk(tmpFd.v, path, fullSize, apk, deltaBaseFd, session)
         }
     }
 
-    private suspend fun obtainAndWriteV4OrFsvSigSignature(downloadName: String, name: String, session: Session, disableCompression: Boolean = false) {
+    private suspend fun obtainAndWriteV4OrFsvSigSignature(downloadName: String, name: String, size: Long, sha256: ByteArray, session: Session, disableCompression: Boolean = false) {
+        val logTag = "obtainApkSignature"
         val file = File(apksDir, downloadName)
         val path = file.path
 
         // v4 and fsv_sig signatures are usually small, skip download resume support for simplicity
 
-        // v4 and fsv_sig signatures don't have SHA-256 checksums:
-        // - v4 signatures are verified against the corresponding APKs by the OS before installation
-        // - for fsv_sig signatures, kernel enforces that they are valid and come from a trusted
-        // certificate that is stored in the immutable system image
-
         // Check whether this signature is already downloaded
         try {
             Os.open(path, O_RDONLY, 0)
-        } catch (e: ErrnoException) {
+        } catch (_: ErrnoException) {
             null
         }?.let {
+            var written = false
             ScopedFileDescriptor(it).use { fd ->
-                val fileSize = Os.fstat(fd.v).st_size
-
-                FileInputStream(fd.v).use { inputStream ->
-                session.openWrite(name, 0, fileSize).use { outputStream ->
-                    inputStream.copyTo2(outputStream, job)
-                }}
+                if (!checkSha256(fd.v, size, sha256)) {
+                    Log.e(logTag, "sha256 mismatch for cached $path")
+                } else {
+                    lseekToStart(fd.v)
+                    FileInputStream(fd.v).use { inputStream ->
+                        session.openWrite(name, 0, size).use { outputStream ->
+                            inputStream.copyTo2(size, outputStream, job, path)
+                            written = true
+                        }
+                    }
+                }
             }
-            return
+            if (written) {
+                return
+            }
         }
 
         val tmpPath = "$path.tmp"
@@ -346,39 +425,87 @@ class InstallTask(
 
                     conn.v.inputStream.use { inputStream ->
                     FileOutputStream(tmpFd.v).use { outputStream ->
-                        inputStream.copyTo2(outputStream, job, downloadProgress)
+                        inputStream.copyTo2(size, outputStream, job, url, downloadProgress)
                     }}
                 }
             }
 
-            fsyncAndRename(tmpFd.v, tmpPath, path)
-
-            val fileSize = downloadProgress.get()
+            lseekToStart(tmpFd.v)
+            if (!checkSha256(tmpFd.v, size, sha256)) {
+                throw GeneralSecurityException("sha256 mismatch for $path")
+            }
             lseekToStart(tmpFd.v)
 
+            fsyncAndRename(tmpFd.v, tmpPath, path)
+
             FileInputStream(tmpFd.v).use { inputStream ->
-            session.openWrite(name, 0, fileSize).use { outputStream ->
-                inputStream.copyTo2(outputStream, job)
-            }}
+                session.openWrite(name, 0, size).use { outputStream ->
+                    inputStream.copyTo2(size, outputStream, job, name)
+                }
+            }
         }
     }
 
-    private fun uncompressAndWriteApk(compressedFd: FileDescriptor, apk: Apk, session: Session) {
+    // file descriptor arguments are never closed by this function
+    @Throws(IOException::class)
+    private suspend fun inaPatch(oldFileFd: FileDescriptor, patch: FileDescriptor, new: FileDescriptor): Long {
+        return inaPatcherSemaphore.withPermit {
+            Ina.patch(oldFileFd, patch, new)
+        }
+    }
+
+    private suspend fun uncompressAndWriteApk(
+        compressedFd: FileDescriptor,
+        compressedPath: String,
+        compressedSize: Long,
+        apk: Apk,
+        deltaBaseFd: FileDescriptor?,
+        session: Session
+    ) {
+        val compressedSha256: ByteArray = if (deltaBaseFd != null) {
+            apk.deltasSha256[deltaSourceIndex]
+        } else {
+            apk.compressedSha256
+        }
+
+        lseekToStart(compressedFd)
+        if (!checkSha256(compressedFd, compressedSize, compressedSha256)) {
+            File(compressedPath).delete()
+            throw GeneralSecurityException("sha256 mismatch for " +
+                        "${if (deltaBaseFd != null) "delta" else "compressed"} file for ${apk.name}")
+        }
         lseekToStart(compressedFd)
 
-        val sha256 = MessageDigest.getInstance("SHA-256")
-
         makeTemporaryFileDescriptor().use { uncompressedFd ->
-            GZIPInputStream(FileInputStream(compressedFd), DEFAULT_BUFFER_SIZE).use { inputStream ->
-            DigestOutputStream(FileOutputStream(uncompressedFd.v), sha256).use { outputStream ->
-                val bytesCopied = inputStream.copyTo2(outputStream, job)
-                if (bytesCopied != apk.size) {
-                    throw GeneralSecurityException("size mismatch for file ${apk.name}")
+            if (deltaBaseFd != null) {
+                try {
+                    val res = inaPatch(deltaBaseFd, compressedFd, uncompressedFd.v)
+                    if (res != apk.size) {
+                        throw GeneralSecurityException("patched size mismatch for ${apk.name}: expected ${apk.size}, got $res")
+                    }
+                    lseekToStart(uncompressedFd.v)
+                    if (!checkSha256(uncompressedFd.v, apk.size, apk.sha256)) {
+                        throw GeneralSecurityException("sha256 mismatch for patched ${apk.name}")
+                    }
+                } catch (e: Exception) {
+                    when (e) {
+                        is ErrnoException, is GeneralSecurityException, is IOException -> {
+                            mainHandler.post {
+                                packageState.ignoreDeltasForVersion(currentVersion!!)
+                            }
+                        }
+                    }
+                    throw e
                 }
-            }}
-
-            if (!sha256.digest().contentEquals(apk.sha256)) {
-                throw GeneralSecurityException("sha256 mismatch for file ${apk.name}")
+            } else {
+                val res = Ina.unbrotli(compressedFd, uncompressedFd.v)
+                if (res != apk.size) {
+                    throw GeneralSecurityException("uncompressed size mismatch for ${apk.name}")
+                }
+                lseekToStart(uncompressedFd.v)
+                if (!checkSha256(uncompressedFd.v, apk.size, apk.sha256)) {
+                    throw GeneralSecurityException("sha256 mismatch for uncompressed ${apk.name}")
+                }
             }
 
             lseekToStart(uncompressedFd.v)
@@ -420,7 +547,7 @@ class InstallTask(
 
             FileInputStream(uncompressedFd.v).use { inputStream ->
             session.openWrite(apk.name, 0, apk.size).use { outputStream ->
-                inputStream.copyTo2(outputStream, job)
+                inputStream.copyTo2(apk.size, outputStream, job, apk.name)
             }}
         }
     }
@@ -441,9 +568,11 @@ class InstallTask(
                     throwResponseCodeException(conn.v)
                 }
 
+                val bytesToCopy = fullSize - curSize
+
                 conn.v.inputStream.use { input ->
                 FileOutputStream(fd).use { output ->
-                    input.copyTo2(output, job, progress = downloadProgress)
+                    input.copyTo2(bytesToCopy, output, job, url, progress = downloadProgress)
                 }}
             }
         }
@@ -503,7 +632,7 @@ class InstallTask(
                 throw UnsupportedOperationException("Multi-package sessions aren't supported properly by Android 12 for unprivileged installers")
             }
 
-            val job = coroutineContext.job
+            val job = currentCoroutineContext().job
 
             var shouldAbandonSession = true
             val parentSessionId = InstallerSessions.createMultiPackageSession()
@@ -562,7 +691,7 @@ class InstallTask(
                 try {
                     findPackageMethod = pkgManager.javaClass.getDeclaredMethod("findPackage",
                         String::class.java, java.lang.Long.TYPE, Bundle::class.java)
-                } catch (ignored: ReflectiveOperationException) {}
+                } catch (_: ReflectiveOperationException) {}
 
                 findPackageMethodInited = true
             }

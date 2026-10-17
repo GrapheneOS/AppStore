@@ -203,7 +203,7 @@ class RPackageContainer(val repo: Repo, val packageName: String,
     // This allows to significantly simplify the dependency resolution process (otherwise release
     // channel could be changed for each of them independently)
     val group: RPackageGroup? = run {
-        val groupName = json.opt("group") as String? ?: return@run null
+        val groupName = json.opt("group") as? String ?: return@run null
         val group = repo.groups.getOrPut(groupName) {
             RPackageGroup(groupName)
         }
@@ -302,6 +302,14 @@ private fun parseDependencies(json: JSONObject, repo: Repo): Array<Dependency>? 
     }
 }
 
+private val emptyByteArray = ByteArray(0)
+private val emptyLongArray = LongArray(0)
+private val emptyJsonArray = JSONArray()
+
+private fun JSONObject.optJSONArray2(name: String): JSONArray {
+    return opt(name) as? JSONArray ?: emptyJsonArray
+}
+
 // "Repo package"
 class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: Array<String>?, repo: Repo, json: JSONObject) {
     val packageName: String = common.packageName
@@ -319,29 +327,76 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: A
 
     val releaseChannel = ReleaseChannel.valueOf(json.optString("channel", ReleaseChannel.stable.name))
 
+    val availableDeltaVersions: LongArray =
+        jsonArrayToLongArray(json.optJSONArray2("availableDeltaVersions"))
+
     val apks: List<Apk> = run {
         val names = json.getJSONArray("apks")
         val hashes = json.getJSONArray("apkHashes")
         val sizes = json.getJSONArray("apkSizes")
-        val gzSizes = json.getJSONArray("apkGzSizes")
+        val brSizes = json.getJSONArray("apkBrSizes")
+        val brHashes = json.getJSONArray("apkBrHashes")
+        val v4SignatureSizes = json.optJSONArray("v4SignatureSizes")
+        val v4SignatureHashes = json.optJSONArray("v4SignatureHashes")
+        val fsvSignatureSizes = if (Build.VERSION.SDK_INT < 35) json.optJSONArray("fsvSignatureSizes") else null
+        val fsvSignatureHashes = if (Build.VERSION.SDK_INT < 35) json.optJSONArray("fsvSignatureHashes") else null
+        val allDeltaSrcHashes = json.optJSONArray2("apkDeltaSrcHashes")
+        val allDeltaSizes = json.optJSONArray2("apkDeltaSizes")
+        val allDeltaHashes = json.optJSONArray2("apkDeltaHashes")
+        val numDeltas = availableDeltaVersions.size
+        var deltasOffset = 0
 
         val len = names.length()
+        require(numDeltas * len == allDeltaSizes.length())
+        require(allDeltaSizes.length() == allDeltaHashes.length())
+        require(allDeltaSizes.length() == allDeltaSrcHashes.length())
         require(hashes.length() == len)
         require(sizes.length() == len)
-        require(gzSizes.length() == len)
+        require(brSizes.length() == len)
+        require(brHashes.length() == len)
 
         val list = ArrayList<Apk>(len)
 
         for (i in 0 until len) {
             val name = names.getString(i)
-            val sha256 = hexStringToByteArray(hashes.getString(i))
-            require(sha256.size == (256 / 8))
-            val apk = Apk(this, name, sha256, sizes.getLong(i), gzSizes.getLong(i))
+            val sha256 = sha256FromJsonArr(hashes, i)
+            val deltaSizes = jsonArrayToLongArray(allDeltaSizes, deltasOffset, deltasOffset + numDeltas)
+            val deltasSrcSha256 = Array(numDeltas) { idx ->
+                if (deltaSizes[idx] == 0L) {
+                    emptyByteArray
+                } else {
+                    sha256FromJsonArr(allDeltaSrcHashes, deltasOffset + idx)
+                }
+            }
+            val deltasSha256 = Array(numDeltas) { idx ->
+                if (deltaSizes[idx] == 0L) {
+                    emptyByteArray
+                } else {
+                    sha256FromJsonArr(allDeltaHashes, deltasOffset + idx)
+                }
+            }
+            deltasOffset += numDeltas
+            val apk = Apk(
+                this,
+                name,
+                sha256,
+                sizes.getLong(i),
+                brSizes.getLong(i),
+                sha256FromJsonArr(brHashes, i),
+                deltasSrcSha256,
+                deltaSizes,
+                deltasSha256,
+                v4SignatureSizes?.getInt(i) ?: 0,
+                v4SignatureHashes?.let { sha256FromJsonArr(it, i) },
+                fsvSignatureSizes?.getInt(i) ?: 0,
+                fsvSignatureHashes?.let { sha256FromJsonArr(it, i) },
+            )
             if (apk.type == Apk.Type.ABI && apk.qualifier != deviceAbi.apkSplitQualifier) {
                 continue
             }
             list.add(apk)
         }
+        check(deltasOffset == allDeltaSizes.length())
         list
     }
 
@@ -352,6 +407,37 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: A
         // v4 signatures are supported since SDK 30, but before SDK 35 they were used only for
         // IncFS-backed APK streaming, which isn't used by this installer
         false
+    }
+
+    fun getDeltaSourceIndex(state: PackageState): Int {
+        val pkgInfo = state.osPackageInfo
+        if (pkgInfo != null) {
+            val installedVersion = pkgInfo.longVersionCode
+            val ignoredVersion = state.ignoreDeltasForVersion
+            if (ignoredVersion == null || installedVersion != ignoredVersion) {
+                return availableDeltaVersions.indexOf(installedVersion)
+            }
+        }
+        return -1
+    }
+
+    // all apks from the list should be from the apks list for this package
+    fun calculateDownloadSize(state: PackageState, apks: List<Apk>): Long {
+        return calculateDownloadSize(getDeltaSourceIndex(state), state.installedSplits, apks)
+    }
+
+    fun calculateDownloadSize(deltaSourceIndex: Int, installedSplits: Map<String, String>, apks: List<Apk>): Long {
+        if (deltaSourceIndex >= 0) {
+            return apks.sumOf {
+                if (installedSplits.contains(it.name)) {
+                    val deltaSize = it.deltaSizes[deltaSourceIndex]
+                    if (deltaSize > 0) deltaSize else it.compressedSize
+                } else {
+                    it.compressedSize
+                }
+            }
+        }
+        return apks.sumOf { it.compressedSize }
     }
 
     fun collectNeededApks(config: Configuration): List<Apk> {
@@ -479,6 +565,14 @@ class Apk(
     val sha256: ByteArray,
     val size: Long,
     val compressedSize: Long,
+    val compressedSha256: ByteArray,
+    val deltasSrcSha256: Array<ByteArray>,
+    val deltaSizes: LongArray,
+    val deltasSha256: Array<ByteArray>,
+    val v4SignatureSize: Int,
+    val v4SignatureSha256: ByteArray?,
+    val fsvSignatureSize: Int,
+    val fsvSignatureSha256: ByteArray?,
 ) {
     var qualifier = ""
 
@@ -501,7 +595,7 @@ class Apk(
         }
     }
 
-    fun downloadUrl() = "$REPO_BASE_URL/packages/${pkg.manifestPackageName}/${pkg.versionCode}/$name.gz"
+    fun downloadUrl(fileName: String) = "$REPO_BASE_URL/packages/${pkg.manifestPackageName}/${pkg.versionCode}/${fileName}"
 
     enum class Type {
         UNCONDITIONAL,
@@ -604,6 +698,15 @@ private fun checkPackageDep(dep: ComplexDependency, dependentManifestPkgName: St
     return dep.check(pi.longVersionCode)
 }
 
+private fun sha256FromJsonArr(ja: JSONArray, idx: Int): ByteArray {
+    return sha256FromString(ja.getString(idx))
+}
+private fun sha256FromString(str: String): ByteArray {
+    val res = hexStringToByteArray(str)
+    require(res.size == (256 / 8))
+    return res
+}
+
 private fun hexStringToByteArray(s: String): ByteArray {
     // each byte takes 2 characters, so length must be even
     require(s.length.isEven())
@@ -617,6 +720,18 @@ private fun hexStringToByteArray(s: String): ByteArray {
         arr[i] = ((top shl 4) or bot).toByte()
     }
     return arr
+}
+
+private fun jsonArrayToLongArray(ja: JSONArray, from: Int = 0, to: Int = ja.length()): LongArray {
+    val len = to - from
+    if (len == 0) {
+        return emptyLongArray
+    }
+    val res = LongArray(len)
+    for (i in 0 until len) {
+        res[i] = ja.getLong(from + i)
+    }
+    return res
 }
 
 private fun shouldSkipRenamedPackages(): Boolean {

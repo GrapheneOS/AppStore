@@ -288,7 +288,7 @@ object PackageStates : LifecycleEventObserver {
     }
 
     private fun updateDownloadFgServiceState() {
-        if (installTasks.sumOf { it.downloadProgress.get() } < installTasks.sumOf { it.downloadTotal }) {
+        if (installTasks.sumOf { it.downloadProgress.get() } < installTasks.sumOf { it.downloadTotal.get() }) {
             if (serviceStarted || ActivityUtils.mostRecentResumedActivity() != null) {
                 val notif = PackageDownloadFgService.createNotification(installTasks)
                 if (notif != null) {

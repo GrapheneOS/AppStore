@@ -2,32 +2,26 @@ package app.grapheneos.apps.util
 
 import android.content.Context
 import android.net.Uri
-import android.os.UserManager
 import android.util.ArrayMap
-import android.view.MenuItem
-import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
+import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
-import androidx.core.content.getSystemService
 import app.grapheneos.apps.core.appContext
 import app.grapheneos.apps.core.appResources
-import app.grapheneos.apps.core.isPrivilegedInstaller
 import app.grapheneos.apps.core.mainHandler
 import app.grapheneos.apps.core.mainThread
 import app.grapheneos.apps.core.selfPkgName
-import app.grapheneos.apps.core.userManager
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import org.json.JSONArray
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import java.io.FileDescriptor
+import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.StandardCharsets.UTF_8
+import java.security.GeneralSecurityException
+import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.coroutines.coroutineContext
 
 fun checkMainThread() {
     check(Thread.currentThread() === mainThread)
@@ -38,15 +32,21 @@ fun checkNotMainThread() {
 }
 
 // a variant of kotlin.io.copyTo that checks for job cancellation and publishes progress updates
-fun InputStream.copyTo2(out: OutputStream, job: Job, progress: AtomicLong? = null, bufSize: Int = 16 * 1024): Long {
+@Throws(GeneralSecurityException::class, IOException::class)
+fun InputStream.copyTo2(numBytes: Long, out: OutputStream, job: Job, debugInputName: String, progress: AtomicLong? = null, bufSize: Int = 16 * 1024) {
     val buf = ByteArray(bufSize)
     var total = 0L
 
     while (true) {
         job.ensureActive()
         val bufLen = this.read(buf)
-        if (bufLen < 0) {
+        if (bufLen == -1) {
             break
+        }
+        check(bufLen > 0)
+
+        if (total + bufLen > numBytes) {
+            throw GeneralSecurityException("copyTo2: input returned more data than expected (expected $numBytes bytes); input: $debugInputName")
         }
 
         job.ensureActive()
@@ -55,7 +55,34 @@ fun InputStream.copyTo2(out: OutputStream, job: Job, progress: AtomicLong? = nul
 
         progress?.addAndGet(bufLen.toLong())
     }
-    return total
+    if (total != numBytes) {
+        throw IOException("copyTo2: input didn't return enough data (expected $numBytes bytes); input: $debugInputName")
+    }
+}
+
+@CheckResult
+fun checkSha256(fd: FileDescriptor, size: Long, required: ByteArray): Boolean {
+    val sha256 = MessageDigest.getInstance("SHA-256")
+    val buf = ByteArray(DEFAULT_BUFFER_SIZE)
+    var totalRead = 0L
+    FileInputStream(fd).use {
+        while (true) {
+            val numRead = it.read(buf)
+            if (numRead == -1) {
+                if (totalRead != size) {
+                    return false
+                }
+                break
+            }
+            check(numRead > 0)
+            totalRead += numRead
+            if (totalRead > size) {
+                return false
+            }
+            sha256.update(buf, 0, numRead)
+        }
+    }
+    return sha256.digest().contentEquals(required)
 }
 
 fun Boolean.toInt() = if (this) 1 else 0
