@@ -1,49 +1,36 @@
 package app.grapheneos.apps.util
 
+import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.system.ErrnoException
-import android.system.Int64Ref
 import android.system.Os
 import android.system.OsConstants
-import android.system.OsConstants.EINVAL
-import android.system.OsConstants.O_CREAT
+import android.system.OsConstants.O_EXCL
 import android.system.OsConstants.O_RDWR
-import android.system.OsConstants.O_TRUNC
 import android.system.OsConstants.S_IRUSR
 import android.system.OsConstants.S_IWUSR
 import android.util.Log
-import app.grapheneos.apps.core.fileForTemporaryFileDescriptor
-import java.io.File
+import app.grapheneos.apps.core.filesDir
 import java.io.FileDescriptor
 
 private const val TAG = "FdUtils"
 
+// O_TMPFILE flag is not a part of Android SDK, though it is part of Android NDK
+private val O_TMPFILE = when (Build.SUPPORTED_64_BIT_ABIS[0]) {
+    "arm64-v8a" -> 0x404000
+    "x86_64" -> 0x410000
+    else -> throw IllegalStateException("unsupported ABI")
+}
+
 // Returns a file descriptor that is backed by device storage, but not by any file.
 // Its contents will be discarded automatically when it's closed, or when app process dies.
 // This allows to avoid creating temporary files that would needlessly take up storage space if
-// app process is killed, OS crashes etc, and removes the problem of allocating unique temp file names
+// app process is killed, OS crashes etc., and removes the problem of allocating unique temp file names
 @Throws(ErrnoException::class)
 fun makeTemporaryFileDescriptor(): ScopedFileDescriptor {
-    val fd: FileDescriptor
-    val flags = O_RDWR or O_TRUNC or O_CREAT
+    val flags = O_RDWR or O_TMPFILE or O_EXCL
     val mode = S_IRUSR or S_IWUSR
-
-    val file: File = fileForTemporaryFileDescriptor
-    val path = file.path
-
-    // O_TMPFILE flag is not a part of Android SDK, though it is part of Android NDK. Its value is
-    // ABI-dependent. Approximate O_TMPFILE with open() + unlink()
-    synchronized(file) {
-        fd = Os.open(path, flags, mode)
-        // there's no wrapper for unlink()
-        if (!file.delete()) {
-            Os.close(fd)
-            // should never happen
-            throw ErrnoException("makeTemporaryFileDescriptor", EINVAL)
-        }
-    }
-
-    return ScopedFileDescriptor(fd)
+    return ScopedFileDescriptor(Os.open(filesDir.path, flags, mode))
 }
 
 @Throws(ErrnoException::class)
