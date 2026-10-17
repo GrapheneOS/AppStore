@@ -76,21 +76,24 @@ class PackageListAdapter(val fragment: Fragment) : RecyclerView.Adapter<ViewBind
 fun PackageListItemBinding.set(fragment: Fragment, pkgState: PackageState) {
     val rPackage = pkgState.rPackage
 
-    val iconUrl = rPackage.common.iconUrl
-    if (iconUrl != null && pkgIcon.tag != iconUrl) {
+    val commonProps = rPackage.common
+    val iconSha256 = commonProps.iconSha256
+    if (iconSha256 != null && pkgIcon.tag != iconSha256) {
+        val url = VerifiedUrl(checkNotNull(commonProps.iconUrl), commonProps.iconSize, iconSha256)
+
         Glide.with(fragment)
-            .load(iconUrl)
+            .load(url)
             .placeholder(R.drawable.ic_placeholder_app_icon)
             .centerInside()
             .transform(RoundedCorners(20))
             .into(pkgIcon)
     }
 
-    if (iconUrl == null) {
+    if (iconSha256 == null) {
         pkgIcon.setImageResource(R.drawable.ic_placeholder_app_icon)
     }
 
-    pkgIcon.tag = iconUrl
+    pkgIcon.tag = iconSha256
 
     this.pkgName.maybeSetText(rPackage.label)
 

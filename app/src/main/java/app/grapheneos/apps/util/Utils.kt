@@ -33,12 +33,12 @@ fun checkNotMainThread() {
 
 // a variant of kotlin.io.copyTo that checks for job cancellation and publishes progress updates
 @Throws(GeneralSecurityException::class, IOException::class)
-fun InputStream.copyTo2(numBytes: Long, out: OutputStream, job: Job, debugInputName: String, progress: AtomicLong? = null, bufSize: Int = 16 * 1024) {
+fun InputStream.copyTo2(numBytes: Long, out: OutputStream, job: Job?, debugInputName: String, progress: AtomicLong? = null, bufSize: Int = 16 * 1024) {
     val buf = ByteArray(bufSize)
     var total = 0L
 
     while (true) {
-        job.ensureActive()
+        job?.ensureActive()
         val bufLen = this.read(buf)
         if (bufLen == -1) {
             break
@@ -49,7 +49,7 @@ fun InputStream.copyTo2(numBytes: Long, out: OutputStream, job: Job, debugInputN
             throw GeneralSecurityException("copyTo2: input returned more data than expected (expected $numBytes bytes); input: $debugInputName")
         }
 
-        job.ensureActive()
+        job?.ensureActive()
         out.write(buf, 0, bufLen)
         total += bufLen
 
