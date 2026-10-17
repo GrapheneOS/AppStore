@@ -198,6 +198,8 @@ class RPackageContainer(val repo: Repo, val packageName: String,
             null
         }
     }
+    val iconSha256: String? = if (iconUrl != null) json.getString("iconSha256") else null
+    val iconSize: Int = if (iconUrl != null) json.getInt("iconSize") else 0
 
     // Used for setting release channel for packages that are closely linked together.
     // This allows to significantly simplify the dependency resolution process (otherwise release
@@ -701,7 +703,8 @@ private fun checkPackageDep(dep: ComplexDependency, dependentManifestPkgName: St
 private fun sha256FromJsonArr(ja: JSONArray, idx: Int): ByteArray {
     return sha256FromString(ja.getString(idx))
 }
-private fun sha256FromString(str: String): ByteArray {
+
+fun sha256FromString(str: String): ByteArray {
     val res = hexStringToByteArray(str)
     require(res.size == (256 / 8))
     return res
