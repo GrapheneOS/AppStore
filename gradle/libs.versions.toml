@@ -32,6 +32,7 @@ androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "s
 bcprov-jdk18on = { group = "org.bouncycastle", name = "bcprov-jdk18on", version.ref = "bcprovJdk18on" }
 glide-core = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-ksp = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "glide" }
+ina = { module = "app.accrescent.ina:Ina" }
 kotlin-retry = { group = "com.michael-bull.kotlin-retry", name = "kotlin-retry", version.ref = "kotlinRetry" }
 kotlin-retry-result = { group = "com.michael-bull.kotlin-retry", name = "kotlin-retry-result", version.ref = "kotlinRetry" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }

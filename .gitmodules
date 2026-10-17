@@ -1,0 +1,4 @@
+[submodule "ina"]
+	path = ina
+	url = https://github.com/GrapheneOS/ina
+	branch = main
