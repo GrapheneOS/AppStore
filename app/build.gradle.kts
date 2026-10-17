@@ -35,7 +35,7 @@ android {
     }
 
     compileSdk = 37
-    buildToolsVersion = "36.1.0"
+    buildToolsVersion = "37.0.0"
 
     namespace = "app.grapheneos.apps"
 
