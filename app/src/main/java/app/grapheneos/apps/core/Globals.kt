@@ -50,7 +50,6 @@ val localeManager: LocaleManager? = if (Build.VERSION.SDK_INT >= 33)
     appContext.getSystemService()!! else null
 
 val filesDir: File = appContext.filesDir
-val fileForTemporaryFileDescriptor = File(filesDir, "tmp_fd")
 val cacheDir: File = appContext.cacheDir
 
 // limit the number of concurrent downloads
