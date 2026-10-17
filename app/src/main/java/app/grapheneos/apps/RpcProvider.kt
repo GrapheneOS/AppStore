@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Message
 import android.os.Messenger
+import android.os.RemoteException
 import android.util.Log
 import app.grapheneos.apps.autoupdate.AutoUpdatePrefs
 import app.grapheneos.apps.core.InstallParams
@@ -16,11 +17,15 @@ import app.grapheneos.apps.core.PackageState
 import app.grapheneos.apps.core.startPackageInstall
 import app.grapheneos.apps.core.pkgManager
 import app.grapheneos.apps.util.getApplicationInfo
+import app.grapheneos.apps.util.getPackageInfoOrNull
+import app.grapheneos.apps.util.isSystemPackage
 import app.grapheneos.apps.util.maybeGetParcelable
 import app.grapheneos.apps.util.toInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private const val TAG = "RpcProvider"
 
 class RpcProvider : ContentProvider() {
 
@@ -28,6 +33,9 @@ class RpcProvider : ContentProvider() {
         when (method) {
             "update_package" -> {
                 val callingPackage = callingPackage!!
+                if (pkgManager.getPackageInfoOrNull(callingPackage)?.isSystemPackage() != true) {
+                    return null
+                }
                 val pkgName = arg!!
                 val callback = extras?.maybeGetParcelable<Messenger>("callback")
                 CoroutineScope(Dispatchers.Main).launch {
@@ -35,10 +43,14 @@ class RpcProvider : ContentProvider() {
                         updatePackage(callingPackage, pkgName)
                     }
                     res.exceptionOrNull()?.let {
-                        Log.e("RpcProvider", method, it)
+                        Log.e(TAG, method, it)
                     }
                     val resBool = res.getOrNull() ?: false
-                    callback?.send(Message().apply { arg1 = resBool.toInt() })
+                    try {
+                        callback?.send(Message().apply { arg1 = resBool.toInt() })
+                    } catch (e: RemoteException) {
+                        Log.e(TAG, method, e)
+                    }
                 }
                 return null
             }
