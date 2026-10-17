@@ -17,41 +17,43 @@ import androidx.core.util.valueIterator
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import app.grapheneos.apps.core.appContext
-import app.grapheneos.apps.core.appResources
-import app.grapheneos.apps.core.mainHandler
-import app.grapheneos.apps.core.pkgManager
 import app.grapheneos.apps.core.InstallTask
 import app.grapheneos.apps.core.InstallerSessions
 import app.grapheneos.apps.core.InstallerSessions.installerSessionMap
+import app.grapheneos.apps.core.PackageState
+import app.grapheneos.apps.core.RPackageContainer
+import app.grapheneos.apps.core.ReleaseChannel
+import app.grapheneos.apps.core.Repo
+import app.grapheneos.apps.core.RepoUpdateError
+import app.grapheneos.apps.core.appContext
+import app.grapheneos.apps.core.appResources
+import app.grapheneos.apps.core.fetchRepo
+import app.grapheneos.apps.core.getCachedRepo
+import app.grapheneos.apps.core.mainHandler
+import app.grapheneos.apps.core.pkgManager
+import app.grapheneos.apps.core.prunePackageCache
 import app.grapheneos.apps.util.ActivityUtils
 import app.grapheneos.apps.util.checkMainThread
 import app.grapheneos.apps.util.forEachEntry
 import app.grapheneos.apps.util.getPackageInfoOrNull
+import app.grapheneos.apps.util.getParcelableOrThrow
 import app.grapheneos.apps.util.getSharedPreferences
 import app.grapheneos.apps.util.intent
 import app.grapheneos.apps.util.invokeOnCompletionOnMainThread
+import app.grapheneos.apps.util.simpleName
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.retry.policy.RetryPolicy
+import com.github.michaelbull.retry.policy.binaryExponentialBackoff
+import com.github.michaelbull.retry.policy.stopAtAttempts
+import com.github.michaelbull.retry.result.retry
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import app.grapheneos.apps.core.PackageState
-import app.grapheneos.apps.core.RPackageContainer
-import app.grapheneos.apps.core.ReleaseChannel
-import app.grapheneos.apps.core.Repo
-import app.grapheneos.apps.core.RepoUpdateError
-import app.grapheneos.apps.core.fetchRepo
-import app.grapheneos.apps.core.getCachedRepo
-import app.grapheneos.apps.core.prunePackageCache
-import app.grapheneos.apps.util.getParcelableOrThrow
-import app.grapheneos.apps.util.simpleName
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.retry.policy.binaryExponentialBackoff
-import com.github.michaelbull.retry.result.retry
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -186,7 +188,7 @@ object PackageStates : LifecycleEventObserver {
     }
 
     suspend fun requestRepoUpdateRetrying(force: Boolean = false, isManuallyRequested: Boolean = false): RepoUpdateError? {
-        val (_, err) = retry(binaryExponentialBackoff(1_000, 30_000)) {
+        val (_, err) = retry(RetryPolicy(binaryExponentialBackoff(1_000, 30_000), stopAtAttempts(5))) {
             val err = requestRepoUpdate(force, isManuallyRequested)
             if (err != null) Err(err) else Ok(Unit)
         }
