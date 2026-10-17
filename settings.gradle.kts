@@ -13,3 +13,8 @@ dependencyResolutionManagement {
 }
 rootProject.name = "AppStore"
 include(":app")
+includeBuild("./ina")    {
+    dependencySubstitution {
+        substitute(module("app.accrescent.ina:Ina")).using(project(":android"))
+    }
+}
