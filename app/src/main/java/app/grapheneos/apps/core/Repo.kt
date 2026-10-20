@@ -536,7 +536,13 @@ class RPackage(val common: RPackageContainer, val versionCode: Long, val abis: A
                     // getApplicationLocales() is allowed only if we are currently the
                     // installer-of-record for this package. It also could have been racily
                     // uninstalled, which results in an IllegalArgumentException
-                    LocaleList.getEmptyLocaleList()
+                    when (e) {
+                        is IllegalArgumentException, is SecurityException -> {
+                            LocaleList.getEmptyLocaleList()
+                        }
+
+                        else -> throw e
+                    }
                 }
                 pkgState.pkgSpecificLocales = list
                 list

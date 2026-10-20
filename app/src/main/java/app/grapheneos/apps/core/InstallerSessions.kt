@@ -239,14 +239,20 @@ object InstallerSessions {
 
     fun abandonSession(sessionId: Int): Boolean {
         // sessionIds are not reused until OS reboots, no need to synchronize
-        return try {
+        try {
             pkgInstaller.abandonSession(sessionId)
-            true
+            return true
         } catch (e: Exception) {
             // abandonSession() docs say that it throws only SecurityException, but source code
             // shows that IllegalStateException might be thrown in some cases too
-            Log.d(TAG, "", e)
-            false
+            when (e) {
+                is IllegalStateException, is SecurityException -> {
+                    Log.d(TAG, "", e)
+                    return false
+                }
+
+                else -> throw e
+            }
         }
     }
 }
