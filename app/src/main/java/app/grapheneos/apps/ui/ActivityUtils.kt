@@ -5,6 +5,7 @@ import android.app.Notification
 import android.content.Intent
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
+import android.util.ArraySet
 import androidx.annotation.IdRes
 import androidx.core.os.postDelayed
 import app.grapheneos.apps.Notifications
@@ -34,6 +35,8 @@ object ActivityUtils {
         }
     }
 
+    private val delayedPendingActions = ArraySet<PendingAction>()
+
     fun addPendingAction(action: PendingAction, notification: Supplier<Notification.Builder>) {
         checkMainThread()
 
@@ -46,10 +49,19 @@ object ActivityUtils {
         // when an OS activity launched by us launches our PendingIntent and immediately finishes.
         // In this case, notification would be shown and dismissed immediately, which is undesirable.
         // Delay adding of PendingAction for a bit as a workaround
+        check(delayedPendingActions.add(action))
         mainHandler.postDelayed(300L) {
+            if (!delayedPendingActions.remove(action)) {
+                return@postDelayed
+            }
+
             mostRecentResumedActivity()?.let {
                 action.launch(it)
                 return@postDelayed
+            }
+
+            if (action.notificationId != 0) {
+                pendingActions.removeAll { it.notificationId == action.notificationId }
             }
 
             pendingActions.add(action)
@@ -67,6 +79,13 @@ object ActivityUtils {
                 show(action.notificationId)
             }
         }
+    }
+
+    fun cancelPendingAction(notificationId: Int) {
+        checkMainThread()
+        delayedPendingActions.removeIf { it.notificationId == notificationId }
+        pendingActions.removeAll { it.notificationId == notificationId }
+        Notifications.cancel(notificationId)
     }
 
     // Use onResume/onPause instead of onStart/onStop, because the latter are not executed when
