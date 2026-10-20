@@ -22,6 +22,7 @@ import app.grapheneos.apps.show
 import app.grapheneos.apps.ui.DetailsScreen
 import app.grapheneos.apps.ui.ErrorDialog
 import app.grapheneos.apps.ui.MainActivity
+import app.grapheneos.apps.util.ActivityUtils
 import app.grapheneos.apps.util.componentName
 import app.grapheneos.apps.util.intent
 import app.grapheneos.apps.util.isAppInstallationAllowed
@@ -126,6 +127,8 @@ fun showAllUpToDateNotification() {
     if (PackageStates.numberOfInstallTasks() != 0) {
         return
     }
+
+    ActivityUtils.cancelPendingAction(Notifications.ID_AUTO_UPDATE_DOWNLOAD_FAILED)
 
     Notifications.builder(Notifications.CH_AUTO_UPDATE_ALL_UP_TO_DATE).run {
         setSmallIcon(R.drawable.ic_check)

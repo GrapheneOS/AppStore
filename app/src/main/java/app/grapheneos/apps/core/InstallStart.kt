@@ -165,7 +165,7 @@ private fun startInstallTaskInner(pkgs: List<RPackage>, params: InstallParams,
 }
 
 private fun handleInstallTaskError(tasks: List<InstallTask>, throwable: Throwable) {
-    if (tasks.any { !it.params.isUserInitiated || it.isManuallyCancelled }) {
+    if (tasks.any { it.isManuallyCancelled }) {
         return
     }
 
@@ -182,10 +182,17 @@ private fun handleInstallTaskError(tasks: List<InstallTask>, throwable: Throwabl
     } ?: return
 
     val template = DownloadError(tasks.map { it.rPackage.label }, error)
-    val pendingAction = ErrorDialog.createPendingDialog(template)
+    val pendingDialog = ErrorDialog.createPendingDialog(template)
 
-    ActivityUtils.addPendingAction(pendingAction) {
-        Notifications.builder(Notifications.CH_PACKAGE_DOWLOAD_FAILED).apply {
+    val notifChannel = if (tasks.any { !it.params.isUserInitiated }) {
+        pendingDialog.notificationId = Notifications.ID_AUTO_UPDATE_DOWNLOAD_FAILED
+        Notifications.CH_AUTO_UPDATE_FAILED
+    } else {
+        Notifications.CH_PACKAGE_DOWLOAD_FAILED
+    }
+
+    ActivityUtils.addPendingAction(pendingDialog) {
+        Notifications.builder(notifChannel).apply {
             setSmallIcon(R.drawable.ic_error)
             setContentTitle(R.string.notif_download_failed)
             setContentText(tasks.map { it.rPackage.label }.joinToString())
