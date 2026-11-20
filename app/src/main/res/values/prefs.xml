@@ -11,7 +11,7 @@
 
     <string name="pref_key_background_update_check_interval" translatable="false">rescheduleTiming</string>
 <!--    in milliseconds, leftover from the initial version-->
-    <string name="pref_def_background_update_check_interval">21600000</string>
+    <string name="pref_def_background_update_check_interval" translatable="false">21600000</string>
 
     <string-array name="pref_values_background_update_check_interval">
         <item>3600000</item>
@@ -34,7 +34,7 @@
     </string-array>
 
     <string name="pref_key_network_type_for_auto_update_job" translatable="false">seamlessUpdateNetworkType</string>
-    <string name="pref_def_network_type_for_bg_update_job">1</string>
+    <string name="pref_def_network_type_for_bg_update_job" translatable="false">1</string>
 
     <string-array name="pref_values_network_type_for_auto_update_job">
 <!-- JobInfo.NETWORK_TYPE_ANY-->
@@ -51,9 +51,9 @@
         <item>Unmetered</item>
     </string-array>
 
-    <string name="pref_key_default_release_channel">default_release_channel</string>
+    <string name="pref_key_default_release_channel" translatable="false">default_release_channel</string>
 
-    <string name="pref_key_always_allow_nocode_updates">always_allow_nocode_updates</string>
+    <string name="pref_key_always_allow_nocode_updates" translatable="false">always_allow_nocode_updates</string>
     <bool name="pref_def_always_allow_noCode_updates">true</bool>
 
     <string name="pref_background_update_check">Check for updates</string>
