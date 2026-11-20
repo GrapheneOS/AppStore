@@ -74,6 +74,12 @@ object AutoUpdatePrefs {
     val sharedPrefsChangeListener = SharedPreferences.OnSharedPreferenceChangeListener  { _, key ->
         if (key == KEY_BG_UPDATE_CHECK_ENABLED || key == KEY_JOB_NETWORK_TYPE || key == KEY_JOB_REPEAT_INTERVAL) {
             updateJobs()
+        } else if (key == KEY_PKG_AUTO_UPDATE_ENABLED && !isPackageAutoUpdateEnabled()) {
+            val pendingJob = jobScheduler.getPendingJob(JOB_SCHEDULER_JOB_ID_AUTO_UPDATE)
+            jobScheduler.cancel(JOB_SCHEDULER_JOB_ID_AUTO_UPDATE)
+            if (pendingJob != null) {
+                Log.d(TAG, "auto-update job cancelled: $pendingJob")
+            }
         }
     }
 
